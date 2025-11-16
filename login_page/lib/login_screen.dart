@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth işlemleri için gerekli
 import 'signup_screen.dart';
-import 'home_screen.dart';
+import 'package:login_page/service/auth.dart'; // Firebase Authentication için kendi servis yapın
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,54 +12,34 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isPasswordHidden = true;
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _signIn() {
-    final String enteredEmail = _emailController.text.trim();
-    final String enteredPassword = _passwordController.text.trim();
+  bool _isPasswordHidden = true;
+  bool isLogin = true; // true → giriş modu, false → kayıt modu
 
-    // Yerel depolama kaldırıldığı için örnek bir kullanıcı ile test edelim.
-    const String mockEmail = 'test@test.com';
-    const String mockPassword = '1234';
-    const String mockUserName = 'Test Kullanıcısı';
+  String? errorMessage; // Firebase'den dönen hataları göstermek için
 
-    if (enteredEmail == mockEmail && enteredPassword == mockPassword) {
-      // Giriş başarılı
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Giriş başarılı! Hoşgeldin $mockUserName.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen(userName: mockUserName)),
-        );
-      }
-    } else {
-      // Giriş başarısız
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('E-posta veya şifre yanlış.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+  // Firebase Authentication ile yeni kullanıcı oluşturma
+  Future<void> createUser() async{
+    try{
+      await Auth().createUser(email: _emailController.text, password: _passwordController.text);
+    }on FirebaseAuthException catch(e){
+      setState(() {
+        errorMessage = e.message; // Firebase hata mesajını kullanıcıya göster
+      });
     }
   }
 
-  // 4. Controller'ları temizle memoryı temzizler gereksiz yer kaplamasını öneler
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+  // Firebase Authentication ile giriş yapma
+  Future<void> signIn() async{
+    try{
+      await Auth().signIn(email: _emailController.text, password: _passwordController.text);
+    }on FirebaseAuthException catch(e){
+      setState(() {
+        errorMessage = e.message; // Firebase taraflı giriş hataları
+      });
+    }
   }
 
   @override
@@ -69,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
         fit: StackFit.expand,
         children: [
           Image.asset("assets/images/arkaplan.png", fit: BoxFit.cover),
+
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
             child: Container(color: Colors.black.withOpacity(0.1)),
@@ -84,7 +65,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       height: 150,
                       width: 150,
-                      color: Colors.transparent,
                       child: Image.asset("assets/images/arkaplanyok1.png"),
                     ),
 
@@ -97,11 +77,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         letterSpacing: 3,
                       ),
                     ),
+
                     const Text(
                       "Your seamless hotel experience",
                       style: TextStyle(color: Colors.white60, fontSize: 18),
                     ),
+
                     const SizedBox(height: 8),
+
                     const Text(
                       "Welcome!",
                       style: TextStyle(
@@ -114,17 +97,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
-                    //Email Text Field
+                    // Kullanıcının giriş yapacağı email alanı
                     TextField(
                       controller: _emailController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(
-                          Icons.email_outlined,
-                          color: Colors.amber,
-                        ),
+                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.amber),
                         hintText: "E-mail Address",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
@@ -133,31 +113,26 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 20),
 
-                    //
+                    // Şifre alanı
                     TextField(
                       controller: _passwordController,
-                      obscureText:
-                          _isPasswordHidden, //şifreyi gizli ya da açık bir şekilde göstermeye yarıyor
+                      obscureText: _isPasswordHidden,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(
-                          Icons.lock_outline,
-                          color: Colors.amber,
-                        ),
+                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.amber),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordHidden
-                                ? Icons.visibility
-                                : Icons.visibility_off,
+                            _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
                             color: Colors.white70,
                           ),
                           onPressed: () {
                             setState(() {
-                              _isPasswordHidden = !_isPasswordHidden;
+                              _isPasswordHidden = !_isPasswordHidden; // şifre göster/gizle
                             });
                           },
                         ),
@@ -169,9 +144,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 30),
 
-                    //Sign in button
+                    // Giriş veya kayıt butonu → Firebase fonksiyonlarını tetikler
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -182,7 +158,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        onPressed: _signIn,
+                        onPressed: (){
+                          if(isLogin){
+                            signIn(); // Firebase signIn
+                          }else{
+                            createUser(); // Firebase createUser
+                          }
+                        },
                         child: const Text(
                           "Sign In",
                           style: TextStyle(
@@ -193,18 +175,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 5),
 
-                    // Forgot Password
+                    // Şifre sıfırlama henüz Firebase ile bağlı değil → uyarı
                     Align(
-                      alignment: Alignment.centerLeft, //isign up
+                      alignment: Alignment.centerLeft,
                       child: TextButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                "Şifre sıfırlama özelliği henüz eklenmedi.",
-                              ),
+                              content: Text("Şifre sıfırlama özelliği henüz eklenmedi."),
                             ),
                           );
                         },
@@ -220,36 +201,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 20),
 
-                    
                     Row(
                       children: [
                         const Expanded(
-                          child: Divider(
-                            color: Colors.white, // çizgi rengi
-                            thickness: 3, // kalınlık
-                            endIndent: 10, // yazıya uzaklığı
-                          ),
+                          child: Divider(color: Colors.white, thickness: 3, endIndent: 10),
                         ),
-                        Text(
+                        const Text(
                           "Or Sign In With",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const Expanded(
-                          child: Divider(
-                            color: Colors.white,
-                            thickness: 3,
-                            indent: 10,
-                          ),
+                          child: Divider(color: Colors.white, thickness: 3, indent: 10),
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
+
+                    const SizedBox(height: 10),
+
+                    // Google Sign-In butonu → Firebase Google Auth bağlandığında aktif olacak
                     SizedBox(
                       width: 150,
                       height: 40,
@@ -260,46 +232,44 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        icon: Image.asset(
-                          "assets/images/google_logo.png",
-                          height: 24,
-                          width: 24,
-                        ),
-                        label: const Text(
-                          "Google",
-                          style: TextStyle(fontSize: 20, color: Colors.black),
-                        ),
-                        onPressed: () {},
+                        icon: Image.asset("assets/images/google_logo.png", height: 24, width: 24),
+                        label: const Text("Google", style: TextStyle(fontSize: 20, color: Colors.black)),
+                        onPressed: () {}, // Google Firebase Auth eklenince burası doldurulacak
                       ),
-
-                    
                     ),
-                    SizedBox(height: 20),
-                    
+
+                    const SizedBox(height: 20),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           "Don't have an account ?",
                           style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignUpScreen(),
-                              ),
-                            );
+
+                        GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              isLogin = !isLogin; // login / signup ekranı geçişi
+                            });
                           },
-                          child: const Text(
-                            "Sign Up Now",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
-                              decorationColor: Colors.white,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => SignUpScreen()),
+                              );
+                            },
+                            child: const Text(
+                              "Sign Up Now",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.white,
+                              ),
                             ),
                           ),
                         ),

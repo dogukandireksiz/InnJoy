@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "774482243258",
+    "project_id": "innjoy-b0815",
+    "storage_bucket": "innjoy-b0815.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774482243258:android:5cbb44b073d880e46a9c83",
+        "android_client_info": {
+          "package_name": "com.example.login_page"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtlRAtz2Z2Wa0i5ecFkGruv_BCFp3L-ds"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
