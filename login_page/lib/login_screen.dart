@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth işlemleri için gerekli
 import 'signup_screen.dart';
 import 'package:login_page/service/auth.dart'; // Firebase Authentication için kendi servis yapın
-
+import 'package:google_sign_in/google_sign_in.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -234,7 +234,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         icon: Image.asset("assets/images/google_logo.png", height: 24, width: 24),
                         label: const Text("Google", style: TextStyle(fontSize: 20, color: Colors.black)),
-                        onPressed: () {}, // Google Firebase Auth eklenince burası doldurulacak
+                        onPressed: () async {
+                          final authservice = Auth();
+                          User? user = await authservice.signInWithGoogle();
+                        }, // Google Firebase Auth eklenince burası doldurulacak
                       ),
                     ),
 

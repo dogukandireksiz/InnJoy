@@ -3,11 +3,17 @@
 // Firebase Authentication (kimlik doğrulama) kütüphanesini içeri aktarır.
 import 'package:firebase_auth/firebase_auth.dart';
 
-// Firebase Auth işlemlerini yöneten sınıf.
+import 'package:google_sign_in/google_sign_in.dart';
+
+
+
+
+// Firebase Auth işlemlerini yöneten sınıf. 
 class Auth{
   // Firebase Auth'un bir örneğini (instance) oluşturur.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  
   // Şu anda oturum açmış olan kullanıcıyı (User) döndürür.
   User ? get currentUser => _firebaseAuth.currentUser; 
 
@@ -42,5 +48,42 @@ class Auth{
   Future<void> signOut()async{
     // Kullanıcının oturumunu kapatma işlemini yapar.
     await _firebaseAuth.signOut();
+    await _googleSignIn.signOut();
   }
+
+
+  Future<User?> signInWithGoogle() async {
+    // Oturum açma sürecini başlat
+    try{
+    // Oturum açma sürecini başlat
+    final GoogleSignInAccount? gUser = await _googleSignIn.signIn();
+
+    // Kullanıcı oturum açmayı iptal ederse null döndür
+    if (gUser == null) {
+      print("Google Sign-In is cancelled.");
+      return null;
+    }
+    // Süreç içerisinden bilgileri al
+    final GoogleSignInAuthentication gAuth = await gUser.authentication;  
+    // Kullanıcı nesnesi oluştur
+    final credential = GoogleAuthProvider.credential(accessToken: gAuth.accessToken, idToken: gAuth.idToken);     
+    // Kullanıcı girişini sağla
+
+     final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+    
+    return userCredential.user;       
+
+    }catch(e){
+      print(e.toString());
+    }
+    
+
+
+
+
+
+
+
+  }
+
 }
