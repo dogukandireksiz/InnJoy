@@ -1,44 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'login_screen.dart';
-
-// class HomeScreen extends StatelessWidget {
-//   final String userName;
-//   const HomeScreen({super.key, required this.userName});
-
-//   Future<void> _logout(BuildContext context) async {
-//     Navigator.pushReplacement(
-//       context,
-//       MaterialPageRoute(builder: (context) => const LoginScreen()),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFF1B1B2F),
-//       appBar: AppBar(
-//         backgroundColor: const Color(0xFF1B1B2F),
-//         title: const Text("Home", style: TextStyle(color: Colors.amber)),
-//         actions: [
-//           IconButton(
-//             onPressed: () => _logout(context),
-//             icon: const Icon(Icons.logout, color: Colors.white),
-//           ),
-//         ],
-//       ),
-//       body: Center(
-//         child: Text(
-//           "Hoş geldin, $userName!",
-//           style: const TextStyle(color: Colors.white, fontSize: 26),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-
-
 import 'package:flutter/material.dart';
 import 'service_screen.dart';
 
@@ -153,9 +112,21 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _BottomNavBar(
-        onTap: (index) {
-          if (index == 1) {
+      // Custom bottom bar with centered emergency FAB
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: SizedBox(
+        height: 52, // smaller to avoid overlap
+        width: 52,
+        child: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: Colors.red,
+          elevation: 4,
+          child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 26),
+        ),
+      ),
+      bottomNavigationBar: _CustomBottomBar(
+        onTap: (item) {
+          if (item == _BottomItem.services) {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ServiceScreen()),
             );
@@ -330,23 +301,100 @@ class _SpendingCard extends StatelessWidget {
   }
 }
 
-class _BottomNavBar extends StatelessWidget {
-  final ValueChanged<int>? onTap;
-  const _BottomNavBar({this.onTap});
+enum _BottomItem { home, theme, services, profile }
+
+class _CustomBottomBar extends StatelessWidget {
+  final ValueChanged<_BottomItem>? onTap;
+  const _CustomBottomBar({this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: 0,
-      selectedItemColor: Colors.blueAccent,
-      unselectedItemColor: Colors.black45,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.apps), label: 'Services'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-      ],
+    const labelStyle = TextStyle(fontSize: 11, color: Colors.black87, height: 1.1);
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      elevation: 8,
+      notchMargin: 10,
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 56, // align with kBottomNavigationBarHeight
+          child: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _BottomBarItem(
+                      icon: Icons.home,
+                      label: 'Home',
+                      labelStyle: labelStyle,
+                      onTap: () => onTap?.call(_BottomItem.home),
+                    ),
+                    _BottomBarItem(
+                      icon: Icons.brightness_6,
+                      label: 'Theme',
+                      labelStyle: labelStyle,
+                      onTap: () => onTap?.call(_BottomItem.theme),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 68), // space for FAB notch
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _BottomBarItem(
+                      icon: Icons.apps,
+                      label: 'Services',
+                      labelStyle: labelStyle,
+                      onTap: () => onTap?.call(_BottomItem.services),
+                    ),
+                    _BottomBarItem(
+                      icon: Icons.person,
+                      label: 'Profile',
+                      labelStyle: labelStyle,
+                      onTap: () => onTap?.call(_BottomItem.profile),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomBarItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final TextStyle labelStyle;
+  final VoidCallback onTap;
+  const _BottomBarItem({
+    required this.icon,
+    required this.label,
+    required this.labelStyle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.black87, size: 22),
+            const SizedBox(height: 2),
+            Text(label, style: labelStyle),
+          ],
+        ),
+      ),
     );
   }
 }
