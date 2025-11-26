@@ -9,7 +9,7 @@ class ServiceScreen extends StatefulWidget {
 
 class _ServiceScreenState extends State<ServiceScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _selectedCategory = 'Dining';
+  String? _selectedCategory; // null => show all services
 
   final List<_ServiceItem> _allServices = const [
     _ServiceItem(
@@ -47,7 +47,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   List<_ServiceItem> get _filteredServices {
     final q = _searchController.text.trim().toLowerCase();
     return _allServices.where((s) {
-      final matchesCategory = s.category == _selectedCategory;
+      final matchesCategory = _selectedCategory == null || s.category == _selectedCategory;
       if (!matchesCategory) return false;
       if (q.isEmpty) return true;
       return s.title.toLowerCase().contains(q) || s.description.toLowerCase().contains(q);
@@ -125,8 +125,8 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _CategoryChips extends StatelessWidget {
-  final String selected;
-  final ValueChanged<String> onSelected;
+  final String? selected;
+  final ValueChanged<String?> onSelected;
   const _CategoryChips({required this.selected, required this.onSelected});
   @override
   Widget build(BuildContext context) {
@@ -144,7 +144,7 @@ class _CategoryChips extends StatelessWidget {
             ChoiceChip(
               label: Text(c),
               selected: selected == c,
-              onSelected: (_) => onSelected(c),
+              onSelected: (isSelected) => onSelected(selected == c ? null : c),
             ),
             const SizedBox(width: 8),
           ]
