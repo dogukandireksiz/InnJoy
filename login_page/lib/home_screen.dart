@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'service_screen.dart';
 import 'events_activities_screen.dart';
+import 'Payment_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final String userName;
@@ -112,7 +113,7 @@ class HomeScreen extends StatelessWidget {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            const _SpendingCard(),
+              _SpendingCard(),
             const SizedBox(height: 24),
           ],
         ),
@@ -267,7 +268,7 @@ class _EventCard extends StatelessWidget {
 }
 
 class _SpendingCard extends StatelessWidget {
-  const _SpendingCard();
+  _SpendingCard();
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +292,11 @@ class _SpendingCard extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PaymentScreen()),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
               foregroundColor: Colors.black,
