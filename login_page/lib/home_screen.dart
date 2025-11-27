@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'service_screen.dart';
+import 'events_activities_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final String userName;
@@ -71,7 +72,11 @@ class HomeScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const EventsActivitiesScreen()),
+                    );
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black87,
                     padding: EdgeInsets.zero,
