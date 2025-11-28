@@ -20,9 +20,34 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF6F7FB),
         scrolledUnderElevation: 0,
         titleSpacing: 0,
-        actions: [IconButton(onPressed: () async {
-          await FirebaseAuth.instance.signOut();
-        }, icon: const Icon(Icons.exit_to_app,color: Colors.red,))],
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final shouldLogout = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Çıkış Yap'),
+                  content: const Text('Çıkmak istediğinize emin misiniz?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('İptal'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      child: const Text('Çıkış Yap'),
+                    ),
+                  ],
+                ),
+              );
+              if (shouldLogout == true) {
+                await FirebaseAuth.instance.signOut();
+              }
+            },
+            icon: const Icon(Icons.exit_to_app, color: Colors.red),
+          ),
+        ],
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
