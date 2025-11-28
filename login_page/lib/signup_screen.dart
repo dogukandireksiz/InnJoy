@@ -40,6 +40,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: widget._passwordController.text
       );
 
+      if(userCred == null || userCred.user == null){
+        return;
+      }
+
+      await userCred.user!.updateDisplayName(widget._nameController.text);
+      await userCred.user!.reload();
+
       // Firebase Authentication'da oluşan UID ile Firestore'a kullanıcı kaydı yazılır
       UserModel newUser = UserModel(
         uid: userCred.user!.uid,                        // Firestore belge ID olarak kullanılacak UID

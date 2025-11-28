@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth işlemleri i
 import 'signup_screen.dart';
 import 'package:login_page/service/auth.dart'; // Firebase Authentication için kendi servis yapın
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -219,27 +220,84 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+ const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        // Google Sign-In butonu → Firebase Google Auth bağlandığında aktif olacak
+                          SizedBox(
+                            width: 90,
+                            height: 30,
+                            child: IconButton(
 
-                    // Google Sign-In butonu → Firebase Google Auth bağlandığında aktif olacak
-                    SizedBox(
-                      width: 150,
-                      height: 40,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                                icon: FaIcon(FontAwesomeIcons.google,color: Colors.white,
+                                size: 30,),
+                                
+                                onPressed: () async {
+                                  final authservice = Auth();
+                                  User? user = await authservice.signInWithGoogle();
+                                }, // Google Firebase Auth eklenince burası doldurulacak
+                              ),
+                            ),
+                          
+                          
+                          SizedBox(width: 20,),
+
+                          SizedBox(
+                            width: 90,
+                            height: 30,
+                            child: IconButton(
+
+                                icon: FaIcon(
+                                  FontAwesomeIcons.twitter,
+                                  color: Colors.white,
+                                  size:30,
+                                ),
+                                onPressed: ()async{
+                                  final authService2 = Auth();
+                                  User? user = await authService2.singInWithTwitter();
+                                },
+                              
+                            ),
                           ),
-                        ),
-                        icon: Image.asset("assets/images/google_logo.png", height: 24, width: 24),
-                        label: const Text("Google", style: TextStyle(fontSize: 20, color: Colors.black)),
-                        onPressed: () async {
-                          final authservice = Auth();
-                          User? user = await authservice.signInWithGoogle();
-                        }, // Google Firebase Auth eklenince burası doldurulacak
-                      ),
+                          SizedBox(width: 10,),
+                          SizedBox(
+                            width: 90,
+                            height: 30,
+                            child: IconButton(
+
+                                icon: FaIcon(FontAwesomeIcons.facebook,
+                                color: Colors.white,
+                                size: 30,),
+                                onPressed: ()async{
+                                  final authService3 = Auth();
+                                  User? user = await authService3.signInWithFacebook();
+                                }, 
+                                ),
+                            ),
+                          
+                      ],
                     ),
+
+                    // // Google Sign-In butonu → Firebase Google Auth bağlandığında aktif olacak
+                    // SizedBox(
+                    //   width: 150,
+                    //   height: 40,
+                    //   child: ElevatedButton.icon(
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: Colors.white,
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(30),
+                    //       ),
+                    //     ),
+                    //     icon: Image.asset("assets/images/google_logo.png", height: 24, width: 24),
+                    //     label: const Text("Google", style: TextStyle(fontSize: 20, color: Colors.black)),
+                    //     onPressed: () async {
+                    //       final authservice = Auth();
+                    //       User? user = await authservice.signInWithGoogle();
+                    //     }, // Google Firebase Auth eklenince burası doldurulacak
+                    //   ),
+                    // ),
 
                     const SizedBox(height: 20),
 

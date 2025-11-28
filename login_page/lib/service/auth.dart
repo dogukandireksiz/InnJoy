@@ -1,7 +1,9 @@
+
 // Temel Flutter araçlarını ve 'foundation' kütüphanesini içeri aktarır.
 //import "package:flutter/foundation.dart";
 // Firebase Authentication (kimlik doğrulama) kütüphanesini içeri aktarır.
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -23,23 +25,45 @@ class Auth{
   // REGİSTER (KAYIT OLMA)
 
   // Yeni bir kullanıcı kaydı oluşturur.
-  Future<UserCredential> createUser({
-    required String email,
-    required String password,
-  }) async {
-    // E-posta ve şifre ile kullanıcı oluşturma işlemini yapar.
-    return await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+
+Future<UserCredential?> createUser({
+  required String email,
+  required String password,
+}) async {
+  
+  try {
+    UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+
+    User? user = userCredential.user;
+
+    await user?.sendEmailVerification();
+
+    return userCredential;
+  } on FirebaseAuthException {
+   
+    rethrow;
+  } catch (e) {
+    
+    print("$e");
+    return null;
   }
+}
 
   // LOGING (GİRİŞ YAPMA)
   
   // Mevcut bir kullanıcı ile oturum açar.
-  Future<void> signIn({
+  Future<UserCredential> signIn({
     required String email,
     required String password,
   }) async{
     // E-posta ve şifre ile oturum açma işlemini yapar.
-    await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+    UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+    User? user = userCredential.user;
+
+    if(user != null && !user.emailVerified){
+
+    }
+    return userCredential;
   }
 
   // SIGN OUT (OTURUMU KAPATMA)
@@ -47,8 +71,46 @@ class Auth{
   // Aktif kullanıcı oturumunu kapatır.
   Future<void> signOut()async{
     // Kullanıcının oturumunu kapatma işlemini yapar.
+    await _firebaseAuth.currentUser?.delete();
     await _firebaseAuth.signOut();
     await _googleSignIn.signOut();
+  }
+
+  Future<User?> signInWithFacebook() async {
+    try{
+
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      if(result.status == LoginStatus.success){
+        final AccessToken accessToken = result.accessToken!;
+
+        final OAuthCredential credential = FacebookAuthProvider.credential(
+          accessToken.tokenString
+        );
+
+        final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        return userCredential.user;
+      }else{
+        return null;
+      }
+
+    }catch(e){
+      print("$e");
+      return null;
+    }
+  }
+
+  Future<User?> singInWithTwitter() async {
+    
+      try{
+        TwitterAuthProvider twitterProvider = TwitterAuthProvider();
+
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithProvider(twitterProvider);
+        return userCredential.user;
+      }catch(e){
+        print("$e");
+        return null;
+      }
   }
 
 

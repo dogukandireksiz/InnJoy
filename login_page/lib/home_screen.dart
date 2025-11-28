@@ -3,6 +3,10 @@ import 'service_screen.dart';
 import 'events_activities_screen.dart';
 import 'Payment_screen.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'service_screen.dart';
+
 class HomeScreen extends StatelessWidget {
   final String userName;
   const HomeScreen({super.key, required this.userName});
@@ -16,6 +20,9 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF6F7FB),
         scrolledUnderElevation: 0,
         titleSpacing: 0,
+        actions: [IconButton(onPressed: () async {
+          await FirebaseAuth.instance.signOut();
+        }, icon: const Icon(Icons.exit_to_app,color: Colors.red,))],
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
