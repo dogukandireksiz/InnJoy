@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:login_page/home_screen.dart'; // Dosya yolunu kontrol edin
-import 'package:login_page/login_screen.dart'; // Dosya yolunu kontrol edin
+import 'package:login_page/screens/screens.dart';
 import 'package:login_page/widgets/verification_screen.dart';
 
 class AuthWrapper extends StatelessWidget {

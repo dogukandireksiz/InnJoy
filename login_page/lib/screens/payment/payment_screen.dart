@@ -1,5 +1,119 @@
 import 'package:flutter/material.dart';
 
+// Shared spending data that can be accessed from HomeScreen
+class SpendingData {
+  static const double baseBalance = 1250.75;
+  static const String guestName = 'Ali Veli';
+  static const String roomNumber = '1204';
+
+  // Dinamik room service siparişleri için liste
+  static final List<TransactionData> _roomServiceOrders = [];
+
+  static double get totalBalance {
+    return baseBalance + _roomServiceOrdersTotal;
+  }
+
+  static double get _roomServiceOrdersTotal {
+    double total = 0;
+    for (final order in _roomServiceOrders) {
+      total += order.amount;
+    }
+    return total;
+  }
+
+  static double get totalSpending {
+    double total = 0;
+    for (final cat in categories) {
+      total += cat.amount;
+    }
+    return total;
+  }
+
+  // Room service siparişi ekleme metodu
+  static void addRoomServiceOrder(String description, double amount) {
+    _roomServiceOrders.add(
+      TransactionData(description, amount, DateTime.now(), 'Room Service', Icons.room_service),
+    );
+  }
+
+  // Tüm room service siparişlerini temizleme
+  static void clearRoomServiceOrders() {
+    _roomServiceOrders.clear();
+  }
+
+  static List<CategoryData> get categories => [
+    CategoryData(
+      id: 'dining',
+      icon: Icons.restaurant_menu,
+      title: 'Dining & Restaurants',
+      amount: 562.84,
+      transactions: [
+        TransactionData('Lobby Restaurant - Breakfast', 45.00, DateTime(2025, 11, 27, 8, 30), 'Dining & Restaurants', Icons.restaurant_menu),
+        TransactionData('Rooftop Bar - Dinner', 189.50, DateTime(2025, 11, 25, 20, 0), 'Dining & Restaurants', Icons.restaurant_menu),
+        TransactionData('Pool Cafe - Lunch', 67.34, DateTime(2025, 11, 26, 13, 15), 'Dining & Restaurants', Icons.restaurant_menu),
+        TransactionData('Room Service - Late Night', 112.00, DateTime(2025, 11, 27, 1, 30), 'Dining & Restaurants', Icons.restaurant_menu),
+        TransactionData('Lobby Restaurant - Brunch', 149.00, DateTime(2025, 11, 24, 11, 0), 'Dining & Restaurants', Icons.restaurant_menu),
+      ],
+    ),
+    CategoryData(
+      id: 'spa',
+      icon: Icons.spa,
+      title: 'Spa & Wellness',
+      amount: 375.00,
+      transactions: [
+        TransactionData('Full Body Massage - 90 min', 375.00, DateTime(2025, 11, 26, 15, 0), 'Spa & Wellness', Icons.spa),
+      ],
+    ),
+    CategoryData(
+      id: 'room_service',
+      icon: Icons.room_service,
+      title: 'Room Service',
+      amount: 188.40 + _roomServiceOrdersTotal,
+      transactions: [
+        TransactionData('Breakfast Delivery', 42.00, DateTime(2025, 11, 27, 7, 45), 'Room Service', Icons.room_service),
+        TransactionData('Evening Snacks & Drinks', 146.40, DateTime(2025, 11, 26, 22, 30), 'Room Service', Icons.room_service),
+        ..._roomServiceOrders,
+      ],
+    ),
+    CategoryData(
+      id: 'minibar',
+      icon: Icons.local_bar,
+      title: 'Minibar',
+      amount: 124.51,
+      transactions: [
+        TransactionData('Water & Soft Drinks', 18.00, DateTime(2025, 11, 27, 10, 0), 'Minibar', Icons.local_bar),
+        TransactionData('Wine Selection', 65.00, DateTime(2025, 11, 25, 19, 30), 'Minibar', Icons.local_bar),
+        TransactionData('Snacks & Chocolates', 24.51, DateTime(2025, 11, 27, 14, 20), 'Minibar', Icons.local_bar),
+        TransactionData('Premium Spirits', 17.00, DateTime(2025, 11, 23, 21, 0), 'Minibar', Icons.local_bar),
+      ],
+    ),
+  ];
+}
+
+class CategoryData {
+  final String id;
+  final IconData icon;
+  final String title;
+  final double amount;
+  final List<TransactionData> transactions;
+  const CategoryData({
+    required this.id,
+    required this.icon,
+    required this.title,
+    required this.amount,
+    required this.transactions,
+  });
+}
+
+class TransactionData {
+  final String description;
+  final double amount;
+  final DateTime dateTime;
+  final String category;
+  final IconData categoryIcon;
+  const TransactionData(this.description, this.amount, this.dateTime, this.category, this.categoryIcon);
+}
+
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
 
@@ -73,9 +187,9 @@ class _BalanceCard extends StatelessWidget {
         children: [
           const Text('Current Balance', style: TextStyle(color: Colors.white70)),
           const SizedBox(height: 8),
-            const Text('\$1,250.75', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+          Text('\$${SpendingData.totalBalance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          const Text('John Doe, Room 1204', style: TextStyle(color: Colors.white70)),
+          Text('${SpendingData.guestName}, Room ${SpendingData.roomNumber}', style: const TextStyle(color: Colors.white70)),
           const SizedBox(height: 12),
             Row(
             children: [
@@ -171,53 +285,6 @@ class _SpendingBreakdown extends StatelessWidget {
     required this.onCategoryTap,
   });
 
-  static final _categories = [
-    _CategoryData(
-      id: 'dining',
-      icon: Icons.restaurant_menu,
-      title: 'Dining & Restaurants',
-      amount: 562.84,
-      transactions: [
-        _Transaction('Lobby Restaurant - Breakfast', 45.00, DateTime(2025, 11, 27, 8, 30), 'Dining & Restaurants', Icons.restaurant_menu),
-        _Transaction('Rooftop Bar - Dinner', 189.50, DateTime(2025, 11, 25, 20, 0), 'Dining & Restaurants', Icons.restaurant_menu),
-        _Transaction('Pool Cafe - Lunch', 67.34, DateTime(2025, 11, 26, 13, 15), 'Dining & Restaurants', Icons.restaurant_menu),
-        _Transaction('Room Service - Late Night', 112.00, DateTime(2025, 11, 27, 1, 30), 'Dining & Restaurants', Icons.restaurant_menu),
-        _Transaction('Lobby Restaurant - Brunch', 149.00, DateTime(2025, 11, 24, 11, 0), 'Dining & Restaurants', Icons.restaurant_menu),
-      ],
-    ),
-    _CategoryData(
-      id: 'spa',
-      icon: Icons.spa,
-      title: 'Spa & Wellness',
-      amount: 375.00,
-      transactions: [
-        _Transaction('Full Body Massage - 90 min', 375.00, DateTime(2025, 11, 26, 15, 0), 'Spa & Wellness', Icons.spa),
-      ],
-    ),
-    _CategoryData(
-      id: 'room_service',
-      icon: Icons.room_service,
-      title: 'Room Service',
-      amount: 188.40,
-      transactions: [
-        _Transaction('Breakfast Delivery', 42.00, DateTime(2025, 11, 27, 7, 45), 'Room Service', Icons.room_service),
-        _Transaction('Evening Snacks & Drinks', 146.40, DateTime(2025, 11, 26, 22, 30), 'Room Service', Icons.room_service),
-      ],
-    ),
-    _CategoryData(
-      id: 'minibar',
-      icon: Icons.local_bar,
-      title: 'Minibar',
-      amount: 124.51,
-      transactions: [
-        _Transaction('Water & Soft Drinks', 18.00, DateTime(2025, 11, 27, 10, 0), 'Minibar', Icons.local_bar),
-        _Transaction('Wine Selection', 65.00, DateTime(2025, 11, 25, 19, 30), 'Minibar', Icons.local_bar),
-        _Transaction('Snacks & Chocolates', 24.51, DateTime(2025, 11, 27, 14, 20), 'Minibar', Icons.local_bar),
-        _Transaction('Premium Spirits', 17.00, DateTime(2025, 11, 23, 21, 0), 'Minibar', Icons.local_bar),
-      ],
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -225,7 +292,7 @@ class _SpendingBreakdown extends StatelessWidget {
       children: [
         const Text('Spending Breakdown', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 12),
-        for (final cat in _categories) ...[
+        for (final cat in SpendingData.categories) ...[
           _BreakdownItem(
             icon: cat.icon,
             title: cat.title,
@@ -243,32 +310,8 @@ class _SpendingBreakdown extends StatelessWidget {
   }
 }
 
-class _CategoryData {
-  final String id;
-  final IconData icon;
-  final String title;
-  final double amount;
-  final List<_Transaction> transactions;
-  const _CategoryData({
-    required this.id,
-    required this.icon,
-    required this.title,
-    required this.amount,
-    required this.transactions,
-  });
-}
-
-class _Transaction {
-  final String description;
-  final double amount;
-  final DateTime dateTime;
-  final String category;
-  final IconData categoryIcon;
-  const _Transaction(this.description, this.amount, this.dateTime, this.category, this.categoryIcon);
-}
-
 class _TransactionList extends StatelessWidget {
-  final List<_Transaction> transactions;
+  final List<TransactionData> transactions;
   const _TransactionList({required this.transactions});
 
   @override
@@ -375,12 +418,12 @@ class _BreakdownItem extends StatelessWidget {
 class _Last24HoursView extends StatelessWidget {
   const _Last24HoursView();
 
-  List<_Transaction> _getLast24HoursTransactions() {
+  List<TransactionData> _getLast24HoursTransactions() {
     final now = DateTime(2025, 11, 27, 23, 59);
     final yesterday = now.subtract(const Duration(hours: 24));
     
-    final allTransactions = <_Transaction>[];
-    for (final cat in _SpendingBreakdown._categories) {
+    final allTransactions = <TransactionData>[];
+    for (final cat in SpendingData.categories) {
       allTransactions.addAll(cat.transactions);
     }
     

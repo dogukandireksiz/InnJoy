@@ -1,10 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth işlemleri için gerekli
+import 'package:firebase_auth/firebase_auth.dart';
 import 'signup_screen.dart';
-import 'package:login_page/service/auth.dart'; // Firebase Authentication için kendi servis yapın
+import '../../service/auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -17,28 +18,26 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordHidden = true;
-  bool isLogin = true; // true → giriş modu, false → kayıt modu
+  bool isLogin = true;
 
-  String? errorMessage; // Firebase'den dönen hataları göstermek için
+  String? errorMessage;
 
-  // Firebase Authentication ile yeni kullanıcı oluşturma
-  Future<void> createUser() async{
-    try{
+  Future<void> createUser() async {
+    try {
       await Auth().createUser(email: _emailController.text, password: _passwordController.text);
-    }on FirebaseAuthException catch(e){
+    } on FirebaseAuthException catch (e) {
       setState(() {
-        errorMessage = e.message; // Firebase hata mesajını kullanıcıya göster
+        errorMessage = e.message;
       });
     }
   }
 
-  // Firebase Authentication ile giriş yapma
-  Future<void> signIn() async{
-    try{
+  Future<void> signIn() async {
+    try {
       await Auth().signIn(email: _emailController.text, password: _passwordController.text);
-    }on FirebaseAuthException catch(e){
+    } on FirebaseAuthException catch (e) {
       setState(() {
-        errorMessage = e.message; // Firebase taraflı giriş hataları
+        errorMessage = e.message;
       });
     }
   }
@@ -98,7 +97,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
-                    // Kullanıcının giriş yapacağı email alanı
                     TextField(
                       controller: _emailController,
                       style: const TextStyle(color: Colors.white),
@@ -117,7 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
-                    // Şifre alanı
                     TextField(
                       controller: _passwordController,
                       obscureText: _isPasswordHidden,
@@ -133,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           onPressed: () {
                             setState(() {
-                              _isPasswordHidden = !_isPasswordHidden; // şifre göster/gizle
+                              _isPasswordHidden = !_isPasswordHidden;
                             });
                           },
                         ),
@@ -148,7 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 30),
 
-                    // Giriş veya kayıt butonu → Firebase fonksiyonlarını tetikler
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -159,11 +155,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        onPressed: (){
-                          if(isLogin){
-                            signIn(); // Firebase signIn
-                          }else{
-                            createUser(); // Firebase createUser
+                        onPressed: () {
+                          if (isLogin) {
+                            signIn();
+                          } else {
+                            createUser();
                           }
                         },
                         child: const Text(
@@ -179,7 +175,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 5),
 
-                    // Şifre sıfırlama henüz Firebase ile bağlı değil → uyarı
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton(
@@ -220,84 +215,53 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
 
- const SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        // Google Sign-In butonu → Firebase Google Auth bağlandığında aktif olacak
-                          SizedBox(
-                            width: 90,
-                            height: 30,
-                            child: IconButton(
-
-                                icon: FaIcon(FontAwesomeIcons.google,color: Colors.white,
-                                size: 30,),
-                                
-                                onPressed: () async {
-                                  final authservice = Auth();
-                                  User? user = await authservice.signInWithGoogle();
-                                }, // Google Firebase Auth eklenince burası doldurulacak
-                              ),
-                            ),
-                          
-                          
-                          SizedBox(width: 20,),
-
-                          SizedBox(
-                            width: 90,
-                            height: 30,
-                            child: IconButton(
-
-                                icon: FaIcon(
-                                  FontAwesomeIcons.twitter,
-                                  color: Colors.white,
-                                  size:30,
-                                ),
-                                onPressed: ()async{
-                                  final authService2 = Auth();
-                                  User? user = await authService2.singInWithTwitter();
-                                },
-                              
-                            ),
+                        SizedBox(
+                          width: 90,
+                          height: 30,
+                          child: IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.google, color: Colors.white, size: 30),
+                            onPressed: () async {
+                              final authservice = Auth();
+                              User? user = await authservice.signInWithGoogle();
+                            },
                           ),
-                          SizedBox(width: 10,),
-                          SizedBox(
-                            width: 90,
-                            height: 30,
-                            child: IconButton(
+                        ),
 
-                                icon: FaIcon(FontAwesomeIcons.facebook,
-                                color: Colors.white,
-                                size: 30,),
-                                onPressed: ()async{
-                                  final authService3 = Auth();
-                                  User? user = await authService3.signInWithFacebook();
-                                }, 
-                                ),
+                        const SizedBox(width: 20),
+
+                        SizedBox(
+                          width: 90,
+                          height: 30,
+                          child: IconButton(
+                            icon: const FaIcon(
+                              FontAwesomeIcons.twitter,
+                              color: Colors.white,
+                              size: 30,
                             ),
-                          
+                            onPressed: () async {
+                              final authService2 = Auth();
+                              User? user = await authService2.singInWithTwitter();
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          width: 90,
+                          height: 30,
+                          child: IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.white, size: 30),
+                            onPressed: () async {
+                              final authService3 = Auth();
+                              User? user = await authService3.signInWithFacebook();
+                            },
+                          ),
+                        ),
                       ],
                     ),
-
-                    // // Google Sign-In butonu → Firebase Google Auth bağlandığında aktif olacak
-                    // SizedBox(
-                    //   width: 150,
-                    //   height: 40,
-                    //   child: ElevatedButton.icon(
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: Colors.white,
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(30),
-                    //       ),
-                    //     ),
-                    //     icon: Image.asset("assets/images/google_logo.png", height: 24, width: 24),
-                    //     label: const Text("Google", style: TextStyle(fontSize: 20, color: Colors.black)),
-                    //     onPressed: () async {
-                    //       final authservice = Auth();
-                    //       User? user = await authservice.signInWithGoogle();
-                    //     }, // Google Firebase Auth eklenince burası doldurulacak
-                    //   ),
-                    // ),
 
                     const SizedBox(height: 20),
 
@@ -310,9 +274,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
 
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             setState(() {
-                              isLogin = !isLogin; // login / signup ekranı geçişi
+                              isLogin = !isLogin;
                             });
                           },
                           child: TextButton(

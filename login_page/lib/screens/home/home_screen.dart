@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'service_screen.dart';
-import 'events_activities_screen.dart';
-import 'Payment_screen.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'service_screen.dart';
+import '../services/service_screen.dart';
+import '../events_activities/events_activities_screen.dart';
+import '../payment/payment_screen.dart';
+import '../room_service/room_service_screen.dart';
+import '../housekeeping/housekeeping_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final String userName;
   const HomeScreen({super.key, required this.userName});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +65,7 @@ class HomeScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.black54, fontSize: 14),
                   ),
                   Text(
-                    userName.isEmpty ? 'Guest Name' : userName,
+                    widget.userName.isEmpty ? 'Guest Name' : widget.userName,
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 22,
@@ -70,7 +74,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              // Profile avatar removed per request
             ],
           ),
         ),
@@ -89,10 +92,30 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Row(
-              children: const [
-                Expanded(child: _ServiceTile(icon: Icons.room_service, label: 'Room Service')),
-                SizedBox(width: 12),
-                Expanded(child: _ServiceTile(icon: Icons.cleaning_services, label: 'Housekeeping')),
+              children: [
+                Expanded(
+                  child: _ServiceTile(
+                    icon: Icons.room_service,
+                    label: 'Room Service',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const RoomServiceScreen()),
+                      ).then((_) => setState(() {}));
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _ServiceTile(
+                    icon: Icons.cleaning_services,
+                    label: 'Housekeeping',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const HousekeepingScreen()),
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -145,15 +168,14 @@ class HomeScreen extends StatelessWidget {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-              _SpendingCard(),
+            _SpendingCard(),
             const SizedBox(height: 24),
           ],
         ),
       ),
-      // Custom bottom bar with centered emergency FAB
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: SizedBox(
-        height: 52, // smaller to avoid overlap
+        height: 52,
         width: 52,
         child: FloatingActionButton(
           onPressed: () {},
@@ -228,25 +250,29 @@ class _HotelCard extends StatelessWidget {
 class _ServiceTile extends StatelessWidget {
   final IconData icon;
   final String label;
-  const _ServiceTile({required this.icon, required this.label});
+  final VoidCallback? onTap;
+  const _ServiceTile({required this.icon, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 90,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
-      ),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.blueAccent),
-            const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-          ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 90,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: Colors.blueAccent),
+              const SizedBox(height: 8),
+              Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            ],
+          ),
         ),
       ),
     );
@@ -300,7 +326,7 @@ class _EventCard extends StatelessWidget {
 }
 
 class _SpendingCard extends StatelessWidget {
-  _SpendingCard();
+  const _SpendingCard();
 
   @override
   Widget build(BuildContext context) {
@@ -316,10 +342,10 @@ class _SpendingCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Current Balance', style: TextStyle(color: Colors.black54)),
-                SizedBox(height: 6),
-                Text('\$450.75', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+              children: [
+                const Text('Current Balance', style: TextStyle(color: Colors.black54)),
+                const SizedBox(height: 6),
+                Text('\$${SpendingData.totalBalance.toStringAsFixed(2)}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
               ],
             ),
           ),
@@ -359,7 +385,7 @@ class _CustomBottomBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 56, // align with kBottomNavigationBarHeight
+          height: 56,
           child: Row(
             children: [
               Expanded(
@@ -381,7 +407,7 @@ class _CustomBottomBar extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 68), // space for FAB notch
+              const SizedBox(width: 68),
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

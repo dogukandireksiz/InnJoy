@@ -47,8 +47,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:login_page/widgets/auth_wrapper.dart';
 import 'firebase_options.dart';
 
-import 'login_screen.dart';
-import 'home_screen.dart';
+import 'screens/screens.dart';
 import 'service/auth.dart';
 
 void main(List<String> args) async {

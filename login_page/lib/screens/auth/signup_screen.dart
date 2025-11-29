@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:login_page/model/user_model.dart';
-import 'package:login_page/service/auth.dart'; // Firebase Authentication için kendi servis sınıfın
+import '../../model/user_model.dart';
+import '../../service/auth.dart';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:login_page/service/user_service.dart'; // Firestore kullanıcı ekleme servisi
+import '../../service/user_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   // Kullanıcıdan alınacak bilgileri tutan controller'lar
