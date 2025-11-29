@@ -8,14 +8,25 @@ class SpendingData {
 
   // Dinamik room service siparişleri için liste
   static final List<TransactionData> _roomServiceOrders = [];
+  
+  // Dinamik spa siparişleri için liste
+  static final List<TransactionData> _spaOrders = [];
 
   static double get totalBalance {
-    return baseBalance + _roomServiceOrdersTotal;
+    return baseBalance + _roomServiceOrdersTotal + _spaOrdersTotal;
   }
 
   static double get _roomServiceOrdersTotal {
     double total = 0;
     for (final order in _roomServiceOrders) {
+      total += order.amount;
+    }
+    return total;
+  }
+  
+  static double get _spaOrdersTotal {
+    double total = 0;
+    for (final order in _spaOrders) {
       total += order.amount;
     }
     return total;
@@ -35,10 +46,22 @@ class SpendingData {
       TransactionData(description, amount, DateTime.now(), 'Room Service', Icons.room_service),
     );
   }
+  
+  // Spa siparişi ekleme metodu
+  static void addSpaOrder(String description, double amount) {
+    _spaOrders.add(
+      TransactionData(description, amount, DateTime.now(), 'Spa & Wellness', Icons.spa),
+    );
+  }
 
   // Tüm room service siparişlerini temizleme
   static void clearRoomServiceOrders() {
     _roomServiceOrders.clear();
+  }
+  
+  // Tüm spa siparişlerini temizleme
+  static void clearSpaOrders() {
+    _spaOrders.clear();
   }
 
   static List<CategoryData> get categories => [
@@ -59,9 +82,10 @@ class SpendingData {
       id: 'spa',
       icon: Icons.spa,
       title: 'Spa & Wellness',
-      amount: 375.00,
+      amount: 375.00 + _spaOrdersTotal,
       transactions: [
         TransactionData('Full Body Massage - 90 min', 375.00, DateTime(2025, 11, 26, 15, 0), 'Spa & Wellness', Icons.spa),
+        ..._spaOrders,
       ],
     ),
     CategoryData(

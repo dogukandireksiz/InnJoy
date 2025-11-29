@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dining/dining_pricelist_screen.dart';
+import 'dining/dining_booking_screen.dart';
+import 'spa_wellness/spa_wellness_pricelist_screen.dart';
+import 'spa_wellness/spa_wellness_booking_screen.dart';
 
 class ServiceScreen extends StatefulWidget {
   const ServiceScreen({super.key});
@@ -85,6 +89,37 @@ class _ServiceScreenState extends State<ServiceScreen> {
               description: s.description,
               primaryAction: s.primaryAction,
               secondaryAction: s.secondaryAction,
+              category: s.category,
+              onPrimaryAction: () {
+                if (s.category == 'Dining' && s.primaryAction == 'See Pricelist') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DiningPricelistScreen(venueName: s.title),
+                    ),
+                  );
+                } else if (s.category == 'Spa & Wellness' && s.primaryAction == 'See Pricelist') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => SpaWellnessPricelistScreen(venueName: s.title),
+                    ),
+                  );
+                }
+              },
+              onSecondaryAction: () {
+                if (s.category == 'Dining' && s.secondaryAction == 'Book Treatment') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DiningBookingScreen(preselectedVenue: s.title),
+                    ),
+                  );
+                } else if (s.category == 'Spa & Wellness' && s.secondaryAction == 'Book Treatment') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SpaWellnessBookingScreen(),
+                    ),
+                  );
+                }
+              },
             ),
             const SizedBox(height: 16),
           ],
@@ -161,6 +196,9 @@ class _ServiceCard extends StatelessWidget {
   final String badgeText;
   final String? primaryAction;
   final String? secondaryAction;
+  final String? category;
+  final VoidCallback? onPrimaryAction;
+  final VoidCallback? onSecondaryAction;
 
   const _ServiceCard({
     required this.title,
@@ -169,6 +207,9 @@ class _ServiceCard extends StatelessWidget {
     required this.badgeText,
     this.primaryAction,
     this.secondaryAction,
+    this.category,
+    this.onPrimaryAction,
+    this.onSecondaryAction,
   });
 
   @override
@@ -228,7 +269,7 @@ class _ServiceCard extends StatelessWidget {
                     if (primaryAction != null)
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: onPrimaryAction,
                           child: Text(primaryAction!),
                         ),
                       ),
@@ -236,7 +277,7 @@ class _ServiceCard extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: onSecondaryAction,
                           child: Text(secondaryAction!),
                         ),
                       ),

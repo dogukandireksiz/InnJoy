@@ -5,6 +5,7 @@ import '../events_activities/events_activities_screen.dart';
 import '../payment/payment_screen.dart';
 import '../room_service/room_service_screen.dart';
 import '../housekeeping/housekeeping_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String userName;
@@ -189,6 +190,10 @@ class _HomeScreenState extends State<HomeScreen> {
           if (item == _BottomItem.services) {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ServiceScreen()),
+            );
+          } else if (item == _BottomItem.profile) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
             );
           }
         },
