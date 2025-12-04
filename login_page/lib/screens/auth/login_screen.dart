@@ -1,10 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'signup_screen.dart';
-import '../../service/auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'signup_screen.dart';
+import '../../service/auth.dart'; 
+import 'forget_password.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> createUser() async {
     try {
-      await Auth().createUser(email: _emailController.text, password: _passwordController.text);
+      await Auth().createUser(
+          email: _emailController.text, password: _passwordController.text);
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
@@ -34,7 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> signIn() async {
     try {
-      await Auth().signIn(email: _emailController.text, password: _passwordController.text);
+      await Auth().signIn(
+          email: _emailController.text, password: _passwordController.text);
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
@@ -48,8 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
+          // Arkaplan Resmi
           Image.asset("assets/images/arkaplan.png", fit: BoxFit.cover),
 
+          // Blur Efekti
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
             child: Container(color: Colors.black.withOpacity(0.1)),
@@ -97,6 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
+                    // --- E-mail Input ---
                     TextField(
                       controller: _emailController,
                       style: const TextStyle(color: Colors.white),
@@ -115,6 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
+                    // --- Password Input ---
                     TextField(
                       controller: _passwordController,
                       obscureText: _isPasswordHidden,
@@ -145,6 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 30),
 
+                    // --- Sign In Button ---
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -175,13 +183,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 5),
 
+                    // --- Forgot Password Link ---
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Şifre sıfırlama özelliği henüz eklenmedi."),
+                          // Yönlendirme Kodu:
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              // Dosya adı 'forget_password.dart' olsa bile
+                              // içindeki class adı 'ForgotPasswordScreen' olduğu için bunu çağırıyoruz.
+                              builder: (context) => const ForgotPasswordScreen(),
                             ),
                           );
                         },
@@ -200,6 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
+                    // --- Divider ---
                     Row(
                       children: [
                         const Expanded(
@@ -216,9 +230,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 10),
+                    
+                    // --- Social Media Buttons ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
+                        // Google
                         SizedBox(
                           width: 90,
                           height: 30,
@@ -226,13 +243,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             icon: const FaIcon(FontAwesomeIcons.google, color: Colors.white, size: 30),
                             onPressed: () async {
                               final authservice = Auth();
-                              User? user = await authservice.signInWithGoogle();
+                              await authservice.signInWithGoogle();
                             },
                           ),
                         ),
-
                         const SizedBox(width: 20),
-
+                        // Twitter
                         SizedBox(
                           width: 90,
                           height: 30,
@@ -244,11 +260,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             onPressed: () async {
                               final authService2 = Auth();
-                              User? user = await authService2.singInWithTwitter();
+                              await authService2.singInWithTwitter();
                             },
                           ),
                         ),
                         const SizedBox(width: 10),
+                        // Facebook
                         SizedBox(
                           width: 90,
                           height: 30,
@@ -256,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.white, size: 30),
                             onPressed: () async {
                               final authService3 = Auth();
-                              User? user = await authService3.signInWithFacebook();
+                              await authService3.signInWithFacebook();
                             },
                           ),
                         ),
@@ -265,6 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
+                    // --- Sign Up Link ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -272,7 +290,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           "Don't have an account ?",
                           style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
-
                         GestureDetector(
                           onTap: () {
                             setState(() {
