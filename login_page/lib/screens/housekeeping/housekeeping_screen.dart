@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../service/database_service.dart'; // Servis importu
 
 class HousekeepingScreen extends StatefulWidget {
   const HousekeepingScreen({super.key});
@@ -8,6 +9,7 @@ class HousekeepingScreen extends StatefulWidget {
 }
 
 class _HousekeepingScreenState extends State<HousekeepingScreen> {
+  // --- TASARIM DEĞİŞKENLERİ ---
   bool _doNotDisturb = false;
   int _selectedTimeType = 0; // 0: Hemen Temizle, 1: Belirli Saat Aralığında
   String _selectedTimeRange = '14:00 - 16:00';
@@ -19,7 +21,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
   
   final TextEditingController _notesController = TextEditingController();
   
-  bool _requestSent = false;
+  //--- MANTIK DEĞİŞKENLERİ ---
+  bool _requestSent = false; // UI durumu için
+  bool _isLoading = false;   // Yükleniyor durumu için
 
   final List<String> _timeRanges = [
     '08:00 - 10:00',
@@ -36,10 +40,53 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     super.dispose();
   }
 
-  void _sendRequest() {
-    setState(() {
-      _requestSent = true;
-    });
+  // --- FIREBASE İSTEK GÖNDERME FONKSİYONU ---
+  Future<void> _sendRequest() async {
+    setState(() => _isLoading = true);
+
+    // 1. Verileri Hazırla: Tasarımdaki tüm seçimleri birleştiriyoruz
+    StringBuffer detailsBuffer = StringBuffer();
+    detailsBuffer.writeln("Zamanlama: ${_selectedTimeType == 0 ? 'Hemen' : _selectedTimeRange}");
+    
+    if (_doNotDisturb) {
+      detailsBuffer.writeln("DURUM: RAHATSIZ ETMEYİN");
+    }
+
+    if (_extraTowelCount > 0) detailsBuffer.writeln("Ekstra Havlu: $_extraTowelCount");
+    if (_pillowCount > 0) detailsBuffer.writeln("Yastık: $_pillowCount");
+    if (_blanketCount > 0) detailsBuffer.writeln("Battaniye: $_blanketCount");
+    
+    // Kullanıcı notunu da ekle
+    if (_notesController.text.isNotEmpty) {
+      detailsBuffer.writeln("\nKullanıcı Notu: ${_notesController.text}");
+    }
+
+    try {
+      // 2. Servisi Çağır (Kategori otomatik olarak 'Housekeeping')
+      await DatabaseService().requestHousekeeping(
+        'Housekeeping', // Kategori
+        detailsBuffer.toString(), // Hazırladığımız detaylı metin
+      );
+
+      if (!mounted) return;
+
+      // 3. Başarılı ise UI güncelle
+      setState(() {
+        _requestSent = true;
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Talebiniz başarıyla iletildi."), backgroundColor: Colors.green),
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Hata oluştu: $e"), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
@@ -349,21 +396,27 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: _requestSent ? null : _sendRequest,
+            // Eğer istek gönderildiyse veya şu an yükleniyorsa butona basılmasın
+            onPressed: (_requestSent || _isLoading) ? null : _sendRequest,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
               disabledBackgroundColor: Colors.grey[300],
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text(
-              _requestSent ? 'Talep Gönderildi' : 'Talep Gönder',
-              style: TextStyle(
-                color: _requestSent ? Colors.grey[600] : Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: _isLoading 
+              ? const SizedBox(
+                  height: 20, width: 20, 
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                )
+              : Text(
+                  _requestSent ? 'Talep Gönderildi' : 'Talep Gönder',
+                  style: TextStyle(
+                    color: _requestSent ? Colors.grey[600] : Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
           ),
         ),
       ),
@@ -419,6 +472,8 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     );
   }
 }
+
+// --- YARDIMCI WIDGET'LAR (Tasarım Kodundan) ---
 
 class _TimeChip extends StatelessWidget {
   final String label;

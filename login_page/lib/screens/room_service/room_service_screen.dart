@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'room_service_cart_screen.dart';
 import 'menu_data.dart';
+import '../../service/database_service.dart';
+import '../../model/menu_item_model.dart';
+import 'room_service_cart_screen.dart';
+
 
 class RoomServiceScreen extends StatefulWidget {
   const RoomServiceScreen({super.key});
@@ -12,6 +16,7 @@ class RoomServiceScreen extends StatefulWidget {
 class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final Map<MenuItem, int> _cart = {};
+  final DatabaseService _dbService = DatabaseService();
 
   @override
   void initState() {
@@ -113,14 +118,35 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _MenuGrid(items: breakfastItems, cart: _cart, onAdd: _addToCart),
-          _MenuGrid(items: lunchDinnerItems, cart: _cart, onAdd: _addToCart),
-          _MenuGrid(items: beverageItems, cart: _cart, onAdd: _addToCart),
-          _MenuGrid(items: nightMenuItems, cart: _cart, onAdd: _addToCart),
-        ],
+      body: StreamBuilder<List<MenuItem>>(
+        stream: _dbService.getMenuItems(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Hata: ${snapshot.error}"));
+          }
+
+          final allItems = snapshot.data ?? [];
+
+          // Gelen verileri kategorilerine göre filtreliyoruz
+          final breakfastItems = allItems.where((i) => i.category == 'breakfast').toList();
+          final mainItems = allItems.where((i) => i.category == 'main').toList();
+          final drinkItems = allItems.where((i) => i.category == 'drink').toList();
+          final nightItems = allItems.where((i) => i.category == 'night').toList();
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _MenuGrid(items: breakfastItems, cart: _cart, onAdd: _addToCart),
+              _MenuGrid(items: mainItems, cart: _cart, onAdd: _addToCart),
+              _MenuGrid(items: drinkItems, cart: _cart, onAdd: _addToCart),
+              _MenuGrid(items: nightItems, cart: _cart, onAdd: _addToCart),
+            ],
+          );
+        },
       ),
       bottomNavigationBar: _totalItems > 0
           ? Container(
@@ -187,6 +213,9 @@ class _MenuGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+        if (items.isEmpty) {
+      return const Center(child: Text("Bu kategoride ürün bulunamadı."));
+    }
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

@@ -6,6 +6,9 @@ import '../payment/payment_screen.dart';
 import '../room_service/room_service_screen.dart';
 import '../housekeeping/housekeeping_screen.dart';
 import '../profile/profile_screen.dart';
+import '../../service/database_service.dart';
+import '../payment/payment_detail_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   final String userName;
@@ -350,7 +353,25 @@ class _SpendingCard extends StatelessWidget {
               children: [
                 const Text('Current Balance', style: TextStyle(color: Colors.black54)),
                 const SizedBox(height: 6),
-                Text('\$${SpendingData.totalBalance.toStringAsFixed(2)}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+                StreamBuilder<double>(
+                  stream: DatabaseService().getTotalSpending(), // Veritabanını dinle
+                  builder: (context, snapshot) {
+                    // Veri gelene kadar ... göster veya 0.00 göster
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text(
+                        '\$0.00',
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                      );
+                    }
+
+                    double total = snapshot.data ?? 0.0;
+
+                    return Text(
+                      '\$${total.toStringAsFixed(2)}', // Gelen veriyi yazdır
+                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                    );
+                  },
+                ),
               ],
             ),
           ),

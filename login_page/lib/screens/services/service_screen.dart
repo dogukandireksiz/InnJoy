@@ -100,7 +100,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 } else if (s.category == 'Spa & Wellness' && s.primaryAction == 'See Pricelist') {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => SpaWellnessPricelistScreen(venueName: s.title),
+                      builder: (_) => SpaWellnessPricelistScreen(),
                     ),
                   );
                 }
