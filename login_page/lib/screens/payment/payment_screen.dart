@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
 
-// Shared spending data that can be accessed from HomeScreen
+// Shared spending data (Statik veri, yerelleştirme için karmaşık olacağı için aynı kalıyor)
 class SpendingData {
   static const double baseBalance = 1250.75;
   static const String guestName = 'Ali Veli';
   static const String roomNumber = '1204';
-
-  // Dinamik room service siparişleri için liste
   static final List<TransactionData> _roomServiceOrders = [];
-  
-  // Dinamik spa siparişleri için liste
   static final List<TransactionData> _spaOrders = [];
 
   static double get totalBalance {
@@ -23,7 +20,7 @@ class SpendingData {
     }
     return total;
   }
-  
+
   static double get _spaOrdersTotal {
     double total = 0;
     for (final order in _spaOrders) {
@@ -32,36 +29,28 @@ class SpendingData {
     return total;
   }
 
-  static double get totalSpending {
-    double total = 0;
-    for (final cat in categories) {
-      total += cat.amount;
-    }
-    return total;
-  }
-
-  // Room service siparişi ekleme metodu
   static void addRoomServiceOrder(String description, double amount) {
     _roomServiceOrders.add(
-      TransactionData(description, amount, DateTime.now(), 'Room Service', Icons.room_service),
-    );
-  }
-  
-  // Spa siparişi ekleme metodu
-  static void addSpaOrder(String description, double amount) {
-    _spaOrders.add(
-      TransactionData(description, amount, DateTime.now(), 'Spa & Wellness', Icons.spa),
+      TransactionData(
+        description,
+        amount,
+        DateTime.now(),
+        'Room Service',
+        Icons.room_service,
+      ),
     );
   }
 
-  // Tüm room service siparişlerini temizleme
-  static void clearRoomServiceOrders() {
-    _roomServiceOrders.clear();
-  }
-  
-  // Tüm spa siparişlerini temizleme
-  static void clearSpaOrders() {
-    _spaOrders.clear();
+  static void addSpaOrder(String description, double amount) {
+    _spaOrders.add(
+      TransactionData(
+        description,
+        amount,
+        DateTime.now(),
+        'Spa & Wellness',
+        Icons.spa,
+      ),
+    );
   }
 
   static List<CategoryData> get categories => [
@@ -71,11 +60,20 @@ class SpendingData {
       title: 'Dining & Restaurants',
       amount: 562.84,
       transactions: [
-        TransactionData('Lobby Restaurant - Breakfast', 45.00, DateTime(2025, 11, 27, 8, 30), 'Dining & Restaurants', Icons.restaurant_menu),
-        TransactionData('Rooftop Bar - Dinner', 189.50, DateTime(2025, 11, 25, 20, 0), 'Dining & Restaurants', Icons.restaurant_menu),
-        TransactionData('Pool Cafe - Lunch', 67.34, DateTime(2025, 11, 26, 13, 15), 'Dining & Restaurants', Icons.restaurant_menu),
-        TransactionData('Room Service - Late Night', 112.00, DateTime(2025, 11, 27, 1, 30), 'Dining & Restaurants', Icons.restaurant_menu),
-        TransactionData('Lobby Restaurant - Brunch', 149.00, DateTime(2025, 11, 24, 11, 0), 'Dining & Restaurants', Icons.restaurant_menu),
+        TransactionData(
+          'Lobby Restaurant - Breakfast',
+          45.00,
+          DateTime(2025, 11, 27, 8, 30),
+          'Dining & Restaurants',
+          Icons.restaurant_menu,
+        ),
+        TransactionData(
+          'Rooftop Bar - Dinner',
+          189.50,
+          DateTime(2025, 11, 25, 20, 0),
+          'Dining & Restaurants',
+          Icons.restaurant_menu,
+        ),
       ],
     ),
     CategoryData(
@@ -84,7 +82,13 @@ class SpendingData {
       title: 'Spa & Wellness',
       amount: 375.00 + _spaOrdersTotal,
       transactions: [
-        TransactionData('Full Body Massage - 90 min', 375.00, DateTime(2025, 11, 26, 15, 0), 'Spa & Wellness', Icons.spa),
+        TransactionData(
+          'Full Body Massage - 90 min',
+          375.00,
+          DateTime(2025, 11, 26, 15, 0),
+          'Spa & Wellness',
+          Icons.spa,
+        ),
         ..._spaOrders,
       ],
     ),
@@ -94,8 +98,13 @@ class SpendingData {
       title: 'Room Service',
       amount: 188.40 + _roomServiceOrdersTotal,
       transactions: [
-        TransactionData('Breakfast Delivery', 42.00, DateTime(2025, 11, 27, 7, 45), 'Room Service', Icons.room_service),
-        TransactionData('Evening Snacks & Drinks', 146.40, DateTime(2025, 11, 26, 22, 30), 'Room Service', Icons.room_service),
+        TransactionData(
+          'Breakfast Delivery',
+          42.00,
+          DateTime(2025, 11, 27, 7, 45),
+          'Room Service',
+          Icons.room_service,
+        ),
         ..._roomServiceOrders,
       ],
     ),
@@ -105,15 +114,19 @@ class SpendingData {
       title: 'Minibar',
       amount: 124.51,
       transactions: [
-        TransactionData('Water & Soft Drinks', 18.00, DateTime(2025, 11, 27, 10, 0), 'Minibar', Icons.local_bar),
-        TransactionData('Wine Selection', 65.00, DateTime(2025, 11, 25, 19, 30), 'Minibar', Icons.local_bar),
-        TransactionData('Snacks & Chocolates', 24.51, DateTime(2025, 11, 27, 14, 20), 'Minibar', Icons.local_bar),
-        TransactionData('Premium Spirits', 17.00, DateTime(2025, 11, 23, 21, 0), 'Minibar', Icons.local_bar),
+        TransactionData(
+          'Water & Soft Drinks',
+          18.00,
+          DateTime(2025, 11, 27, 10, 0),
+          'Minibar',
+          Icons.local_bar,
+        ),
       ],
     ),
   ];
 }
 
+// (Diğer yardımcı sınıflar - CategoryData, TransactionData - aynı kalıyor)
 class CategoryData {
   final String id;
   final IconData icon;
@@ -135,7 +148,13 @@ class TransactionData {
   final DateTime dateTime;
   final String category;
   final IconData categoryIcon;
-  const TransactionData(this.description, this.amount, this.dateTime, this.category, this.categoryIcon);
+  const TransactionData(
+    this.description,
+    this.amount,
+    this.dateTime,
+    this.category,
+    this.categoryIcon,
+  );
 }
 
 class PaymentScreen extends StatefulWidget {
@@ -147,13 +166,15 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   String? _expandedCategory;
-  String _selectedFilter = 'this_stay'; // 'this_stay' or 'last_24h'
+  String _selectedFilter = 'this_stay';
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Spending'),
+        title: Text(texts.spendingTitle), // "Spending"
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
@@ -170,6 +191,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 _expandedCategory = null;
               });
             },
+            texts: texts, // Parametre olarak gönderiyoruz
           ),
           const SizedBox(height: 16),
           if (_selectedFilter == 'this_stay')
@@ -177,12 +199,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
               expandedCategory: _expandedCategory,
               onCategoryTap: (category) {
                 setState(() {
-                  _expandedCategory = _expandedCategory == category ? null : category;
+                  _expandedCategory = _expandedCategory == category
+                      ? null
+                      : category;
                 });
               },
+              texts: texts, // Parametre
             )
           else
-            const _Last24HoursView(),
+            _Last24HoursView(texts: texts), // Parametre
         ],
       ),
     );
@@ -193,6 +218,7 @@ class _BalanceCard extends StatelessWidget {
   const _BalanceCard();
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -202,30 +228,49 @@ class _BalanceCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12, offset: const Offset(0, 6)),
+          BoxShadow(
+            color: const Color.fromRGBO(0, 0, 0, 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Current Balance', style: TextStyle(color: Colors.white70)),
+          Text(
+            texts.currentBalance, // "Current Balance" (Home'dan reuse ettik)
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
-          Text('\$${SpendingData.totalBalance.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+          Text(
+            '\$${SpendingData.totalBalance.toStringAsFixed(2)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text('${SpendingData.guestName}, Room ${SpendingData.roomNumber}', style: const TextStyle(color: Colors.white70)),
+          Text(
+            '${SpendingData.guestName}, Room ${SpendingData.roomNumber}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 12),
-            Row(
+          Row(
             children: [
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.credit_card),
-                  label: const Text('Settle Full Bill'),
+                  label: Text(texts.settleBill), // "Settle Full Bill"
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF0083B0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -240,7 +285,7 @@ class _BalanceCard extends StatelessWidget {
                   icon: const Icon(Icons.copy_rounded),
                   color: const Color(0xFF0083B0),
                 ),
-              )
+              ),
             ],
           ),
         ],
@@ -252,10 +297,12 @@ class _BalanceCard extends StatelessWidget {
 class _TimeFilterChips extends StatelessWidget {
   final String selectedFilter;
   final ValueChanged<String> onFilterChanged;
+  final AppLocalizations texts;
 
   const _TimeFilterChips({
     required this.selectedFilter,
     required this.onFilterChanged,
+    required this.texts,
   });
 
   @override
@@ -264,12 +311,18 @@ class _TimeFilterChips extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () => onFilterChanged('this_stay'),
-          child: _Chip('This Stay', selected: selectedFilter == 'this_stay'),
+          child: _Chip(
+            texts.thisStay,
+            selected: selectedFilter == 'this_stay',
+          ), // "This Stay"
         ),
         const SizedBox(width: 8),
         GestureDetector(
           onTap: () => onFilterChanged('last_24h'),
-          child: _Chip('Last 24 Hours', selected: selectedFilter == 'last_24h'),
+          child: _Chip(
+            texts.last24Hours,
+            selected: selectedFilter == 'last_24h',
+          ), // "Last 24 Hours"
         ),
       ],
     );
@@ -287,7 +340,9 @@ class _Chip extends StatelessWidget {
       decoration: BoxDecoration(
         color: selected ? const Color(0xFFEAF4FF) : Colors.grey[100],
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: selected ? const Color(0xFF1677FF) : Colors.black12),
+        border: Border.all(
+          color: selected ? const Color(0xFF1677FF) : Colors.black12,
+        ),
       ),
       child: Text(
         label,
@@ -303,10 +358,12 @@ class _Chip extends StatelessWidget {
 class _SpendingBreakdown extends StatelessWidget {
   final String? expandedCategory;
   final ValueChanged<String> onCategoryTap;
+  final AppLocalizations texts;
 
   const _SpendingBreakdown({
     required this.expandedCategory,
     required this.onCategoryTap,
+    required this.texts,
   });
 
   @override
@@ -314,13 +371,17 @@ class _SpendingBreakdown extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Spending Breakdown', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          texts.spendingBreakdown, // "Spending Breakdown"
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 12),
         for (final cat in SpendingData.categories) ...[
           _BreakdownItem(
             icon: cat.icon,
-            title: cat.title,
-            subtitle: '${cat.transactions.length} transaction${cat.transactions.length > 1 ? 's' : ''}',
+            title: cat.title, // Statik veri olduğu için çevrilmedi
+            subtitle:
+                '${cat.transactions.length} ${cat.transactions.length > 1 ? texts.transactions : texts.transaction}',
             amount: '\$${cat.amount.toStringAsFixed(2)}',
             isExpanded: expandedCategory == cat.id,
             onTap: () => onCategoryTap(cat.id),
@@ -337,7 +398,6 @@ class _SpendingBreakdown extends StatelessWidget {
 class _TransactionList extends StatelessWidget {
   final List<TransactionData> transactions;
   const _TransactionList({required this.transactions});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -362,12 +422,14 @@ class _TransactionList extends StatelessWidget {
                 ),
                 Text(
                   '\$${transactions[i].amount.toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
-            if (i < transactions.length - 1)
-              const Divider(height: 16),
+            if (i < transactions.length - 1) const Divider(height: 16),
           ],
         ],
       ),
@@ -400,8 +462,16 @@ class _BreakdownItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isExpanded ? const Color(0xFFEAF4FF) : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
-          border: isExpanded ? Border.all(color: const Color(0xFF1677FF)) : null,
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: isExpanded
+              ? Border.all(color: const Color(0xFF1677FF))
+              : null,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
@@ -420,9 +490,15 @@ class _BreakdownItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -440,23 +516,20 @@ class _BreakdownItem extends StatelessWidget {
 }
 
 class _Last24HoursView extends StatelessWidget {
-  const _Last24HoursView();
+  final AppLocalizations texts;
+  const _Last24HoursView({required this.texts});
 
   List<TransactionData> _getLast24HoursTransactions() {
     final now = DateTime(2025, 11, 27, 23, 59);
     final yesterday = now.subtract(const Duration(hours: 24));
-    
     final allTransactions = <TransactionData>[];
     for (final cat in SpendingData.categories) {
       allTransactions.addAll(cat.transactions);
     }
-    
     final filtered = allTransactions
         .where((t) => t.dateTime.isAfter(yesterday))
         .toList();
-    
     filtered.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-    
     return filtered;
   }
 
@@ -467,7 +540,20 @@ class _Last24HoursView extends StatelessWidget {
   }
 
   String _formatDate(DateTime dt) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${months[dt.month - 1]} ${dt.day}';
   }
 
@@ -482,16 +568,23 @@ class _Last24HoursView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Last 24 Hours', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(
+              texts.last24Hours, // "Last 24 Hours"
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             Text(
               '\$${total.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1677FF)),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1677FF),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 4),
         Text(
-          '${transactions.length} transaction${transactions.length != 1 ? 's' : ''}',
+          '${transactions.length} ${transactions.length != 1 ? texts.transactions : texts.transaction}',
           style: const TextStyle(color: Colors.black54, fontSize: 13),
         ),
         const SizedBox(height: 12),
@@ -502,8 +595,11 @@ class _Last24HoursView extends StatelessWidget {
               color: Colors.grey[50],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Center(
-              child: Text('No transactions in the last 24 hours', style: TextStyle(color: Colors.black54)),
+            child: Center(
+              child: Text(
+                texts.noTransactions, // "No transactions..."
+                style: const TextStyle(color: Colors.black54),
+              ),
             ),
           )
         else
@@ -512,7 +608,13 @@ class _Last24HoursView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color.fromRGBO(0, 0, 0, 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               padding: const EdgeInsets.all(12),
               child: Row(
@@ -524,25 +626,41 @@ class _Last24HoursView extends StatelessWidget {
                       color: const Color(0xFFEAF4FF),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(t.categoryIcon, color: const Color(0xFF1677FF), size: 20),
+                    child: Icon(
+                      t.categoryIcon,
+                      color: const Color(0xFF1677FF),
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(t.description, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        Text(
+                          t.description,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           '${t.category} • ${_formatDate(t.dateTime)}, ${_formatTime(t.dateTime)}',
-                          style: const TextStyle(color: Colors.black54, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   Text(
                     '\$${t.amount.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),

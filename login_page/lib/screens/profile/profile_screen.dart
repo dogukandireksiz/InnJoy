@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:login_page/l10n/app_localizations.dart';
+import 'package:login_page/providers/language_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,11 +22,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user?.email != null) {
       return user!.email!.split('@').first;
     }
-    return 'Misafir';
+    return 'Guest'; // Misafir -> Guest (Varsayılan)
+  }
+
+  // 🔥 Dil Seçme Penceresi
+  void _showLanguageSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Select Language / Dil Seçiniz",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              // Türkçe Seçeneği
+              ListTile(
+                leading: const Text("🇹🇷", style: TextStyle(fontSize: 24)),
+                title: const Text("Türkçe"),
+                trailing:
+                    context.read<LanguageProvider>().appLocale.languageCode ==
+                        'tr'
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : null,
+                onTap: () {
+                  context.read<LanguageProvider>().changeLanguage(
+                    const Locale('tr'),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              // İngilizce Seçeneği
+              ListTile(
+                leading: const Text("🇺🇸", style: TextStyle(fontSize: 24)),
+                title: const Text("English"),
+                trailing:
+                    context.read<LanguageProvider>().appLocale.languageCode ==
+                        'en'
+                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    : null,
+                onTap: () {
+                  context.read<LanguageProvider>().changeLanguage(
+                    const Locale('en'),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Çeviri dosyasına erişim
+    final texts = AppLocalizations.of(context)!;
+
+    // Anlık dili takip et
+    final currentLanguageCode = context
+        .watch<LanguageProvider>()
+        .appLocale
+        .languageCode;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -34,9 +106,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Profil',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
+        title: Text(
+          texts.profileSettings,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
         actions: [
           IconButton(
@@ -110,26 +186,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // E-posta
                   Text(
                     user?.email ?? 'email@example.com',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Kişisel Bilgiler
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Kişisel Bilgiler',
-                    style: TextStyle(
+                  Text(
+                    texts.personalInfoTitle, // "Personal Information"
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -139,13 +212,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       _InfoItem(
                         icon: Icons.person_outline,
-                        label: 'Ad Soyad',
+                        label: texts.nameSurname, // "Name Surname"
                         value: userName,
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.email_outlined,
-                        label: 'E-posta',
+                        label: texts.email, // "E-mail"
                         value: user?.email ?? 'email@example.com',
                       ),
                     ],
@@ -153,18 +226,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Konaklama Bilgileri
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Konaklama Bilgileri',
-                    style: TextStyle(
+                  Text(
+                    texts.accommodationInfoTitle, // "Accommodation Info"
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -174,50 +247,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       _InfoItem(
                         icon: Icons.hotel_outlined,
-                        label: 'Otel',
-                        value: 'GrandHyatt Hotel',
+                        label: texts.hotel, // "Hotel"
+                        value:
+                            'GrandHyatt Hotel', // Burası veritabanından gelecek, şimdilik sabit
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.door_front_door_outlined,
-                        label: 'Oda Numarası',
+                        label: texts.roomNumber, // "Room Number"
                         value: '1204',
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.calendar_today_outlined,
-                        label: 'Giriş Tarihi',
-                        value: '10 Kasım 2025',
+                        label: texts.checkInDate, // "Check-in Date"
+                        value: '10 Nov 2025',
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.event_outlined,
-                        label: 'Çıkış Tarihi',
-                        value: '15 Kasım 2025',
+                        label: texts.checkOutDate, // "Check-out Date"
+                        value: '15 Nov 2025',
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.people_outline,
-                        label: 'Misafir Sayısı',
-                        value: '2 Yetişkin',
+                        label: texts.guestCount, // "Guest Count"
+                        value: '2 Adults',
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Ayarlar ve Tercihler
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Ayarlar',
-                    style: TextStyle(
+                  Text(
+                    texts.settingsTitle, // "Settings"
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -227,32 +301,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       _SettingsItem(
                         icon: Icons.notifications_outlined,
-                        label: 'Bildirimler',
+                        label: texts.notifications, // "Notifications"
                         onTap: () {},
                       ),
                       const Divider(height: 1),
+
+                      // DİL KISMI
                       _SettingsItem(
                         icon: Icons.language_outlined,
-                        label: 'Dil',
-                        trailing: 'Türkçe',
-                        onTap: () {},
+                        label: texts.changeLanguage,
+                        // "Türkçe" veya "English" yazısı dinamik kalabilir
+                        trailing: currentLanguageCode == 'tr'
+                            ? 'Türkçe'
+                            : 'English',
+                        onTap: () {
+                          _showLanguageSelector(context);
+                        },
                       ),
+
                       const Divider(height: 1),
                       _SettingsItem(
                         icon: Icons.lock_outline,
-                        label: 'Şifre Değiştir',
+                        label: texts.changePassword, // "Change Password"
                         onTap: () {},
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
                         icon: Icons.privacy_tip_outlined,
-                        label: 'Gizlilik Politikası',
+                        label: texts.privacyPolicy, // "Privacy Policy"
                         onTap: () {},
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
                         icon: Icons.help_outline,
-                        label: 'Yardım & Destek',
+                        label: texts.helpSupport, // "Help & Support"
                         onTap: () {},
                       ),
                     ],
@@ -260,9 +342,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Çıkış Yap Butonu
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -273,17 +355,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final shouldLogout = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Çıkış Yap'),
-                        content: const Text('Çıkmak istediğinize emin misiniz?'),
+                        title: Text(texts.logoutConfirmationTitle), // "Log Out"
+                        content: Text(
+                          texts.logoutConfirmationMessage,
+                        ), // "Are you sure..."
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('İptal'),
+                            child: Text(texts.cancel), // "Cancel"
                           ),
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(true),
-                            style: TextButton.styleFrom(foregroundColor: Colors.red),
-                            child: const Text('Çıkış Yap'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
+                            child: Text(texts.logout), // "Log Out"
                           ),
                         ],
                       ),
@@ -291,14 +377,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (shouldLogout == true) {
                       await FirebaseAuth.instance.signOut();
                       if (context.mounted) {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
                       }
                     }
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),
-                  label: const Text(
-                    'Çıkış Yap',
-                    style: TextStyle(
+                  label: Text(
+                    texts.logout, // "Log Out"
+                    style: const TextStyle(
                       color: Colors.red,
                       fontWeight: FontWeight.w600,
                     ),
@@ -313,7 +401,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
           ],
         ),
@@ -322,11 +410,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+// ... Yardımcı Widgetlar (Aynı kalıyor) ...
 class _InfoCard extends StatelessWidget {
   final List<Widget> children;
-
   const _InfoCard({required this.children});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -335,7 +422,7 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -350,13 +437,11 @@ class _InfoItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-
   const _InfoItem({
     required this.icon,
     required this.label,
     required this.value,
   });
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -379,10 +464,7 @@ class _InfoItem extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -403,9 +485,7 @@ class _InfoItem extends StatelessWidget {
 
 class _SettingsCard extends StatelessWidget {
   final List<Widget> children;
-
   const _SettingsCard({required this.children});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -414,7 +494,7 @@ class _SettingsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -430,14 +510,12 @@ class _SettingsItem extends StatelessWidget {
   final String label;
   final String? trailing;
   final VoidCallback onTap;
-
   const _SettingsItem({
     required this.icon,
     required this.label,
     this.trailing,
     required this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -468,10 +546,7 @@ class _SettingsItem extends StatelessWidget {
             if (trailing != null) ...[
               Text(
                 trailing!,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(width: 8),
             ],

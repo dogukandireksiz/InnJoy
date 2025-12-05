@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
 import 'menu_data.dart';
 import 'room_service_confirm_screen.dart';
 
@@ -21,7 +22,7 @@ class RoomServiceCartScreen extends StatefulWidget {
 class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
   late Map<MenuItem, int> _cart;
   final TextEditingController _noteController = TextEditingController();
-  
+
   // Fiyatlandırma
   static const double _serviceCharge = 35.0;
   static const double _discount = 20.0;
@@ -38,7 +39,8 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
     super.dispose();
   }
 
-  double get _subtotal => _cart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
+  double get _subtotal =>
+      _cart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
   double get _total => _subtotal - _discount + _serviceCharge;
 
   void _addItem(MenuItem item) {
@@ -79,6 +81,8 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -89,14 +93,17 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Sipariş Sepeti',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+        title: Text(
+          texts.cartTitle, // "Sipariş Sepeti"
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
       body: _cart.isEmpty
-          ? _buildEmptyCart()
+          ? _buildEmptyCart(texts)
           : Column(
               children: [
                 Expanded(
@@ -106,29 +113,32 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Sipariş Listesi Başlık
-                        const Text(
-                          'Sipariş Listesi',
-                          style: TextStyle(
+                        Text(
+                          texts.orderList, // "Sipariş Listesi"
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Sipariş Öğeleri
-                        ..._cart.entries.map((entry) => _CartItemCard(
-                          item: entry.key,
-                          quantity: entry.value,
-                          onAdd: () => _addItem(entry.key),
-                          onRemove: () => _removeItem(entry.key),
-                        )),
-                        
+                        ..._cart.entries.map(
+                          (entry) => _CartItemCard(
+                            item: entry.key,
+                            quantity: entry.value,
+                            onAdd: () => _addItem(entry.key),
+                            onRemove: () => _removeItem(entry.key),
+                            texts: texts,
+                          ),
+                        ),
+
                         const SizedBox(height: 24),
-                        
+
                         // Sipariş Notu
-                        const Text(
-                          'Sipariş Notunuz',
-                          style: TextStyle(
+                        Text(
+                          texts.orderNoteTitle, // "Sipariş Notunuz"
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -144,20 +154,20 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                             controller: _noteController,
                             maxLines: 3,
                             decoration: InputDecoration(
-                              hintText: 'Alerjiler veya özel talepleriniz için...',
+                              hintText: texts.orderNoteHint, // "Alerjiler..."
                               hintStyle: TextStyle(color: Colors.grey[400]),
                               border: InputBorder.none,
                               contentPadding: const EdgeInsets.all(16),
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Toplam Hesap Özeti
-                        const Text(
-                          'Toplam Hesap Özeti',
-                          style: TextStyle(
+                        Text(
+                          texts.orderSummary, // "Toplam Hesap Özeti"
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -171,25 +181,33 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                           ),
                           child: Column(
                             children: [
-                              _PriceRow(label: 'Alt Toplam', amount: _subtotal),
+                              _PriceRow(
+                                label: texts.subtotal,
+                                amount: _subtotal,
+                              ), // "Alt Toplam"
                               const SizedBox(height: 12),
                               _PriceRow(
-                                label: 'İndirimler',
+                                label: texts.discounts, // "İndirimler"
                                 amount: -_discount,
                                 isDiscount: true,
                               ),
                               const SizedBox(height: 12),
-                              _PriceRow(label: 'Servis Ücreti', amount: _serviceCharge),
+                              _PriceRow(
+                                label: texts.serviceCharge, // "Servis Ücreti"
+                                amount: _serviceCharge,
+                              ),
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 12),
                                 child: Divider(),
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    'Ödenecek Toplam Tutar',
-                                    style: TextStyle(
+                                  Text(
+                                    texts
+                                        .totalPayment, // "Ödenecek Toplam Tutar"
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 15,
                                     ),
@@ -207,8 +225,10 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                             ],
                           ),
                         ),
-                        
-                        const SizedBox(height: 100), // Bottom button için boşluk
+
+                        const SizedBox(
+                          height: 100,
+                        ), // Bottom button için boşluk
                       ],
                     ),
                   ),
@@ -222,7 +242,7 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: const Color.fromRGBO(0, 0, 0, 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -234,11 +254,13 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1677FF),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: const Text(
-                    'Devam Et',
-                    style: TextStyle(
+                  child: Text(
+                    texts.continueButton, // "Devam Et"
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -251,19 +273,15 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
     );
   }
 
-  Widget _buildEmptyCart() {
+  Widget _buildEmptyCart(AppLocalizations texts) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: 80,
-            color: Colors.grey[300],
-          ),
+          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
-            'Sepetiniz boş',
+            texts.emptyCartTitle, // "Sepetiniz boş"
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -272,10 +290,8 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Menüden ürün ekleyerek başlayın',
-            style: TextStyle(
-              color: Colors.grey[500],
-            ),
+            texts.emptyCartMessage, // "Menüden ürün ekleyerek..."
+            style: TextStyle(color: Colors.grey[500]),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -283,11 +299,13 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text(
-              'Menüye Dön',
-              style: TextStyle(color: Colors.white),
+            child: Text(
+              texts.returnToMenu, // "Menüye Dön"
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -301,12 +319,14 @@ class _CartItemCard extends StatelessWidget {
   final int quantity;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
+  final AppLocalizations texts;
 
   const _CartItemCard({
     required this.item,
     required this.quantity,
     required this.onAdd,
     required this.onRemove,
+    required this.texts,
   });
 
   @override
@@ -319,7 +339,7 @@ class _CartItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: const Color.fromRGBO(0, 0, 0, 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -344,7 +364,7 @@ class _CartItemCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          
+
           // Ürün bilgileri
           Expanded(
             child: Column(
@@ -374,10 +394,7 @@ class _CartItemCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   item.description,
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -390,9 +407,9 @@ class _CartItemCard extends StatelessWidget {
                       onTap: () {
                         // Not ekleme işlevi
                       },
-                      child: const Text(
-                        'Not Ekle',
-                        style: TextStyle(
+                      child: Text(
+                        texts.addNote, // "Not Ekle"
+                        style: const TextStyle(
                           color: Color(0xFF1677FF),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -410,7 +427,11 @@ class _CartItemCard extends StatelessWidget {
                               color: Colors.grey[100],
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Icon(Icons.remove, size: 18, color: Colors.black54),
+                            child: const Icon(
+                              Icons.remove,
+                              size: 18,
+                              color: Colors.black54,
+                            ),
                           ),
                         ),
                         Padding(
@@ -431,7 +452,11 @@ class _CartItemCard extends StatelessWidget {
                               color: const Color(0xFF1677FF),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Icon(Icons.add, size: 18, color: Colors.white),
+                            child: const Icon(
+                              Icons.add,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
@@ -463,13 +488,7 @@ class _PriceRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
-          ),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
         Text(
           '${isDiscount ? '' : ''}${amount.toStringAsFixed(2)}₺',
           style: TextStyle(

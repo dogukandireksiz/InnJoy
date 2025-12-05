@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart'; // <-- 1. EKLENDİ: Provider paketi
+import 'package:login_page/providers/language_provider.dart'; // <-- 2. EKLENDİ: Senin provider dosyan (yolu kontrol et)
+
 import 'package:login_page/screens/screens.dart';
 import 'package:login_page/widgets/verification_screen.dart';
 
@@ -24,14 +27,21 @@ class AuthWrapper extends StatelessWidget {
 
         // 2. Eğer snapshot içinde veri varsa (Kullanıcı giriş yapmışsa)
         if (snapshot.hasData) {
-          // Giriş yapmış kullanıcının bilgilerini alıyoruz
           User? user = snapshot.data;
           
-          // Kullanıcının ismini HomeScreen'e gönderiyoruz.
-          // Eğer isim boşsa (önceden hatalı kayıtlar için) 'User' yazsın.
+          // E-posta doğrulaması kontrolü
           if(user != null && !user.emailVerified){
             return VerificationScreen(user: user);
           }
+
+          // 🔥 3. EKLENDİ: DİL TERCİHİNİ ÇEKME İŞLEMİ 🔥
+          // Ekran çizimi biter bitmez (addPostFrameCallback) dili Firebase'den çekiyoruz.
+          // Eğer bunu yapmazsak uygulama varsayılan (İngilizce) açılır, sonra değişir.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Provider.of<LanguageProvider>(context, listen: false).fetchLocale();
+          });
+
+          // Kullanıcının ismini HomeScreen'e gönderiyoruz.
           return HomeScreen(userName: user?.displayName ?? "User");
         }
 

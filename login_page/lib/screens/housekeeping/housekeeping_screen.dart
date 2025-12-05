@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
 
 class HousekeepingScreen extends StatefulWidget {
   const HousekeepingScreen({super.key});
@@ -11,14 +12,13 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
   bool _doNotDisturb = false;
   int _selectedTimeType = 0; // 0: Hemen Temizle, 1: Belirli Saat Aralığında
   String _selectedTimeRange = '14:00 - 16:00';
-  
+
   // Malzeme talepleri
   int _extraTowelCount = 0;
   int _pillowCount = 0;
   int _blanketCount = 0;
-  
+
   final TextEditingController _notesController = TextEditingController();
-  
   bool _requestSent = false;
 
   final List<String> _timeRanges = [
@@ -44,6 +44,8 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -54,9 +56,13 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Housekeeping Request',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
+        title: Text(
+          texts.housekeepingTitle, // "Housekeeping Request"
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -72,7 +78,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: const Color.fromRGBO(0, 0, 0, 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -84,16 +90,16 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Rahatsız Etmeyin',
-                          style: TextStyle(
+                        Text(
+                          texts.doNotDisturb, // "Rahatsız Etmeyin"
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Aşağıya gizlilik notu eklenecektir.',
+                          texts.privacyNote, // "Aşağıya gizlilik notu..."
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 13,
@@ -109,46 +115,46 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                         _doNotDisturb = value;
                       });
                     },
-                    activeColor: const Color(0xFF1677FF),
+                    activeThumbColor: const Color(0xFF1677FF),
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Temizlik Talebi
-            const Text(
-              'Temizlik Talebi',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            Text(
+              texts.cleaningRequest, // "Temizlik Talebi"
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
-            
+
             // Zaman Seçimi Chips
             Row(
               children: [
                 _TimeChip(
-                  label: 'Hemen Temizle',
+                  label: texts.cleanImmediately, // "Hemen Temizle"
                   isSelected: _selectedTimeType == 0,
                   onTap: () => setState(() => _selectedTimeType = 0),
                 ),
                 const SizedBox(width: 12),
                 _TimeChip(
-                  label: 'Belirli Saat Aralığında',
+                  label: texts.specificTime, // "Belirli Saat Aralığında"
                   isSelected: _selectedTimeType == 1,
                   onTap: () => setState(() => _selectedTimeType = 1),
                 ),
               ],
             ),
-            
+
             // Saat Seçimi (sadece Belirli Saat Aralığında seçiliyse)
             if (_selectedTimeType == 1) ...[
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -157,15 +163,15 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Saat Seçin',
-                      style: TextStyle(
+                    Text(
+                      texts.selectTime, // "Saat Seçin"
+                      style: const TextStyle(
                         color: Colors.black54,
                         fontSize: 15,
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => _showTimeRangePicker(),
+                      onTap: () => _showTimeRangePicker(texts),
                       child: Row(
                         children: [
                           Text(
@@ -176,7 +182,10 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.grey[600],
+                          ),
                         ],
                       ),
                     ),
@@ -184,22 +193,19 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 24),
-            
+
             // Malzeme ve Ekstra Talepler
-            const Text(
-              'Malzeme ve Ekstra Talepler',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            Text(
+              texts.suppliesTitle, // "Malzeme ve Ekstra Talepler"
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
-            
+
             _MaterialRequestItem(
               icon: Icons.dry_cleaning,
-              label: 'Ekstra Havlu',
+              label: texts.extraTowel, // "Ekstra Havlu"
               count: _extraTowelCount,
               onDecrement: () {
                 if (_extraTowelCount > 0) {
@@ -209,10 +215,10 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               onIncrement: () => setState(() => _extraTowelCount++),
             ),
             const SizedBox(height: 12),
-            
+
             _MaterialRequestItem(
               icon: Icons.bed,
-              label: 'Yastık',
+              label: texts.pillow, // "Yastık"
               count: _pillowCount,
               onDecrement: () {
                 if (_pillowCount > 0) {
@@ -222,10 +228,10 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               onIncrement: () => setState(() => _pillowCount++),
             ),
             const SizedBox(height: 12),
-            
+
             _MaterialRequestItem(
               icon: Icons.nights_stay,
-              label: 'Battaniye',
+              label: texts.blanket, // "Battaniye"
               count: _blanketCount,
               onDecrement: () {
                 if (_blanketCount > 0) {
@@ -234,19 +240,16 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               },
               onIncrement: () => setState(() => _blanketCount++),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Özel İstekler ve Şikayet
-            const Text(
-              'Özel İstekler ve Şikayet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            Text(
+              texts.specialRequestsTitle, // "Özel İstekler ve Şikayet"
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
-            
+
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -257,33 +260,32 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 controller: _notesController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'Lütfen özel isteklerinizi veya notlarınızı buraya yazın...',
+                  hintText: texts.notesHint, // "Notlarınızı buraya yazın..."
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Talep Takibi
-            const Text(
-              'Talep Takibi',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            Text(
+              texts.requestTracking, // "Talep Takibi"
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
-            
+
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: _requestSent ? const Color(0xFFE8F5E9) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: _requestSent ? const Color(0xFF4CAF50) : Colors.grey[300]!,
+                  color: _requestSent
+                      ? const Color(0xFF4CAF50)
+                      : Colors.grey[300]!,
                 ),
               ),
               child: Row(
@@ -292,7 +294,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: _requestSent ? const Color(0xFF4CAF50) : Colors.grey[200],
+                      color: _requestSent
+                          ? const Color(0xFF4CAF50)
+                          : Colors.grey[200],
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
@@ -307,20 +311,27 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _requestSent ? 'Talebiniz Gönderildi' : 'Bekliyor',
+                          _requestSent
+                              ? texts.requestSent
+                              : texts.waiting, // "Gönderildi" / "Bekliyor"
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
-                            color: _requestSent ? const Color(0xFF2E7D32) : Colors.black87,
+                            color: _requestSent
+                                ? const Color(0xFF2E7D32)
+                                : Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           _requestSent
-                              ? 'Ekibimiz en kısa sürede ilgilenecektir.'
-                              : 'Talebinizi göndermek için aşağıdaki butona tıklayın.',
+                              ? texts
+                                    .teamAttentionMsg // "Ekibimiz ilgilenecektir."
+                              : texts.clickToSendMsg, // "Butona tıklayın."
                           style: TextStyle(
-                            color: _requestSent ? const Color(0xFF388E3C) : Colors.grey[600],
+                            color: _requestSent
+                                ? const Color(0xFF388E3C)
+                                : Colors.grey[600],
                             fontSize: 13,
                           ),
                         ),
@@ -330,7 +341,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 100),
           ],
         ),
@@ -341,8 +352,8 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 8,
               offset: const Offset(0, -2),
             ),
           ],
@@ -354,10 +365,15 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               backgroundColor: const Color(0xFF1677FF),
               disabledBackgroundColor: Colors.grey[300],
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Text(
-              _requestSent ? 'Talep Gönderildi' : 'Talep Gönder',
+              _requestSent
+                  ? texts.requestSentButton
+                  : texts
+                        .sendRequestButton, // "Talep Gönderildi" / "Talep Gönder"
               style: TextStyle(
                 color: _requestSent ? Colors.grey[600] : Colors.white,
                 fontSize: 16,
@@ -370,7 +386,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     );
   }
 
-  void _showTimeRangePicker() {
+  void _showTimeRangePicker(AppLocalizations texts) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -382,12 +398,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Saat Aralığı Seçin',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            Text(
+              texts.timeRangeTitle, // "Saat Aralığı Seçin"
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
             ...List.generate(_timeRanges.length, (index) {
@@ -403,8 +416,12 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 title: Text(
                   range,
                   style: TextStyle(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? const Color(0xFF1677FF) : Colors.black87,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: isSelected
+                        ? const Color(0xFF1677FF)
+                        : Colors.black87,
                   ),
                 ),
                 trailing: isSelected
@@ -420,6 +437,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
   }
 }
 
+// Yardımcı Widgetlar (Aynı kalıyor)
 class _TimeChip extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -481,7 +499,7 @@ class _MaterialRequestItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: const Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -502,13 +520,9 @@ class _MaterialRequestItem extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 15,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
             ),
           ),
-          // Counter
           Row(
             children: [
               GestureDetector(
@@ -520,7 +534,11 @@ class _MaterialRequestItem extends StatelessWidget {
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.remove, size: 18, color: Colors.black54),
+                  child: const Icon(
+                    Icons.remove,
+                    size: 18,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
               SizedBox(

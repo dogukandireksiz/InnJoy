@@ -10,8 +10,9 @@ class SignUpScreen extends StatefulWidget {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   SignUpScreen({super.key});
 
   @override
@@ -25,22 +26,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? errorMessage;
 
   // Firebase Authentication ile yeni kullanıcı oluşturma fonksiyonu
-  Future<void> createUser() async{
+  Future<void> createUser() async {
     // Şifrelerin aynı olup olmadığını kontrol eder
-    if(widget._passwordController.text != widget._confirmPasswordController.text){
+    if (widget._passwordController.text !=
+        widget._confirmPasswordController.text) {
       setState(() {
         errorMessage = "Passwords don't match.";
       });
       return;
     }
-    try{
+    try {
       // Firebase Auth → Yeni kullanıcı oluşturur (e-mail & şifre)
-      final userCred =  await Auth().createUser(
-        email: widget._emailController.text, 
-        password: widget._passwordController.text
+      final userCred = await Auth().createUser(
+        email: widget._emailController.text,
+        password: widget._passwordController.text,
       );
 
-      if(userCred == null || userCred.user == null){
+      if (userCred == null || userCred.user == null) {
         return;
       }
 
@@ -49,19 +51,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       // Firebase Authentication'da oluşan UID ile Firestore'a kullanıcı kaydı yazılır
       UserModel newUser = UserModel(
-        uid: userCred.user!.uid,                        // Firestore belge ID olarak kullanılacak UID
-        nameSurname: widget._nameController.text,       // Kullanıcı adı-soyadı
-        mailAddress: userCred.user!.email,              // Firebase'in kayıt ettiği email
-        password: widget._passwordController.text       // (Tavsiye edilmez) Firestore'a şifre gönderme
+        uid: userCred.user!.uid, // Firestore belge ID olarak kullanılacak UID
+        nameSurname: widget._nameController.text, // Kullanıcı adı-soyadı
+        mailAddress: userCred.user!.email, // Firebase'in kayıt ettiği email
+        password: widget
+            ._passwordController
+            .text, // (Tavsiye edilmez) Firestore'a şifre gönderme
       );
 
       // Firestore → "users" koleksiyonuna kullanıcı kaydı eklenir
       userService.createDbUser(newUser);
 
-      if(mounted){
+      if (mounted) {
         Navigator.of(context).pop(); // Hesap oluşursa geri döner
       }
-    } on FirebaseAuthException catch(e){
+    } on FirebaseAuthException catch (e) {
       // Firebase Authentication'dan dönen hatayı kullanıcıya gösterir
       setState(() {
         errorMessage = e.message;
@@ -87,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: Container(color: Colors.black.withOpacity(0.1)),
+            child: Container(color: Color.fromRGBO(0, 0, 0, 0.1)),
           ),
 
           Center(
@@ -133,8 +137,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.person, color: Colors.amber),
+                        fillColor: Color.fromRGBO(255, 255, 255, 0.15),
+                        prefixIcon: const Icon(
+                          Icons.person,
+                          color: Colors.amber,
+                        ),
                         hintText: "Name and Surname",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
@@ -148,12 +155,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // E-mail girişi
                     TextField(
-                      controller:widget._emailController,
+                      controller: widget._emailController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.amber),
+                        fillColor: Color.fromRGBO(255, 255, 255, 0.15),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: Colors.amber,
+                        ),
                         hintText: "E-mail Address",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
@@ -167,16 +177,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Şifre
                     TextField(
-                      controller:widget._passwordController,
+                      controller: widget._passwordController,
                       obscureText: _isPasswordHidden2,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.amber),
+                        fillColor: Color.fromRGBO(255, 255, 255, 0.15),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.amber,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordHidden2 ? Icons.visibility : Icons.visibility_off,
+                            _isPasswordHidden2
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                             color: Colors.white70,
                           ),
                           onPressed: () {
@@ -198,16 +213,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Şifre tekrar
                     TextField(
-                      controller:widget._confirmPasswordController,
+                      controller: widget._confirmPasswordController,
                       obscureText: _isPasswordHidden3,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.amber),
+                        fillColor: Color.fromRGBO(255, 255, 255, 0.15),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.amber,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordHidden3 ? Icons.visibility : Icons.visibility_off,
+                            _isPasswordHidden3
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                             color: Colors.white70,
                           ),
                           onPressed: () {
@@ -238,7 +258,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        onPressed: createUser, // Firebase + Firestore işlemini çalıştırır
+                        onPressed:
+                            createUser, // Firebase + Firestore işlemini çalıştırır
                         child: const Text(
                           "Sign Up",
                           style: TextStyle(

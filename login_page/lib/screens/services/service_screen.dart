@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
 import 'dining/dining_pricelist_screen.dart';
 import 'dining/dining_booking_screen.dart';
 import 'spa_wellness/spa_wellness_pricelist_screen.dart';
@@ -13,50 +14,7 @@ class ServiceScreen extends StatefulWidget {
 
 class _ServiceScreenState extends State<ServiceScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String? _selectedCategory; // null => show all services
-
-  final List<_ServiceItem> _allServices = const [
-    _ServiceItem(
-      title: 'The Azure Restaurant',
-      description:
-          'Fine dining with a panoramic city view, featuring a modern European menu.',
-      imagePath: 'assets/images/arkaplan.jpg',
-      badgeText: 'Reservations Recommended',
-      category: 'Dining',
-      primaryAction: 'See Pricelist',
-      secondaryAction: 'Book Treatment',
-    ),
-    _ServiceItem(
-      title: 'Serenity Spa',
-      description:
-          'Indulge in our signature treatments and find your inner peace.',
-      imagePath: 'assets/images/arkaplanyok1.png',
-      badgeText: 'Appointments Only',
-      category: 'Spa & Wellness',
-      primaryAction: 'See Pricelist',
-      secondaryAction: 'Book Treatment',
-    ),
-    _ServiceItem(
-      title: '24/7 Fitness Center',
-      description:
-          'State-of-the-art equipment for all your fitness needs, anytime you need it.',
-      imagePath: 'assets/images/arkaplanyok.png',
-      badgeText: 'Open 24 Hours',
-      category: 'Fitness',
-      primaryAction: 'View Classes',
-      secondaryAction: null,
-    ),
-  ];
-
-  List<_ServiceItem> get _filteredServices {
-    final q = _searchController.text.trim().toLowerCase();
-    return _allServices.where((s) {
-      final matchesCategory = _selectedCategory == null || s.category == _selectedCategory;
-      if (!matchesCategory) return false;
-      if (q.isEmpty) return true;
-      return s.title.toLowerCase().contains(q) || s.description.toLowerCase().contains(q);
-    }).toList();
-  }
+  String? _selectedCategory;
 
   @override
   void dispose() {
@@ -64,24 +22,83 @@ class _ServiceScreenState extends State<ServiceScreen> {
     super.dispose();
   }
 
+  // Servis listesini build içinde oluşturuyoruz ki dil değişince güncellensin
+  List<_ServiceItem> _getServices(AppLocalizations texts) {
+    return [
+      _ServiceItem(
+        title: 'The Azure Restaurant',
+        description: texts.azureDesc,
+        imagePath: 'assets/images/arkaplan.jpg',
+        badgeText: texts.reservationsRecommended,
+        category: 'Dining',
+        primaryAction: texts.seePricelist,
+        secondaryAction: texts.bookTreatment,
+      ),
+      _ServiceItem(
+        title: 'Serenity Spa',
+        description: texts.serenitySpaDesc,
+        imagePath: 'assets/images/arkaplanyok1.png',
+        badgeText: texts.appointmentsOnly,
+        category: 'Spa & Wellness',
+        primaryAction: texts.seePricelist,
+        secondaryAction: texts.bookTreatment,
+      ),
+      _ServiceItem(
+        title: '24/7 Fitness Center',
+        description: texts.fitnessDesc,
+        imagePath: 'assets/images/arkaplanyok.png',
+        badgeText: texts.open24Hours,
+        category: 'Fitness',
+        primaryAction: texts.viewClasses,
+        secondaryAction: null,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
+    final allServices = _getServices(texts);
+
+    // Kategori isimlerini çeviriyoruz
+    final categoryMap = {
+      'Dining': texts.dining,
+      'Spa & Wellness': texts.spaWellness,
+      'Fitness': texts.fitness,
+      'Recreation': texts.recreation,
+    };
+
+    final q = _searchController.text.trim().toLowerCase();
+
+    final filteredServices = allServices.where((s) {
+      // Kategori kontrolü (İngilizce key üzerinden yapıyoruz)
+      final matchesCategory =
+          _selectedCategory == null || s.category == _selectedCategory;
+      if (!matchesCategory) return false;
+
+      if (q.isEmpty) return true;
+      return s.title.toLowerCase().contains(q) ||
+          s.description.toLowerCase().contains(q);
+    }).toList();
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Our Services'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(texts.ourServices), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _SearchBar(controller: _searchController, onChanged: (_) => setState(() {})),
+          _SearchBar(
+            controller: _searchController,
+            hintText: texts.searchServices,
+            onChanged: (_) => setState(() {}),
+          ),
           const SizedBox(height: 12),
           _CategoryChips(
             selected: _selectedCategory,
-            onSelected: (value) => setState(() => _selectedCategory = value),
+            categoryMap: categoryMap,
+            onSelected: (key) => setState(() => _selectedCategory = key),
           ),
           const SizedBox(height: 16),
-          for (final s in _filteredServices) ...[
+          for (final s in filteredServices) ...[
             _ServiceCard(
               title: s.title,
               badgeText: s.badgeText,
@@ -91,28 +108,34 @@ class _ServiceScreenState extends State<ServiceScreen> {
               secondaryAction: s.secondaryAction,
               category: s.category,
               onPrimaryAction: () {
-                if (s.category == 'Dining' && s.primaryAction == 'See Pricelist') {
+                if (s.category == 'Dining' &&
+                    s.primaryAction == texts.seePricelist) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => DiningPricelistScreen(venueName: s.title),
                     ),
                   );
-                } else if (s.category == 'Spa & Wellness' && s.primaryAction == 'See Pricelist') {
+                } else if (s.category == 'Spa & Wellness' &&
+                    s.primaryAction == texts.seePricelist) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => SpaWellnessPricelistScreen(venueName: s.title),
+                      builder: (_) =>
+                          SpaWellnessPricelistScreen(venueName: s.title),
                     ),
                   );
                 }
               },
               onSecondaryAction: () {
-                if (s.category == 'Dining' && s.secondaryAction == 'Book Treatment') {
+                if (s.category == 'Dining' &&
+                    s.secondaryAction == texts.bookTreatment) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => DiningBookingScreen(preselectedVenue: s.title),
+                      builder: (_) =>
+                          DiningBookingScreen(preselectedVenue: s.title),
                     ),
                   );
-                } else if (s.category == 'Spa & Wellness' && s.secondaryAction == 'Book Treatment') {
+                } else if (s.category == 'Spa & Wellness' &&
+                    s.secondaryAction == texts.bookTreatment) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const SpaWellnessBookingScreen(),
@@ -123,12 +146,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
             ),
             const SizedBox(height: 16),
           ],
-          if (_filteredServices.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 32),
-              child: Center(
-                child: Text('No services found for this category.'),
-              ),
+          if (filteredServices.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(child: Text(texts.noServicesFound)),
             ),
         ],
       ),
@@ -139,14 +160,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
 class _SearchBar extends StatelessWidget {
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
-  const _SearchBar({this.controller, this.onChanged});
+  final String hintText;
+  const _SearchBar({this.controller, this.onChanged, required this.hintText});
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       onChanged: onChanged,
       decoration: InputDecoration(
-        hintText: 'Search for services...',
+        hintText: hintText,
         prefixIcon: const Icon(Icons.search),
         filled: true,
         fillColor: Colors.white,
@@ -162,27 +184,30 @@ class _SearchBar extends StatelessWidget {
 class _CategoryChips extends StatelessWidget {
   final String? selected;
   final ValueChanged<String?> onSelected;
-  const _CategoryChips({required this.selected, required this.onSelected});
+  final Map<String, String> categoryMap;
+
+  const _CategoryChips({
+    required this.selected,
+    required this.onSelected,
+    required this.categoryMap,
+  });
+
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      'Dining',
-      'Spa & Wellness',
-      'Fitness',
-      'Recreation',
-    ];
+    // Key'leri (Dining, Spa vs.) kullanıyoruz ama ekranda Value'ları (Yeme İçme, Spa vs.) gösteriyoruz
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          for (final c in categories) ...[
+          for (final entry in categoryMap.entries) ...[
             ChoiceChip(
-              label: Text(c),
-              selected: selected == c,
-              onSelected: (isSelected) => onSelected(selected == c ? null : c),
+              label: Text(entry.value), // Çevrilmiş metin
+              selected: selected == entry.key,
+              onSelected: (isSelected) =>
+                  onSelected(selected == entry.key ? null : entry.key),
             ),
             const SizedBox(width: 8),
-          ]
+          ],
         ],
       ),
     );
@@ -220,7 +245,7 @@ class _ServiceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: const Color.fromRGBO(0, 0, 0, 0.06),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -230,7 +255,12 @@ class _ServiceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(imagePath, height: 160, width: double.infinity, fit: BoxFit.cover),
+          Image.asset(
+            imagePath,
+            height: 160,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -241,11 +271,17 @@ class _ServiceCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.green.shade50,
                         borderRadius: BorderRadius.circular(20),
@@ -253,7 +289,10 @@ class _ServiceCard extends StatelessWidget {
                       ),
                       child: Text(
                         badgeText,
-                        style: const TextStyle(fontSize: 12, color: Colors.green),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.green,
+                        ),
                       ),
                     ),
                   ],
@@ -283,7 +322,7 @@ class _ServiceCard extends StatelessWidget {
                       ),
                     ],
                   ],
-                )
+                ),
               ],
             ),
           ),

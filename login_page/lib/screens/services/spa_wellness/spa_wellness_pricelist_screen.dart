@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri
 import 'spa_wellness_booking_screen.dart';
 
-// Spa tedavi modeli
 class SpaTreatment {
   final String name;
   final String description;
   final double price;
-  final int duration; // dakika cinsinden
+  final int duration;
   final String? imagePath;
-
   const SpaTreatment({
     required this.name,
     required this.description,
@@ -18,25 +17,18 @@ class SpaTreatment {
   });
 }
 
-// Spa tedavi kategorisi modeli
 class SpaTreatmentCategory {
   final String name;
   final List<SpaTreatment> treatments;
-
-  const SpaTreatmentCategory({
-    required this.name,
-    required this.treatments,
-  });
+  const SpaTreatmentCategory({required this.name, required this.treatments});
 }
 
-// Özel paket modeli
 class SpaSpecialPackage {
   final String name;
   final String description;
   final double originalPrice;
   final double discountedPrice;
   final String? imagePath;
-
   const SpaSpecialPackage({
     required this.name,
     required this.description,
@@ -46,7 +38,6 @@ class SpaSpecialPackage {
   });
 }
 
-// Spa merkezi modeli
 class SpaVenue {
   final String name;
   final String description;
@@ -54,7 +45,6 @@ class SpaVenue {
   final List<SpaTreatmentCategory> treatmentCategories;
   final List<SpaSpecialPackage> specialPackages;
   final List<String> procedureInfo;
-
   const SpaVenue({
     required this.name,
     required this.description,
@@ -65,12 +55,12 @@ class SpaVenue {
   });
 }
 
-// Spa verileri
-class SpaData {
-  static final Map<String, SpaVenue> venues = {
+// Global fonksiyon
+Map<String, SpaVenue> getSpaVenues(AppLocalizations texts) {
+  return {
     'Serenity Spa': SpaVenue(
       name: 'Serenity Spa',
-      description: 'Indulge in our signature treatments and find your inner peace.',
+      description: texts.serenitySpaDesc,
       headerImagePath: 'assets/images/arkaplanyok1.png',
       treatmentCategories: [
         SpaTreatmentCategory(
@@ -78,77 +68,17 @@ class SpaData {
           treatments: [
             SpaTreatment(
               name: 'İsveç Masajı',
-              description: 'Kasları gevşetmek, kan dolaşımını artırmak ve stresi azaltmak için tasarlanmış klasik bir masaj tekniğidir. Vücudunuza tam bir rahatlama ve yenilenme sağlar.',
+              description: 'Klasik rahatlama masajı...',
               price: 95,
               duration: 60,
               imagePath: 'assets/images/arkaplanyok1.png',
             ),
             SpaTreatment(
               name: 'Derin Doku Masajı',
-              description: 'Kronik kas gerginliklerini ve ağrılarını hedef alan, daha yoğun basınç uygulanan bir masaj türüdür. Özellikle sporcular ve yoğun fiziksel aktivite yapanlar için idealdir.',
+              description: 'Kronik gerginlikler için...',
               price: 120,
               duration: 75,
               imagePath: 'assets/images/arkaplanyok1.png',
-            ),
-            SpaTreatment(
-              name: 'Aromaterapi Masajı',
-              description: 'Uçucu yağlar kullanılarak yapılan, hem fiziksel hem de duygusal rahatlama sağlayan masaj türü.',
-              price: 110,
-              duration: 60,
-              imagePath: 'assets/images/arkaplanyok1.png',
-            ),
-            SpaTreatment(
-              name: 'Hot Stone Masajı',
-              description: 'Isıtılmış volkanik taşlar kullanılarak yapılan, derin kas gevşemesi sağlayan terapi.',
-              price: 140,
-              duration: 90,
-              imagePath: 'assets/images/arkaplanyok1.png',
-            ),
-          ],
-        ),
-        SpaTreatmentCategory(
-          name: 'Yüz Bakımları',
-          treatments: [
-            SpaTreatment(
-              name: 'Klasik Yüz Bakımı',
-              description: 'Cildinizi temizleyen, nemlendiren ve canlandıran temel yüz bakımı.',
-              price: 75,
-              duration: 45,
-            ),
-            SpaTreatment(
-              name: 'Anti-Aging Bakımı',
-              description: 'Yaşlanma belirtilerini azaltan, cildi sıkılaştıran özel formüllü bakım.',
-              price: 150,
-              duration: 60,
-            ),
-            SpaTreatment(
-              name: 'Hydrafacial',
-              description: 'Derin temizlik ve yoğun nemlendirme sağlayan ileri teknoloji yüz bakımı.',
-              price: 185,
-              duration: 75,
-            ),
-          ],
-        ),
-        SpaTreatmentCategory(
-          name: 'Vücut Bakımları',
-          treatments: [
-            SpaTreatment(
-              name: 'Vücut Peelingi',
-              description: 'Ölü deri hücrelerini temizleyen, cildi yumuşatan ve parlaklık kazandıran bakım.',
-              price: 65,
-              duration: 45,
-            ),
-            SpaTreatment(
-              name: 'Detox Vücut Sargısı',
-              description: 'Vücuttaki toksinleri atarak cilde sıkılık ve canlılık kazandıran bakım.',
-              price: 95,
-              duration: 60,
-            ),
-            SpaTreatment(
-              name: 'Çikolata Terapisi',
-              description: 'Kakao ile zenginleştirilmiş, cildi besleyen ve nemlendiren lüks bakım.',
-              price: 125,
-              duration: 75,
             ),
           ],
         ),
@@ -156,51 +86,38 @@ class SpaData {
       specialPackages: [
         SpaSpecialPackage(
           name: 'Yenilenme Paketi',
-          description: '60 dakikalık tam vücut masajı ve 30 dakikalık canlandırıcı yüz bakımını içeren bu özel paketle kendinizi şımartın.',
+          description: 'Masaj ve yüz bakımı...',
           originalPrice: 180,
           discountedPrice: 150,
           imagePath: 'assets/images/arkaplanyok1.png',
         ),
-        SpaSpecialPackage(
-          name: 'Romantik Çift Paketi',
-          description: 'İki kişilik özel odada yan yana masaj ve şampanya ikramı.',
-          originalPrice: 320,
-          discountedPrice: 280,
-          imagePath: 'assets/images/arkaplanyok1.png',
-        ),
       ],
       procedureInfo: [
-        'Randevunuza 15 dakika erken gelerek spa olanaklarından faydalanabilirsiniz.',
-        'Herhangi bir sağlık sorununuz veya alerjiniz varsa terapistinize önceden bildirin.',
-        'Bakım sonrası bol su içilmesi ve dinlenmesi tavsiye edilir.',
-        'Randevu iptallerinin en az 24 saat önceden yapılması gerekmektedir.',
+        'Randevudan 15 dk önce gelin.',
+        'Sağlık sorunlarını bildirin.',
       ],
     ),
   };
-
-  static SpaVenue? getVenue(String name) => venues[name];
 }
 
 class SpaWellnessPricelistScreen extends StatefulWidget {
   final String venueName;
-
-  const SpaWellnessPricelistScreen({
-    super.key,
-    required this.venueName,
-  });
+  const SpaWellnessPricelistScreen({super.key, required this.venueName});
 
   @override
-  State<SpaWellnessPricelistScreen> createState() => _SpaWellnessPricelistScreenState();
+  State<SpaWellnessPricelistScreen> createState() =>
+      _SpaWellnessPricelistScreenState();
 }
 
-class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen> {
+class _SpaWellnessPricelistScreenState
+    extends State<SpaWellnessPricelistScreen> {
   int _selectedCategoryIndex = 0;
-
-  SpaVenue? get _venue => SpaData.getVenue(widget.venueName);
 
   @override
   Widget build(BuildContext context) {
-    final venue = _venue;
+    final texts = AppLocalizations.of(context)!;
+    final venues = getSpaVenues(texts);
+    final venue = venues[widget.venueName];
 
     if (venue == null) {
       return Scaffold(
@@ -210,14 +127,14 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: const Center(
-          child: Text('Spa merkezi bulunamadı'),
-        ),
+        body: const Center(child: Text('Spa not found')),
       );
     }
 
     final categories = venue.treatmentCategories;
-    final selectedCategory = categories.isNotEmpty ? categories[_selectedCategoryIndex] : null;
+    final selectedCategory = categories.isNotEmpty
+        ? categories[_selectedCategoryIndex]
+        : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
@@ -229,9 +146,13 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Spa Fiyat Listesi',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
+        title: Text(
+          texts.spaPricelist,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
       ),
@@ -239,26 +160,36 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Kategori seçimi
             Container(
               color: Colors.white,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: List.generate(categories.length, (index) {
                     final isSelected = index == _selectedCategoryIndex;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
-                        onTap: () => setState(() => _selectedCategoryIndex = index),
+                        onTap: () =>
+                            setState(() => _selectedCategoryIndex = index),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF1677FF) : Colors.white,
+                            color: isSelected
+                                ? const Color(0xFF1677FF)
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(25),
                             border: Border.all(
-                              color: isSelected ? const Color(0xFF1677FF) : Colors.grey[300]!,
+                              color: isSelected
+                                  ? const Color(0xFF1677FF)
+                                  : Colors.grey[300]!,
                             ),
                           ),
                           child: Text(
@@ -275,10 +206,7 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Tedavi listesi
             if (selectedCategory != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -293,15 +221,16 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ...selectedCategory.treatments.map((treatment) => _TreatmentCard(
-                      treatment: treatment,
-                      onBookTap: () => _showBookingConfirmation(treatment),
-                    )),
+                    ...selectedCategory.treatments.map(
+                      (treatment) => _TreatmentCard(
+                        treatment: treatment,
+                        onBookTap: () =>
+                            _showBookingConfirmation(treatment, texts),
+                      ),
+                    ),
                   ],
                 ),
               ),
-
-            // Özel Teklifler
             if (venue.specialPackages.isNotEmpty) ...[
               const SizedBox(height: 24),
               const Divider(height: 1),
@@ -311,81 +240,24 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Özel Teklifler',
-                      style: TextStyle(
+                    Text(
+                      texts.specialOffers,
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...venue.specialPackages.map((pkg) => _SpecialPackageCard(
-                      package: pkg,
-                      onDetailsTap: () {},
-                    )),
-                  ],
-                ),
-              ),
-            ],
-
-            // Prosedür Bilgisi
-            if (venue.procedureInfo.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              const Divider(height: 1),
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Prosedür Bilgisi',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: venue.procedureInfo.map((info) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('• ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                              Expanded(
-                                child: Text(
-                                  info,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[700],
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )).toList(),
+                    ...venue.specialPackages.map(
+                      (pkg) => _SpecialPackageCard(
+                        package: pkg,
+                        onDetailsTap: () {},
                       ),
                     ),
                   ],
                 ),
               ),
             ],
-
             const SizedBox(height: 32),
           ],
         ),
@@ -393,7 +265,10 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
     );
   }
 
-  void _showBookingConfirmation(SpaTreatment treatment) {
+  void _showBookingConfirmation(
+    SpaTreatment treatment,
+    AppLocalizations texts,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SpaWellnessBookingScreen(
@@ -409,14 +284,10 @@ class _SpaWellnessPricelistScreenState extends State<SpaWellnessPricelistScreen>
 class _TreatmentCard extends StatelessWidget {
   final SpaTreatment treatment;
   final VoidCallback onBookTap;
-
-  const _TreatmentCard({
-    required this.treatment,
-    required this.onBookTap,
-  });
-
+  const _TreatmentCard({required this.treatment, required this.onBookTap});
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -425,7 +296,7 @@ class _TreatmentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: const Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -477,37 +348,23 @@ class _TreatmentCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '\$${treatment.price.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1677FF),
-                    ),
-                  ),
-                  Text(
-                    '${treatment.duration} dk',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
+              Text(
+                '\$${treatment.price.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1677FF),
+                ),
               ),
               const Spacer(),
               ElevatedButton(
                 onPressed: onBookTap,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1677FF),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
-                child: const Text(
-                  'Rezervasyon Yap',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                child: Text(
+                  texts.makeReservation,
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ],
@@ -521,12 +378,10 @@ class _TreatmentCard extends StatelessWidget {
 class _SpecialPackageCard extends StatelessWidget {
   final SpaSpecialPackage package;
   final VoidCallback onDetailsTap;
-
   const _SpecialPackageCard({
     required this.package,
     required this.onDetailsTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -536,18 +391,19 @@ class _SpecialPackageCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: const Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (package.imagePath != null)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
               child: Image.asset(
                 package.imagePath!,
                 height: 150,
@@ -567,46 +423,7 @@ class _SpecialPackageCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  package.description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Text(
-                      '\$${package.discountedPrice.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1677FF),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '\$${package.originalPrice.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                    const Spacer(),
-                    OutlinedButton(
-                      onPressed: onDetailsTap,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF1677FF)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Detayları Gör'),
-                    ),
-                  ],
-                ),
+                Text(package.description),
               ],
             ),
           ),

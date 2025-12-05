@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
 
 class EventsActivitiesScreen extends StatefulWidget {
   const EventsActivitiesScreen({super.key});
@@ -15,17 +16,31 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
   DateTime _today = DateTime.now();
   Timer? _dayTick;
 
-  List<DateTime> get _days =>
-      List.generate(5, (i) => DateTime(_today.year, _today.month, _today.day + i));
+  List<DateTime> get _days => List.generate(
+    5,
+    (i) => DateTime(_today.year, _today.month, _today.day + i),
+  );
 
   String _humanDate(DateTime d) {
     return "${_monthName(d.month)} ${d.day}";
   }
 
+  // Ay isimleri genellikle sabit kalır veya date formatting ile yapılır.
+  // Basitlik için İngilizce bıraktım, istenirse intl paketi ile tamamen çevrilebilir.
   String _monthName(int m) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months[m - 1];
   }
@@ -34,16 +49,27 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   String _weekdayName(int weekday) {
-    const map = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday'};
+    const map = {
+      1: 'Monday',
+      2: 'Tuesday',
+      3: 'Wednesday',
+      4: 'Thursday',
+      5: 'Friday',
+      6: 'Saturday',
+      7: 'Sunday',
+    };
     return map[weekday] ?? '';
   }
 
-  String _headerFor(DateTime d) {
+  String _headerFor(DateTime d, AppLocalizations texts) {
     final baseToday = DateTime(_today.year, _today.month, _today.day);
     final baseTomorrow = baseToday.add(const Duration(days: 1));
     final baseD = DateTime(d.year, d.month, d.day);
-    if (_isSameDay(baseD, baseToday)) return 'Today, ${_humanDate(d)}';
-    if (_isSameDay(baseD, baseTomorrow)) return 'Tomorrow, ${_humanDate(d)}';
+
+    if (_isSameDay(baseD, baseToday))
+      return '${texts.today}, ${_humanDate(d)}'; // "Bugün"
+    if (_isSameDay(baseD, baseTomorrow))
+      return '${texts.tomorrow}, ${_humanDate(d)}'; // "Yarın"
     return '${_weekdayName(d.weekday)}, ${_humanDate(d)}';
   }
 
@@ -63,7 +89,7 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
         setState(() {
           _today = now;
           if (_selectedDayIndexes.isNotEmpty) {
-            _selectedDayIndexes = {0}; // reset to Today only if a day is selected
+            _selectedDayIndexes = {0};
           }
         });
       }
@@ -76,58 +102,56 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
     super.dispose();
   }
 
+  // Etkinlik verileri (Bunlar veritabanından geleceği için şimdilik sabit kalabilir)
   List<_EventData> get _events => [
-        // Today
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day),
-          title: 'Sunset Yoga Session',
-          time: '4:00 PM - 5:00 PM',
-          location: 'Poolside Deck',
-          imageAsset: 'assets/images/arkaplanyok.png',
-        ),
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day),
-          title: 'Live Jazz at the Lounge',
-          time: '8:00 PM - 10:00 PM',
-          location: 'The Oak Bar',
-          imageAsset: 'assets/images/arkaplanyok1.png',
-        ),
-        // Tomorrow
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 1),
-          title: 'Cooking Masterclass',
-          time: '11:00 AM - 1:00 PM',
-          location: 'Gourmet Kitchen',
-          imageAsset: 'assets/images/arkaplan.jpg',
-        ),
-        // Day +2
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 2),
-          title: 'Wine Tasting',
-          time: '6:00 PM - 7:30 PM',
-          location: 'Cellar Room',
-          imageAsset: 'assets/images/arkaplanyok1.png',
-        ),
-        // Day +3
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 3),
-          title: 'Pool Games',
-          time: '3:00 PM - 4:00 PM',
-          location: 'Main Pool',
-          imageAsset: 'assets/images/arkaplanyok.png',
-        ),
-        // Day +4
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 4),
-          title: 'City Walking Tour',
-          time: '10:00 AM - 12:00 PM',
-          location: 'Lobby Start',
-          imageAsset: 'assets/images/arkaplan.jpg',
-        ),
-      ];
+    _EventData(
+      date: DateTime(_today.year, _today.month, _today.day),
+      title: 'Sunset Yoga Session',
+      time: '4:00 PM - 5:00 PM',
+      location: 'Poolside Deck',
+      imageAsset: 'assets/images/arkaplanyok.png',
+    ),
+    _EventData(
+      date: DateTime(_today.year, _today.month, _today.day),
+      title: 'Live Jazz at the Lounge',
+      time: '8:00 PM - 10:00 PM',
+      location: 'The Oak Bar',
+      imageAsset: 'assets/images/arkaplanyok1.png',
+    ),
+    _EventData(
+      date: DateTime(_today.year, _today.month, _today.day + 1),
+      title: 'Cooking Masterclass',
+      time: '11:00 AM - 1:00 PM',
+      location: 'Gourmet Kitchen',
+      imageAsset: 'assets/images/arkaplan.jpg',
+    ),
+    _EventData(
+      date: DateTime(_today.year, _today.month, _today.day + 2),
+      title: 'Wine Tasting',
+      time: '6:00 PM - 7:30 PM',
+      location: 'Cellar Room',
+      imageAsset: 'assets/images/arkaplanyok1.png',
+    ),
+    _EventData(
+      date: DateTime(_today.year, _today.month, _today.day + 3),
+      title: 'Pool Games',
+      time: '3:00 PM - 4:00 PM',
+      location: 'Main Pool',
+      imageAsset: 'assets/images/arkaplanyok.png',
+    ),
+    _EventData(
+      date: DateTime(_today.year, _today.month, _today.day + 4),
+      title: 'City Walking Tour',
+      time: '10:00 AM - 12:00 PM',
+      location: 'Lobby Start',
+      imageAsset: 'assets/images/arkaplan.jpg',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
+
     final selectedDates = _selectedDayIndexes.map((i) {
       final d = _days[i];
       return DateTime(d.year, d.month, d.day);
@@ -135,26 +159,31 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
     final q = _query.trim().toLowerCase();
     final searching = q.isNotEmpty;
     final allFiltered = _events.where((e) {
-      if (!searching) return false; // only used when searching
+      if (!searching) return false;
       return e.title.toLowerCase().contains(q) ||
           e.location.toLowerCase().contains(q) ||
           e.time.toLowerCase().contains(q);
     }).toList();
     final items = searching
-      ? allFiltered
-      : (_selectedDayIndexes.isEmpty
-        ? [..._events]
-        : _events.where((e) => selectedDates.any((d) => _isSameDay(e.date, d))).toList());
+        ? allFiltered
+        : (_selectedDayIndexes.isEmpty
+              ? [..._events]
+              : _events
+                    .where(
+                      (e) => selectedDates.any((d) => _isSameDay(e.date, d)),
+                    )
+                    .toList());
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Events & Activities'),
+        title: Text(texts.eventsTitle), // "Events & Activities"
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _SearchBar(
+            hintText: texts.searchEventsHint, // "Search events"
             initialValue: _query,
             onChanged: (v) => setState(() => _query = v),
             onClear: () => setState(() => _query = ''),
@@ -178,24 +207,28 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
               child: Center(
                 child: Text(
                   searching
-                      ? 'No events match your search.'
+                      ? texts
+                            .noEventsMatch // "No events match..."
                       : (_selectedDayIndexes.isEmpty
-                          ? 'No upcoming events.'
-                          : 'No events for selected dates.'),
+                            ? texts
+                                  .noUpcomingEvents // "No upcoming events."
+                            : texts
+                                  .noEventsDate), // "No events for selected dates."
                 ),
               ),
             )
           else ...[
-            ..._buildGroupedResults(items),
+            ..._buildGroupedResults(items, texts),
           ],
         ],
       ),
     );
   }
-}
 
-extension on _EventsActivitiesScreenState {
-  List<Widget> _buildGroupedResults(List<_EventData> items) {
+  List<Widget> _buildGroupedResults(
+    List<_EventData> items,
+    AppLocalizations texts,
+  ) {
     final widgets = <Widget>[];
     final sorted = [...items]..sort((a, b) => a.date.compareTo(b.date));
     DateTime? lastDate;
@@ -203,19 +236,24 @@ extension on _EventsActivitiesScreenState {
       final e = sorted[i];
       if (lastDate == null || !_isSameDay(lastDate, e.date)) {
         if (lastDate != null) widgets.add(const SizedBox(height: 16));
-        widgets.add(Text(
-          _headerFor(e.date),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        ));
+        widgets.add(
+          Text(
+            _headerFor(e.date, texts), // Güncellendi
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+        );
         widgets.add(const SizedBox(height: 12));
         lastDate = DateTime(e.date.year, e.date.month, e.date.day);
       }
-      widgets.add(_EventItem(
-        title: e.title,
-        time: e.time,
-        location: e.location,
-        imageAsset: e.imageAsset,
-      ));
+      widgets.add(
+        _EventItem(
+          title: e.title,
+          time: e.time,
+          location: e.location,
+          imageAsset: e.imageAsset,
+          buttonText: texts.viewDetails, // "View Details"
+        ),
+      );
       if (i != sorted.length - 1) widgets.add(const SizedBox(height: 10));
     }
     return widgets;
@@ -226,7 +264,11 @@ class _DateScroller extends StatelessWidget {
   final List<DateTime> days;
   final Set<int> selectedIndexes;
   final ValueChanged<int> onToggle;
-  const _DateScroller({required this.days, required this.selectedIndexes, required this.onToggle});
+  const _DateScroller({
+    required this.days,
+    required this.selectedIndexes,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +294,7 @@ class _DateScroller extends StatelessWidget {
                     boxShadow: [
                       if (selected)
                         BoxShadow(
-                          color: Colors.blue.withOpacity(0.3),
+                          color: const Color.fromRGBO(33, 150, 243, 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -286,14 +328,22 @@ class _DateScroller extends StatelessWidget {
             ),
           );
         },
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (context, _) => const SizedBox(width: 12),
         itemCount: days.length,
       ),
     );
   }
 
   String _dayLabel(int weekday) {
-    const map = {1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun'};
+    const map = {
+      1: 'Mon',
+      2: 'Tue',
+      3: 'Wed',
+      4: 'Thu',
+      5: 'Fri',
+      6: 'Sat',
+      7: 'Sun',
+    };
     return map[weekday] ?? '';
   }
 }
@@ -303,11 +353,14 @@ class _EventItem extends StatelessWidget {
   final String time;
   final String location;
   final String imageAsset;
+  final String buttonText; // Yeni Eklendi
+
   const _EventItem({
     required this.title,
     required this.time,
     required this.location,
     required this.imageAsset,
+    required this.buttonText,
   });
 
   @override
@@ -318,7 +371,7 @@ class _EventItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: const Color.fromRGBO(0, 0, 0, 0.06),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -331,7 +384,13 @@ class _EventItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -345,14 +404,17 @@ class _EventItem extends StatelessWidget {
                   children: [
                     const Icon(Icons.place, size: 16, color: Colors.black54),
                     const SizedBox(width: 6),
-                    Text(location, style: const TextStyle(color: Colors.black54)),
+                    Text(
+                      location,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.chevron_right, size: 18),
-                  label: const Text('View Details'),
+                  label: Text(buttonText), // "View Details"
                 ),
               ],
             ),
@@ -360,7 +422,12 @@ class _EventItem extends StatelessWidget {
           const SizedBox(width: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(imageAsset, width: 96, height: 96, fit: BoxFit.cover),
+            child: Image.asset(
+              imageAsset,
+              width: 96,
+              height: 96,
+              fit: BoxFit.cover,
+            ),
           ),
         ],
       ),
@@ -372,10 +439,13 @@ class _SearchBar extends StatelessWidget {
   final String initialValue;
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
+  final String hintText; // Yeni Eklendi
+
   const _SearchBar({
     required this.initialValue,
     required this.onChanged,
     required this.onClear,
+    required this.hintText,
   });
 
   @override
@@ -388,7 +458,7 @@ class _SearchBar extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       decoration: InputDecoration(
-        hintText: 'Search events',
+        hintText: hintText, // "Search events"
         prefixIcon: const Icon(Icons.search),
         suffixIcon: controller.text.isNotEmpty
             ? IconButton(icon: const Icon(Icons.close), onPressed: onClear)
@@ -399,7 +469,10 @@ class _SearchBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 12,
+        ),
       ),
       textInputAction: TextInputAction.search,
     );

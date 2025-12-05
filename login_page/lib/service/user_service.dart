@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:login_page/model/user_model.dart';
 
@@ -9,11 +10,11 @@ class UserService {
   Future<void> createDbUser(UserModel user) async {
     try {
       await firestore
-          .collection("users")     // "users" koleksiyonuna eriş
-          .doc(user.uid)           // Belge ID olarak Firebase UID kullan
-          .set(user.toJson());     // UserModel'i JSON formatında kaydet
+          .collection("users") // "users" koleksiyonuna eriş
+          .doc(user.uid) // Belge ID olarak Firebase UID kullan
+          .set(user.toJson()); // UserModel'i JSON formatında kaydet
     } catch (e) {
-      print("there is an error : $e");  // Hata durumunda konsola yaz
+      debugPrint("there is an error : $e"); // Hata durumunda konsola yaz
     }
   }
 }

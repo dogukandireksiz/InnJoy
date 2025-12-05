@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
 import 'menu_data.dart';
 import '../payment/payment_screen.dart';
 
@@ -21,7 +22,8 @@ class RoomServiceConfirmScreen extends StatefulWidget {
   });
 
   @override
-  State<RoomServiceConfirmScreen> createState() => _RoomServiceConfirmScreenState();
+  State<RoomServiceConfirmScreen> createState() =>
+      _RoomServiceConfirmScreenState();
 }
 
 class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
@@ -33,30 +35,29 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
     super.dispose();
   }
 
-  void _confirmOrder() {
+  void _confirmOrder(AppLocalizations texts) {
     // Siparişleri SpendingData'ya ekle
     for (final entry in widget.cart.entries) {
       final item = entry.key;
       final quantity = entry.value;
       final itemTotal = item.price * quantity;
-      SpendingData.addRoomServiceOrder(
-        '${item.name} x$quantity',
-        itemTotal,
-      );
+      SpendingData.addRoomServiceOrder('${item.name} x$quantity', itemTotal);
     }
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 28),
-            SizedBox(width: 8),
-            Text('Sipariş Onaylandı'),
+            const Icon(Icons.check_circle, color: Colors.green, size: 28),
+            const SizedBox(width: 8),
+            Text(texts.orderConfirmedTitle), // "Sipariş Onaylandı"
           ],
         ),
-        content: const Text('Siparişiniz odanıza yaklaşık 35-45 dakika içinde teslim edilecektir.'),
+        content: Text(
+          texts.orderConfirmedMsg, // "35-45 dakika içinde..."
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -65,7 +66,7 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
               Navigator.pop(context); // Confirm ekranından çık
               Navigator.pop(context); // Cart ekranından çık
             },
-            child: const Text('Tamam'),
+            child: Text(texts.okButton), // "Tamam"
           ),
         ],
       ),
@@ -74,6 +75,8 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -84,9 +87,12 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Siparişi Onayla',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+        title: Text(
+          texts.confirmOrderTitle, // "Siparişi Onayla"
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -96,36 +102,33 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Teslimat Bilgisi
-            const Text(
-              'Teslimat Bilgisi',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            Text(
+              texts.deliveryInfo, // "Teslimat Bilgisi"
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
-            
+
             // Oda Numarası
             _InfoRow(
               icon: Icons.door_front_door_outlined,
-              label: 'Oda Numarası',
+              label: texts.roomNumber, // "Oda Numarası"
               value: '1204',
             ),
             const SizedBox(height: 12),
-            
+
             // Misafir Adı
             _InfoRow(
               icon: Icons.person_outline,
-              label: 'Misafir Adı',
-              value: 'Ali Veli',
+              label: texts.guestName, // "Misafir Adı"
+              value: 'Ali Veli', // Dinamik kalacak
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Teslimat Notu
-            const Text(
-              'Teslimat Notu',
-              style: TextStyle(
+            Text(
+              texts.deliveryNote, // "Teslimat Notu"
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
@@ -142,16 +145,16 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
                 controller: _noteController,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: 'Ekstra peçete veya özel bir isteğiniz var mı?',
+                  hintText: texts.deliveryNoteHint, // "Ekstra peçete..."
                   hintStyle: TextStyle(color: Colors.grey[400]),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Tahmini Süre
             Container(
               padding: const EdgeInsets.all(16),
@@ -174,33 +177,35 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Tahmini Süre',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: Color(0xFF1677FF),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          texts.estimatedTime, // "Tahmini Süre"
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Color(0xFF1677FF),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        '35-45 dakika içinde teslim edilecektir.',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 13,
+                        const SizedBox(height: 2),
+                        Text(
+                          texts.estimatedTimeMsg, // "35-45 dakika..."
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Ödeme Bilgilendirmesi
             Container(
               padding: const EdgeInsets.all(16),
@@ -228,9 +233,9 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Ödeme Bilgisi',
-                          style: TextStyle(
+                        Text(
+                          texts.paymentInfo, // "Ödeme Bilgisi"
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
                             color: Color(0xFFE65100),
@@ -238,7 +243,10 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Sipariş tutarı (${widget.total.toStringAsFixed(2)}₺) oda hesabınıza yansıtılacaktır.',
+                          // Dinamik metin: "Sipariş tutarı (500 TL) oda hesabınıza..."
+                          texts.paymentInfoMsg(
+                            '${widget.total.toStringAsFixed(2)}₺',
+                          ),
                           style: const TextStyle(
                             color: Colors.black87,
                             fontSize: 13,
@@ -250,7 +258,7 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 100),
           ],
         ),
@@ -261,7 +269,7 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -269,15 +277,17 @@ class _RoomServiceConfirmScreenState extends State<RoomServiceConfirmScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: _confirmOrder,
+            onPressed: () => _confirmOrder(texts), // texts parametresi eklendi
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text(
-              'Sipariş Ver ve Onayla',
-              style: TextStyle(
+            child: Text(
+              texts.placeOrderButton, // "Sipariş Ver ve Onayla"
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -307,24 +317,13 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, color: Colors.grey[600], size: 22),
         const SizedBox(width: 12),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 15,
-          ),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 15)),
         const Spacer(),
         Text(
           value,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 15,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ],
     );
   }
 }
-
-

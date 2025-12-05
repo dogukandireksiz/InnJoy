@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart'; // Provider eklendi
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
+
 import '../services/service_screen.dart';
 import '../events_activities/events_activities_screen.dart';
 import '../payment/payment_screen.dart';
@@ -18,6 +21,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    // Çeviri nesnesine erişim
+    final texts = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -31,17 +37,19 @@ class _HomeScreenState extends State<HomeScreen> {
               final shouldLogout = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Çıkış Yap'),
-                  content: const Text('Çıkmak istediğinize emin misiniz?'),
+                  title: Text(texts.logoutConfirmationTitle), // "Çıkış Yap"
+                  content: Text(
+                    texts.logoutConfirmationMessage,
+                  ), // "Emin misiniz?"
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('İptal'),
+                      child: Text(texts.cancel), // "İptal"
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
                       style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('Çıkış Yap'),
+                      child: Text(texts.logout), // "Çıkış Yap"
                     ),
                   ],
                 ),
@@ -61,12 +69,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Welcome back,',
-                    style: TextStyle(color: Colors.black54, fontSize: 14),
+                  Text(
+                    texts
+                        .welcomeBack, // "Welcome back," / "Tekrar hoş geldiniz,"
+                    style: const TextStyle(color: Colors.black54, fontSize: 14),
                   ),
                   Text(
-                    widget.userName.isEmpty ? 'Guest Name' : widget.userName,
+                    widget.userName.isEmpty
+                        ? texts.guestNameDefault
+                        : widget.userName,
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 22,
@@ -87,9 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
             _HotelCard(),
             const SizedBox(height: 16),
 
-            const Text(
-              'Need Something?',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              texts.needSomething, // "Need Something?"
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Row(
@@ -97,11 +108,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: _ServiceTile(
                     icon: Icons.room_service,
-                    label: 'Room Service',
+                    label: texts.roomService, // "Room Service"
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const RoomServiceScreen()),
-                      ).then((_) => setState(() {}));
+                      Navigator.of(context)
+                          .push(
+                            MaterialPageRoute(
+                              builder: (_) => const RoomServiceScreen(),
+                            ),
+                          )
+                          .then((_) => setState(() {}));
                     },
                   ),
                 ),
@@ -109,10 +124,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: _ServiceTile(
                     icon: Icons.cleaning_services,
-                    label: 'Housekeeping',
+                    label: texts.housekeeping, // "Housekeeping"
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const HousekeepingScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const HousekeepingScreen(),
+                        ),
                       );
                     },
                   ),
@@ -124,52 +141,68 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "What's On Today",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                Text(
+                  texts.whatsOnToday, // "What's On Today"
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const EventsActivitiesScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const EventsActivitiesScreen(),
+                      ),
                     );
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black87,
                     padding: EdgeInsets.zero,
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text('All Events'),
-                      SizedBox(width: 4),
-                      Icon(Icons.chevron_right, size: 20),
+                      Text(texts.allEvents), // "All Events"
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right, size: 20),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
+            // Buradaki etkinlikler statik (Card içindeki yazılar).
+            // Bunları şimdilik böyle bırakıyorum çünkü veritabanından gelebilir.
             SizedBox(
               height: 120,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: const [
-                  _EventCard(title: 'Live Jazz Night', subtitle: 'Lounge Bar • 8:00 PM'),
+                  _EventCard(
+                    title: 'Live Jazz Night',
+                    subtitle: 'Lounge Bar • 8:00 PM',
+                  ),
                   SizedBox(width: 12),
-                  _EventCard(title: 'Sunset Happy Hour', subtitle: 'Rooftop Pool • 5:00 PM'),
+                  _EventCard(
+                    title: 'Sunset Happy Hour',
+                    subtitle: 'Rooftop Pool • 5:00 PM',
+                  ),
                   SizedBox(width: 12),
-                  _EventCard(title: 'Movie Night', subtitle: 'Garden • 9:00 PM'),
+                  _EventCard(
+                    title: 'Movie Night',
+                    subtitle: 'Garden • 9:00 PM',
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            const Text(
-              'Spending Summary',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              texts.spendingSummary, // "Spending Summary"
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _SpendingCard(),
+            const _SpendingCard(), // Const ekledim
             const SizedBox(height: 24),
           ],
         ),
@@ -182,19 +215,23 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {},
           backgroundColor: Colors.red,
           elevation: 4,
-          child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 26),
+          child: const Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.white,
+            size: 26,
+          ),
         ),
       ),
       bottomNavigationBar: _CustomBottomBar(
         onTap: (item) {
           if (item == _BottomItem.services) {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ServiceScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ServiceScreen()));
           } else if (item == _BottomItem.profile) {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ProfileScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
           }
         },
       ),
@@ -205,12 +242,17 @@ class _HomeScreenState extends State<HomeScreen> {
 class _HotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!; // Unlock çevirisi için
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: const Color.fromRGBO(0, 0, 0, 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(12),
@@ -230,10 +272,16 @@ class _HotelCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('GrandHyatt Hotel', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                Text(
+                  'GrandHyatt Hotel', // Otel ismi dinamik kalabilir
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
                 SizedBox(height: 4),
                 Text('Room 1204', style: TextStyle(color: Colors.black54)),
-                Text('Nov 10 - Nov 15', style: TextStyle(color: Colors.black54)),
+                Text(
+                  'Nov 10 - Nov 15',
+                  style: TextStyle(color: Colors.black54),
+                ),
               ],
             ),
           ),
@@ -242,9 +290,11 @@ class _HotelCard extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Unlock'),
+            child: Text(texts.unlock), // "Unlock" / "Kilidi Aç"
           ),
         ],
       ),
@@ -267,7 +317,13 @@ class _ServiceTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Center(
           child: Column(
@@ -296,12 +352,21 @@ class _EventCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromRGBO(0, 0, 0, 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), bottomLeft: Radius.circular(16)),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+            ),
             child: Image.asset(
               'assets/images/arkaplanyok1.png',
               width: 90,
@@ -317,13 +382,19 @@ class _EventCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
+                  ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -335,11 +406,18 @@ class _SpendingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromRGBO(0, 0, 0, 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -348,25 +426,36 @@ class _SpendingCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Current Balance', style: TextStyle(color: Colors.black54)),
+                Text(
+                  texts.currentBalance, // "Current Balance"
+                  style: const TextStyle(color: Colors.black54),
+                ),
                 const SizedBox(height: 6),
-                Text('\$${SpendingData.totalBalance.toStringAsFixed(2)}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+                Text(
+                  '\$${SpendingData.totalBalance.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PaymentScreen()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PaymentScreen()));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
               foregroundColor: Colors.black,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('View Detailed Bill'),
+            child: Text(texts.viewDetailedBill), // "View Detailed Bill"
           ),
         ],
       ),
@@ -382,7 +471,12 @@ class _CustomBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const labelStyle = TextStyle(fontSize: 11, color: Colors.black87, height: 1.1);
+    final texts = AppLocalizations.of(context)!;
+    const labelStyle = TextStyle(
+      fontSize: 11,
+      color: Colors.black87,
+      height: 1.1,
+    );
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       elevation: 8,
@@ -399,13 +493,13 @@ class _CustomBottomBar extends StatelessWidget {
                   children: [
                     _BottomBarItem(
                       icon: Icons.home,
-                      label: 'Home',
+                      label: texts.navHome, // "Home"
                       labelStyle: labelStyle,
                       onTap: () => onTap?.call(_BottomItem.home),
                     ),
                     _BottomBarItem(
                       icon: Icons.brightness_6,
-                      label: 'Theme',
+                      label: texts.navTheme, // "Theme"
                       labelStyle: labelStyle,
                       onTap: () => onTap?.call(_BottomItem.theme),
                     ),
@@ -419,13 +513,13 @@ class _CustomBottomBar extends StatelessWidget {
                   children: [
                     _BottomBarItem(
                       icon: Icons.apps,
-                      label: 'Services',
+                      label: texts.navServices, // "Services"
                       labelStyle: labelStyle,
                       onTap: () => onTap?.call(_BottomItem.services),
                     ),
                     _BottomBarItem(
                       icon: Icons.person,
-                      label: 'Profile',
+                      label: texts.navProfile, // "Profile"
                       labelStyle: labelStyle,
                       onTap: () => onTap?.call(_BottomItem.profile),
                     ),

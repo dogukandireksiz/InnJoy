@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login_page/l10n/app_localizations.dart'; // Çeviri paketi
 import 'room_service_cart_screen.dart';
 import 'menu_data.dart';
 
@@ -9,7 +10,8 @@ class RoomServiceScreen extends StatefulWidget {
   State<RoomServiceScreen> createState() => _RoomServiceScreenState();
 }
 
-class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTickerProviderStateMixin {
+class _RoomServiceScreenState extends State<RoomServiceScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final Map<MenuItem, int> _cart = {};
 
@@ -26,7 +28,8 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
   }
 
   int get _totalItems => _cart.values.fold(0, (sum, qty) => sum + qty);
-  double get _totalPrice => _cart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
+  double get _totalPrice =>
+      _cart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
 
   void _addToCart(MenuItem item) {
     setState(() {
@@ -56,6 +59,8 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context)!; // Çeviri nesnesi
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -66,16 +71,22 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Oda Servisi',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+        title: Text(
+          texts.roomServiceTitle, // "Oda Servisi"
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
         actions: [
           Stack(
             children: [
               IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
+                icon: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: Colors.black87,
+                ),
                 onPressed: _cart.isNotEmpty ? _goToCart : null,
               ),
               if (_totalItems > 0)
@@ -90,7 +101,11 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
                     ),
                     child: Text(
                       '$_totalItems',
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -103,23 +118,42 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
           unselectedLabelColor: Colors.black54,
           indicatorColor: const Color(0xFF1677FF),
           indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
           isScrollable: true,
-          tabs: const [
-            Tab(text: 'Kahvaltı'),
-            Tab(text: 'Öğle/Akşam'),
-            Tab(text: 'İçecekler'),
-            Tab(text: 'Gece Menüsü'),
+          tabs: [
+            Tab(text: texts.tabBreakfast), // "Kahvaltı"
+            Tab(text: texts.tabLunchDinner), // "Öğle/Akşam"
+            Tab(text: texts.tabBeverages), // "İçecekler"
+            Tab(text: texts.tabNightMenu), // "Gece Menüsü"
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _MenuGrid(items: breakfastItems, cart: _cart, onAdd: _addToCart),
-          _MenuGrid(items: lunchDinnerItems, cart: _cart, onAdd: _addToCart),
-          _MenuGrid(items: beverageItems, cart: _cart, onAdd: _addToCart),
-          _MenuGrid(items: nightMenuItems, cart: _cart, onAdd: _addToCart),
+          _MenuGrid(
+            items: getBreakfastItems(texts),
+            cart: _cart,
+            onAdd: _addToCart,
+          ),
+          _MenuGrid(
+            items: getLunchDinnerItems(texts),
+            cart: _cart,
+            onAdd: _addToCart,
+          ),
+          _MenuGrid(
+            items: getBeverageItems(texts),
+            cart: _cart,
+            onAdd: _addToCart,
+          ),
+          _MenuGrid(
+            items: getNightMenuItems(texts),
+            cart: _cart,
+            onAdd: _addToCart,
+          ),
         ],
       ),
       bottomNavigationBar: _totalItems > 0
@@ -129,7 +163,7 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: const Color.fromRGBO(0, 0, 0, 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -141,7 +175,9 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1677FF),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -149,19 +185,28 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTicker
                       const Icon(Icons.shopping_cart, color: Colors.white),
                       const SizedBox(width: 8),
                       Text(
-                        '$_totalItems ürün',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                        '$_totalItems ${texts.itemCountUnit}', // "X ürün" / "X items"
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: const Color.fromRGBO(255, 255, 255, 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'Sepeti Görüntüle ₺${_totalPrice.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                          '${texts.viewCart} ₺${_totalPrice.toStringAsFixed(2)}', // "Sepeti Görüntüle"
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -228,7 +273,7 @@ class _MenuItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: const Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -244,11 +289,13 @@ class _MenuItemCard extends StatelessWidget {
                 height: 100,
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                 ),
                 child: Center(
                   child: Icon(
-                    _getIconForItem(item.name),
+                    getIconForItem(item.name), // Global fonksiyon kullanılıyor
                     size: 48,
                     color: Colors.grey[400],
                   ),
@@ -291,7 +338,7 @@ class _MenuItemCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.name,
+                    item.name, // Menü verisi olduğu gibi kalır (Dinamik)
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -301,11 +348,8 @@ class _MenuItemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    item.description,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 11,
-                    ),
+                    item.description, // Menü verisi olduğu gibi kalır
+                    style: TextStyle(color: Colors.grey[600], fontSize: 11),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -325,23 +369,5 @@ class _MenuItemCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  IconData _getIconForItem(String name) {
-    final lowerName = name.toLowerCase();
-    if (lowerName.contains('kahve') || lowerName.contains('latte')) return Icons.coffee;
-    if (lowerName.contains('çay')) return Icons.local_cafe;
-    if (lowerName.contains('su') || lowerName.contains('limonata') || lowerName.contains('smoothie')) return Icons.local_drink;
-    if (lowerName.contains('kahvaltı') || lowerName.contains('yumurta')) return Icons.egg_alt;
-    if (lowerName.contains('tost') || lowerName.contains('sandviç')) return Icons.bakery_dining;
-    if (lowerName.contains('pizza')) return Icons.local_pizza;
-    if (lowerName.contains('burger')) return Icons.lunch_dining;
-    if (lowerName.contains('salata')) return Icons.grass;
-    if (lowerName.contains('meyve')) return Icons.apple;
-    if (lowerName.contains('dondurma') || lowerName.contains('sufle')) return Icons.icecream;
-    if (lowerName.contains('köfte') || lowerName.contains('tavuk') || lowerName.contains('kanat')) return Icons.restaurant;
-    if (lowerName.contains('patates')) return Icons.fastfood;
-    if (lowerName.contains('pancake')) return Icons.breakfast_dining;
-    return Icons.restaurant_menu;
   }
 }

@@ -2,10 +2,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// 'google_sign_in' import removed from this file because it's unused here (kept in Auth service).
+import 'package:login_page/l10n/app_localizations.dart'; // çeviri paketini paket importuyla kullan
+
 import 'signup_screen.dart';
-import '../../service/auth.dart'; 
-import 'forget_password.dart'; 
+import '../../service/auth.dart';
+import 'forget_password.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> createUser() async {
     try {
       await Auth().createUser(
-          email: _emailController.text, password: _passwordController.text);
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
@@ -37,7 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> signIn() async {
     try {
       await Auth().signIn(
-          email: _emailController.text, password: _passwordController.text);
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
@@ -47,6 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 2. EKLENDİ: Dil dosyalarına erişim değişkeni
+    final texts = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -57,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Blur Efekti
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: Container(color: Colors.black.withOpacity(0.1)),
+            child: Container(color: Color.fromRGBO(0, 0, 0, 0.1)),
           ),
 
           Center(
@@ -67,15 +76,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
+                    SizedBox(
                       height: 150,
                       width: 150,
                       child: Image.asset("assets/images/arkaplanyok1.png"),
                     ),
 
-                    const Text(
-                      "InnJoy",
-                      style: TextStyle(
+                    Text(
+                      texts.appTitle, // <-- GÜNCELLENDİ: "InnJoy"
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 35,
                         fontWeight: FontWeight.bold,
@@ -83,16 +92,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const Text(
-                      "Your seamless hotel experience",
-                      style: TextStyle(color: Colors.white60, fontSize: 18),
+                    Text(
+                      texts.appSlogan, // <-- GÜNCELLENDİ: Slogan
+                      style: const TextStyle(
+                        color: Colors.white60,
+                        fontSize: 18,
+                      ),
+                      textAlign: TextAlign
+                          .center, // Uzun olursa ortalasın diye ekledim
                     ),
 
                     const SizedBox(height: 8),
 
-                    const Text(
-                      "Welcome!",
-                      style: TextStyle(
+                    Text(
+                      texts.welcome, // <-- GÜNCELLENDİ: "Welcome!"
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 50,
                         fontWeight: FontWeight.bold,
@@ -108,9 +122,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.amber),
-                        hintText: "E-mail Address",
+                        fillColor: Color.fromRGBO(255, 255, 255, 0.15),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: Colors.amber,
+                        ),
+                        hintText: texts.emailHint, // <-- GÜNCELLENDİ
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -128,11 +145,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.amber),
+                        fillColor: Color.fromRGBO(255, 255, 255, 0.15),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.amber,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
+                            _isPasswordHidden
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                             color: Colors.white70,
                           ),
                           onPressed: () {
@@ -141,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             });
                           },
                         ),
-                        hintText: "Password",
+                        hintText: texts.passwordHint, // <-- GÜNCELLENDİ
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -170,9 +192,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             createUser();
                           }
                         },
-                        child: const Text(
-                          "Sign In",
-                          style: TextStyle(
+                        child: Text(
+                          texts.signIn, // <-- GÜNCELLENDİ
+                          style: const TextStyle(
                             fontSize: 25,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -188,19 +210,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: Alignment.centerLeft,
                       child: TextButton(
                         onPressed: () {
-                          // Yönlendirme Kodu:
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              // Dosya adı 'forget_password.dart' olsa bile
-                              // içindeki class adı 'ForgotPasswordScreen' olduğu için bunu çağırıyoruz.
-                              builder: (context) => const ForgotPasswordScreen(),
+                              builder: (context) =>
+                                  const ForgotPasswordScreen(),
                             ),
                           );
                         },
-                        child: const Text(
-                          "Forgot Password ?",
-                          style: TextStyle(
+                        child: Text(
+                          texts.forgotPassword, // <-- GÜNCELLENDİ
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
@@ -217,20 +237,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       children: [
                         const Expanded(
-                          child: Divider(color: Colors.white, thickness: 3, endIndent: 10),
+                          child: Divider(
+                            color: Colors.white,
+                            thickness: 3,
+                            endIndent: 10,
+                          ),
                         ),
-                        const Text(
-                          "Or Sign In With",
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        Text(
+                          texts.orSignInWith, // <-- GÜNCELLENDİ
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const Expanded(
-                          child: Divider(color: Colors.white, thickness: 3, indent: 10),
+                          child: Divider(
+                            color: Colors.white,
+                            thickness: 3,
+                            indent: 10,
+                          ),
                         ),
                       ],
                     ),
 
                     const SizedBox(height: 10),
-                    
+
                     // --- Social Media Buttons ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -240,7 +272,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 90,
                           height: 30,
                           child: IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.google, color: Colors.white, size: 30),
+                            icon: const FaIcon(
+                              FontAwesomeIcons.google,
+                              color: Colors.white,
+                              size: 30,
+                            ),
                             onPressed: () async {
                               final authservice = Auth();
                               await authservice.signInWithGoogle();
@@ -270,7 +306,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 90,
                           height: 30,
                           child: IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.white, size: 30),
+                            icon: const FaIcon(
+                              FontAwesomeIcons.facebook,
+                              color: Colors.white,
+                              size: 30,
+                            ),
                             onPressed: () async {
                               final authService3 = Auth();
                               await authService3.signInWithFacebook();
@@ -286,9 +326,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Don't have an account ?",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        Text(
+                          texts.noAccount, // <-- GÜNCELLENDİ
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
                         ),
                         GestureDetector(
                           onTap: () {
@@ -300,12 +343,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                MaterialPageRoute(
+                                  builder: (context) => SignUpScreen(),
+                                ),
                               );
                             },
-                            child: const Text(
-                              "Sign Up Now",
-                              style: TextStyle(
+                            child: Text(
+                              texts.signUpNow, // <-- GÜNCELLENDİ
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
