@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:login_page/screens/screens.dart';
 import 'package:login_page/widgets/verification_screen.dart';
+import 'package:login_page/screens/home/pre_trip_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -32,7 +33,8 @@ class AuthWrapper extends StatelessWidget {
           if(user != null && !user.emailVerified){
             return VerificationScreen(user: user);
           }
-          return HomeScreen(userName: user?.displayName ?? "User");
+          // Kullanıcı doğrulanmışsa Pre-Trip ekranına yönlendir
+          return PreTripScreen(userName: user?.displayName ?? "User");
         }
 
         // 3. Kullanıcı giriş yapmamışsa Login ekranını göster

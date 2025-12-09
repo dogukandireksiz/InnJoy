@@ -8,6 +8,7 @@ import '../housekeeping/housekeeping_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../service/database_service.dart';
 import '../payment/payment_detail_screen.dart';
+import 'pre_trip_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -28,6 +29,17 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFFF6F7FB),
         scrolledUnderElevation: 0,
         titleSpacing: 0,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => PreTripScreen(userName: widget.userName),
+              ),
+            );
+          },
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          tooltip: 'Geri Dön',
+        ),
         actions: [
           IconButton(
             onPressed: () async {
