@@ -4,6 +4,10 @@ import '../../service/auth.dart';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../service/user_service.dart';
+import '../../utils/custom_snackbar.dart';
+import '../legal/legal_constants.dart';
+import '../legal/legal_document_screen.dart';
+import 'package:flutter/gestures.dart';
 
 class SignUpScreen extends StatefulWidget {
   // Kullanıcıdan alınacak bilgileri tutan controller'lar
@@ -23,9 +27,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isPasswordHidden3 = true;
   UserService userService = UserService(); // Firestore servisi instance
   String? errorMessage;
+  
+  bool _isMandatoryAccepted = false;
+  bool _isOptionalAccepted = false;
 
   // Firebase Authentication ile yeni kullanıcı oluşturma fonksiyonu
   Future<void> createUser() async{
+    // Onay kontrolü
+    if (!_isMandatoryAccepted) {
+      setState(() {
+         errorMessage = "Lütfen Kullanıcı Sözleşmesi ve Gizlilik Politikasını onaylayınız.";
+      });
+      CustomSnackBar.show(context, message: "Lütfen Kullanıcı Sözleşmesi ve Gizlilik Politikasını onaylayınız.");
+      return;
+    }
+
     // Şifrelerin aynı olup olmadığını kontrol eder
     if(widget._passwordController.text != widget._confirmPasswordController.text){
       setState(() {
@@ -225,7 +241,178 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
+
+                    // --- Legal Consents ---
+                    // 1. Mandatory Checkbox (User Agreement + Privacy Policy)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                          value: _isMandatoryAccepted,
+                          activeColor: Colors.lightBlueAccent,
+                          side: const BorderSide(color: Colors.white, width: 2),
+                          onChanged: (val) {
+                            setState(() {
+                              _isMandatoryAccepted = val ?? false;
+                            });
+                          },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              text: "InnJoy ",
+                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              children: [
+                                TextSpan(
+                                  text: "Kullanıcı Sözleşmesi",
+                                  style: const TextStyle(
+                                    color: Colors.amber,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const LegalDocumentScreen(
+                                            titleTr: LegalConstants.userAgreementTitle,
+                                            contentTr: LegalConstants.userAgreementText,
+                                            titleEn: LegalConstants.userAgreementTitleEn,
+                                            contentEn: LegalConstants.userAgreementTextEn,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: " ve "),
+                                TextSpan(
+                                  text: "Gizlilik Politikasını",
+                                  style: const TextStyle(
+                                    color: Colors.amber,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const LegalDocumentScreen(
+                                            titleTr: LegalConstants.privacyPolicyTitle,
+                                            contentTr: LegalConstants.privacyPolicyText,
+                                            titleEn: LegalConstants.privacyPolicyTitleEn,
+                                            contentEn: LegalConstants.privacyPolicyTextEn,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: " okudum, kabul ediyorum."),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    // 2. Optional Checkbox (Open Consent / Marketing)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                          value: _isOptionalAccepted,
+                          activeColor: Colors.lightBlueAccent,
+                          side: const BorderSide(color: Colors.white, width: 2),
+                          onChanged: (val) {
+                            setState(() {
+                              _isOptionalAccepted = val ?? false;
+                            });
+                          },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Pazarlama bildirimleri, konum ve kullanım verilerimin kişiselleştirme amacıyla işlenmesine ",
+                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              children: [
+                                TextSpan(
+                                  text: "açık rıza",
+                                  style: const TextStyle(
+                                    color: Colors.amber,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const LegalDocumentScreen(
+                                            titleTr: LegalConstants.openConsentTitle,
+                                            contentTr: LegalConstants.openConsentText,
+                                            titleEn: LegalConstants.openConsentTitleEn,
+                                            contentEn: LegalConstants.openConsentTextEn,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                ),
+                                const TextSpan(text: " veriyorum."),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // KVKK Link
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 34.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LegalDocumentScreen(
+                                  titleTr: LegalConstants.kvkkTitle,
+                                  contentTr: LegalConstants.kvkkText,
+                                  titleEn: LegalConstants.kvkkTitleEn,
+                                  contentEn: LegalConstants.kvkkTextEn,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "KVKK Aydınlatma Metni",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
 
                     // Kayıt ol butonu → Firebase.createUser tetikler
                     SizedBox(
@@ -276,6 +463,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 30),
+                    
                   ],
                 ),
               ),

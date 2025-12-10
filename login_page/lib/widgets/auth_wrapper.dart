@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:login_page/screens/screens.dart';
 import 'package:login_page/widgets/verification_screen.dart';
-import 'package:login_page/screens/home/pre_trip_screen.dart';
+import '../service/database_service.dart';
+import '../screens/home/admin_home_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -28,13 +29,28 @@ class AuthWrapper extends StatelessWidget {
           // Giriş yapmış kullanıcının bilgilerini alıyoruz
           User? user = snapshot.data;
           
-          // Kullanıcının ismini HomeScreen'e gönderiyoruz.
-          // Eğer isim boşsa (önceden hatalı kayıtlar için) 'User' yazsın.
           if(user != null && !user.emailVerified){
             return VerificationScreen(user: user);
           }
-          // Kullanıcı doğrulanmışsa Pre-Trip ekranına yönlendir
-          return PreTripScreen(userName: user?.displayName ?? "User");
+
+          // ROL KONTROLÜ (YENİ EKLENEN KISIM)
+          return FutureBuilder<String>(
+            future: DatabaseService().getUserRole(user!.uid),
+            builder: (context, roleSnapshot) {
+              if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              if (roleSnapshot.hasData && roleSnapshot.data == 'admin') {
+                return const AdminHomeScreen();
+              }
+
+              // Varsayılan olarak Müşteri Ekranına Git
+              return HomeScreen(userName: user.displayName ?? "User");
+            },
+          );
         }
 
         // 3. Kullanıcı giriş yapmamışsa Login ekranını göster

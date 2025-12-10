@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../service/auth.dart';
+import '../../widgets/auth_wrapper.dart';
 import 'pre_trip_screen.dart';
 import '../events_activities/admin_events_screen.dart';
+// ... (imports replaced)
 
 class AdminHomeScreen extends StatefulWidget {
+// ...
+// ...
+
   const AdminHomeScreen({super.key});
 
   @override
@@ -89,7 +95,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ),
               );
               if (shouldLogout == true) {
-                await FirebaseAuth.instance.signOut();
+                await Auth().signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                    (route) => false,
+                  );
+                }
               }
             },
             icon: const Icon(Icons.exit_to_app, color: Colors.red),

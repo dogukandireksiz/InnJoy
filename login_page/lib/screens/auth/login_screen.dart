@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'signup_screen.dart';
 import '../../service/auth.dart'; 
 import 'forget_password.dart'; 
+import '../../utils/custom_snackbar.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,6 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
+        if (e.message != null) {
+          CustomSnackBar.show(context, message: e.message!);
+        }
       });
     }
   }
@@ -40,7 +44,20 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailController.text, password: _passwordController.text);
     } on FirebaseAuthException catch (e) {
       setState(() {
-        errorMessage = e.message;
+        String msg = "An error occurred during login.";
+        if (e.code == 'user-not-found') {
+          msg = "No account found with this email.";
+        } else if (e.code == 'wrong-password') {
+          msg = "Incorrect email or password.";
+        } else if (e.code == 'invalid-email') {
+          msg = "The email address is invalid.";
+        } else if (e.code == 'invalid-credential') {
+          msg = "Incorrect email or password.";
+        }
+        
+        errorMessage = msg;
+        
+        CustomSnackBar.show(context, message: msg);
       });
     }
   }
@@ -150,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
 
                     // --- Sign In Button ---
                     SizedBox(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../service/auth.dart';
+import '../../widgets/auth_wrapper.dart';
 import '../profile/profile_screen.dart';
 import '../../service/database_service.dart';
 import 'home_screen.dart';
@@ -69,7 +71,13 @@ class _PreTripScreenState extends State<PreTripScreen> {
                 ),
               );
               if (shouldLogout == true) {
-                await FirebaseAuth.instance.signOut();
+                await Auth().signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                    (route) => false,
+                  );
+                }
               }
             },
             icon: const Icon(Icons.exit_to_app, color: Colors.red),

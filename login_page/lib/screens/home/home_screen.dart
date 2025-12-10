@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:ui';
 import '../services/service_screen.dart';
 import '../events_activities/events_activities_screen.dart';
 import '../payment/payment_screen.dart';
@@ -7,10 +8,13 @@ import '../room_service/room_service_screen.dart';
 import '../housekeeping/housekeeping_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../service/database_service.dart';
-import '../payment/payment_detail_screen.dart';
+import '../../utils/custom_dialog.dart';
 import 'pre_trip_screen.dart';
 
-
+/// Ana Ekran (Home Screen)
+///
+/// Kullanıcının otel deneyimini yönettiği, hizmetlere, etkinliklere
+/// ve fatura detaylarına erişebildiği ana kontrol panelidir.
 class HomeScreen extends StatefulWidget {
   final String userName;
   const HomeScreen({super.key, required this.userName});
@@ -29,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFFF6F7FB),
         scrolledUnderElevation: 0,
         titleSpacing: 0,
+        // PreTripScreen'e geri dönüş butonu (login_page projesinden korundu)
         leading: IconButton(
           onPressed: () {
             Navigator.of(context).pushReplacement(
@@ -38,28 +43,18 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          tooltip: 'Geri Dön',
+          tooltip: 'Back',
         ),
         actions: [
           IconButton(
             onPressed: () async {
-              final shouldLogout = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Çıkış Yap'),
-                  content: const Text('Çıkmak istediğinize emin misiniz?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('İptal'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('Çıkış Yap'),
-                    ),
-                  ],
-                ),
+              final shouldLogout = await CustomDialog.show(
+                context,
+                title: 'Log Out',
+                message: 'Are you sure you want to log out?',
+                confirmText: 'Log Out',
+                cancelText: 'Cancel',
+                isDanger: true,
               );
               if (shouldLogout == true) {
                 await FirebaseAuth.instance.signOut();
@@ -184,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _SpendingCard(),
+            const _SpendingCard(),
             const SizedBox(height: 24),
           ],
         ),
@@ -217,6 +212,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+/// Otel Bilgi Kartı
+///
+/// Kullanıcının konakladığı otel adı, oda numarası ve tarih aralığını gösterir.
+/// Ayrıca kapı kilit açma (Unlock) butonu burada bulunur.
 class _HotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -252,14 +251,30 @@ class _HotelCard extends StatelessWidget {
               ],
             ),
           ),
+          // Kapı Açma Düğmesi (Unlock Button)
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              // Kapı açma/kilidi açma işlemini buraya ekleyin
+            },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1677FF),
+              backgroundColor: const Color(0xFF0057FF), 
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              foregroundColor: Colors.white, 
             ),
-            child: const Text('Unlock'),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.meeting_room, size: 20), // Kapı açma simgesi
+                SizedBox(width: 8), 
+                Text('Unlock',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -387,6 +402,7 @@ class _SpendingCard extends StatelessWidget {
               ],
             ),
           ),
+          // Fatura Görüntüleme Düğmesi
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).push(
@@ -394,12 +410,26 @@ class _SpendingCard extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1677FF),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              backgroundColor: const Color(0xFF0057FF),
+              foregroundColor: Colors.white, // Metin ve simge rengi
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Daha kompakt hale getirildi
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              minimumSize: Size.zero, // Minimum boyutu sıfırla
             ),
-            child: const Text('View Detailed Bill'),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.receipt_long, size: 18), // Makbuz/Fatura simgesi
+                SizedBox(width: 6), 
+                Text(
+                  'View Detailed Bill',
+                  style: TextStyle(
+                    fontSize: 14, 
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -409,6 +439,9 @@ class _SpendingCard extends StatelessWidget {
 
 enum _BottomItem { home, theme, services, profile }
 
+/// Özel Alt Navigasyon Çubuğu (Custom Bottom Bar)
+///
+/// Saydam (yarı opak) ve blur efektli bir görünüme sahiptir.
 class _CustomBottomBar extends StatelessWidget {
   final ValueChanged<_BottomItem>? onTap;
   const _CustomBottomBar({this.onTap});
@@ -416,56 +449,65 @@ class _CustomBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const labelStyle = TextStyle(fontSize: 11, color: Colors.black87, height: 1.1);
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      elevation: 8,
-      notchMargin: 10,
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            children: [
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _BottomBarItem(
-                      icon: Icons.home,
-                      label: 'Home',
-                      labelStyle: labelStyle,
-                      onTap: () => onTap?.call(_BottomItem.home),
+    
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+        child: BottomAppBar(
+          color: Colors.white.withOpacity(0.9), 
+          surfaceTintColor: Colors.transparent,
+          elevation: 0, 
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 10,
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: 56,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _BottomBarItem(
+                          icon: Icons.home,
+                          label: 'Home',
+                          labelStyle: labelStyle.copyWith(color: const Color(0xFF0057FF), fontWeight: FontWeight.bold),
+                          onTap: () => onTap?.call(_BottomItem.home),
+                        ),
+                        _BottomBarItem(
+                          icon: Icons.brightness_6,
+                          label: 'Theme',
+                          labelStyle: labelStyle,
+                          onTap: () => onTap?.call(_BottomItem.theme),
+                        ),
+                      ],
                     ),
-                    _BottomBarItem(
-                      icon: Icons.brightness_6,
-                      label: 'Theme',
-                      labelStyle: labelStyle,
-                      onTap: () => onTap?.call(_BottomItem.theme),
+                  ),
+                  const SizedBox(width: 68),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _BottomBarItem(
+                          icon: Icons.apps,
+                          label: 'Services',
+                          labelStyle: labelStyle,
+                          onTap: () => onTap?.call(_BottomItem.services),
+                        ),
+                        _BottomBarItem(
+                          icon: Icons.person,
+                          label: 'Profile',
+                          labelStyle: labelStyle,
+                          onTap: () => onTap?.call(_BottomItem.profile),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 68),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _BottomBarItem(
-                      icon: Icons.apps,
-                      label: 'Services',
-                      labelStyle: labelStyle,
-                      onTap: () => onTap?.call(_BottomItem.services),
-                    ),
-                    _BottomBarItem(
-                      icon: Icons.person,
-                      label: 'Profile',
-                      labelStyle: labelStyle,
-                      onTap: () => onTap?.call(_BottomItem.profile),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -487,6 +529,9 @@ class _BottomBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isHome = icon == Icons.home;
+    final iconColor = isHome ? const Color(0xFF0057FF) : Colors.black87;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
@@ -495,9 +540,9 @@ class _BottomBarItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.black87, size: 22),
+            Icon(icon, color: iconColor, size: 26), 
             const SizedBox(height: 2),
-            Text(label, style: labelStyle),
+            Text(label, style: labelStyle.copyWith(color: iconColor)), 
           ],
         ),
       ),

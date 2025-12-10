@@ -11,7 +11,7 @@ class UserService {
       await firestore
           .collection("users")     // "users" koleksiyonuna eriş
           .doc(user.uid)           // Belge ID olarak Firebase UID kullan
-          .set(user.toJson());     // UserModel'i JSON formatında kaydet
+          .set(user.toJson(), SetOptions(merge: true));     // UserModel'i mevcut verinin üzerine ekle (role silinmesin)
     } catch (e) {
       print("there is an error : $e");  // Hata durumunda konsola yaz
     }

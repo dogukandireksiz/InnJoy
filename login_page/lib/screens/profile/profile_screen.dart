@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:login_page/service/auth.dart';
+import '../../widgets/auth_wrapper.dart';
+import 'change_password_screen.dart';
+import '../../utils/custom_dialog.dart';
+import '../legal/legal_constants.dart';
+import '../legal/legal_document_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user?.email != null) {
       return user!.email!.split('@').first;
     }
-    return 'Misafir';
+    return 'Guest';
   }
 
   @override
@@ -35,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Profil',
+          'Profile',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
         ),
         actions: [
@@ -128,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Kişisel Bilgiler',
+                    'Personal Information',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -139,13 +145,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       _InfoItem(
                         icon: Icons.person_outline,
-                        label: 'Ad Soyad',
+                        label: 'Full Name',
                         value: userName,
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.email_outlined,
-                        label: 'E-posta',
+                        label: 'Email',
                         value: user?.email ?? 'email@example.com',
                       ),
                     ],
@@ -163,7 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Konaklama Bilgileri',
+                    'Accommodation Details',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -174,32 +180,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       _InfoItem(
                         icon: Icons.hotel_outlined,
-                        label: 'Otel',
+                        label: 'Hotel',
                         value: 'GrandHyatt Hotel',
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.door_front_door_outlined,
-                        label: 'Oda Numarası',
+                        label: 'Room Number',
                         value: '1204',
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.calendar_today_outlined,
-                        label: 'Giriş Tarihi',
+                        label: 'Check-in Date',
                         value: '10 Kasım 2025',
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.event_outlined,
-                        label: 'Çıkış Tarihi',
+                        label: 'Check-out Date',
                         value: '15 Kasım 2025',
                       ),
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.people_outline,
-                        label: 'Misafir Sayısı',
-                        value: '2 Yetişkin',
+                        label: 'Number of Guests',
+                        value: '2 Adults',
                       ),
                     ],
                   ),
@@ -216,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Ayarlar',
+                    'Settings',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -227,32 +233,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       _SettingsItem(
                         icon: Icons.notifications_outlined,
-                        label: 'Bildirimler',
+                        label: 'Notifications',
                         onTap: () {},
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
                         icon: Icons.language_outlined,
-                        label: 'Dil',
-                        trailing: 'Türkçe',
+                        label: 'Language',
+                        trailing: 'English',
                         onTap: () {},
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
                         icon: Icons.lock_outline,
-                        label: 'Şifre Değiştir',
-                        onTap: () {},
+                        label: 'Change Password',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChangePasswordScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      _SettingsItem(
+                        icon: Icons.description_outlined, // User Agreement
+                        label: 'User Agreement',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LegalDocumentScreen(
+                                titleTr: LegalConstants.userAgreementTitle,
+                                contentTr: LegalConstants.userAgreementText,
+                                titleEn: LegalConstants.userAgreementTitleEn,
+                                contentEn: LegalConstants.userAgreementTextEn,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
                         icon: Icons.privacy_tip_outlined,
-                        label: 'Gizlilik Politikası',
-                        onTap: () {},
+                        label: 'Privacy Policy',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LegalDocumentScreen(
+                                titleTr: LegalConstants.privacyPolicyTitle,
+                                contentTr: LegalConstants.privacyPolicyText,
+                                titleEn: LegalConstants.privacyPolicyTitleEn,
+                                contentEn: LegalConstants.privacyPolicyTextEn,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      _SettingsItem(
+                        icon: Icons.article_outlined, // KVKK
+                        label: 'KVKK Text',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LegalDocumentScreen(
+                                titleTr: LegalConstants.kvkkTitle,
+                                contentTr: LegalConstants.kvkkText,
+                                titleEn: LegalConstants.kvkkTitleEn,
+                                contentEn: LegalConstants.kvkkTextEn,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
                         icon: Icons.help_outline,
-                        label: 'Yardım & Destek',
+                        label: 'Help & Support',
                         onTap: () {},
                       ),
                     ],
@@ -270,34 +331,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    final shouldLogout = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Çıkış Yap'),
-                        content: const Text('Çıkmak istediğinize emin misiniz?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('İptal'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            style: TextButton.styleFrom(foregroundColor: Colors.red),
-                            child: const Text('Çıkış Yap'),
-                          ),
-                        ],
-                      ),
+                    final shouldLogout = await CustomDialog.show(
+                      context,
+                      title: 'Log Out',
+                      message: 'Are you sure you want to log out?',
+                      confirmText: 'Log Out',
+                      isDanger: true,
                     );
                     if (shouldLogout == true) {
-                      await FirebaseAuth.instance.signOut();
+                      // Login sayfasının bulunduğu AuthWrapper'a yönlendir
+                      // Mevcut tüm sayfaları stack'ten temizle
+                      await Auth().signOut();
                       if (context.mounted) {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                          (route) => false,
+                        );
                       }
                     }
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),
                   label: const Text(
-                    'Çıkış Yap',
+                    'Log Out',
                     style: TextStyle(
                       color: Colors.red,
                       fontWeight: FontWeight.w600,

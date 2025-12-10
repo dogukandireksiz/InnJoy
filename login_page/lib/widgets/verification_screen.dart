@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:login_page/widgets/auth_wrapper.dart';
+import '../utils/custom_snackbar.dart';
 
 class VerificationScreen extends StatefulWidget {
   final User user;
@@ -42,13 +43,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
     // 3. Doğrulama kontrolü yap
     if (refreshedUser != null && refreshedUser.emailVerified) {
-      // Doğrulama başarılıysa zamanlayıcıyı durdur
       timer?.cancel();
-
-      // AuthWrapper, StreamBuilder tetiklendiği için otomatik olarak HomeScreen'e yönlendirecektir.
-    }
-    if(mounted){
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const AuthWrapper()));
+      if(mounted){
+         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const AuthWrapper()));
+      }
     }
   }
 
@@ -57,15 +55,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
     try {
       await widget.user.sendEmailVerification();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Yeni doğrulama maili gönderildi.')),
-        );
+        CustomSnackBar.show(context, message: 'New verification email sent.', type: SnackBarType.info);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Mail gönderilemedi: $e')));
+        CustomSnackBar.show(context, message: 'Failed to send email: $e', type: SnackBarType.error);
       }
     }
   }
@@ -73,7 +67,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('E-posta Doğrulama')),
+      appBar: AppBar(title: const Text('Verify Email')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -83,8 +77,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const Icon(Icons.mark_email_read, size: 80, color: Colors.blue),
               const SizedBox(height: 30),
               Text(
-               
-                'Hesabınızı etkinleştirmek için lütfen e-posta adresinize (${widget.user.email}) gönderdiğimiz doğrulama linkine tıklayınız.',
+                'Please check your email (${widget.user.email}) and click on the verification link to activate your account.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16,
@@ -94,13 +87,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
               // Yeniden gönder butonu
               ElevatedButton(
                 onPressed: sendVerificationEmail,
-                child: const Text('Doğrulama Mailini Tekrar Gönder'),
+                child: const Text('Resend Verification Email'),
               ),
               const SizedBox(height: 10),
               // Oturumu kapatıp çıkış yapma seçeneği
               TextButton(
                 onPressed: () => FirebaseAuth.instance.signOut(),
-                child: const Text('Giriş Ekranına Dön'),
+                child: const Text('Return to Login'),
               ),
             ],
           ),
