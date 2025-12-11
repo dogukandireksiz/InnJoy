@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../model/menu_item_model.dart';
+import 'dart:math';
 
 class DatabaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -168,35 +169,127 @@ class DatabaseService {
     }
   }
 
-// --- KULLANICI ROLÜNÜ GETİR ---
-// --- KULLANICI ROLÜNÜ GETİR (DEBUG MODU) ---
-  Future<String> getUserRole(String userId) async {
-    try {
-      print("🔍 ROL KONTROLÜ BAŞLADI: Kullanıcı ID -> $userId"); // 1. Adım
+  // --- PNR / REZERVASYON İŞLEMLERİ ---
 
+  // 1. Yeni PNR Oluştur (Admin)
+  Future<void> createReservation(String hotelName, String roomNumber, String guestName, DateTime checkInDate, DateTime checkOutDate) async {
+    // 6 Haneli Rastgele PNR Üret
+    String pnr = _generateRandomPnr();
+    
+    // Aynı PNR var mı diye kontrol et (Çok düşük ihtimal ama olsun)
+    // Basitlik adına şimdilik direkt oluşturuyoruz.
+
+    final reservation = {
+      'pnr': pnr,
+      'roomNumber': roomNumber,
+      'guestName': guestName,
+      'checkInDate': Timestamp.fromDate(checkInDate),
+      'checkOutDate': Timestamp.fromDate(checkOutDate),
+      'status': 'active',
+      'createdAt': FieldValue.serverTimestamp(),
+    };
+
+    // hotels/{hotelName}/reservations/{pnr} yoluna kaydet
+    await _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('reservations')
+        .doc(pnr)
+        .set(reservation);
+  }
+
+  // 2. PNR Listesini Getir (Admin - Kendi Oteli)
+  Stream<List<Map<String, dynamic>>> getHotelReservations(String hotelName) {
+    return _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('reservations')
+        .orderBy('checkOutDate') // En yakın çıkış tarihine göre sırala
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    });
+  }
+
+  // 2.1 Otel Bilgilerini Getir (Doluluk vb.)
+  // Güncelleme: Kullanıcı 'hotel information' alt koleksiyonu kullanıyor.
+  Stream<Map<String, dynamic>?> getHotelInfo(String hotelName) {
+    return _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('hotel information')
+        .limit(1)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first.data();
+      }
+      return null;
+    });
+  }
+
+  // 3. PNR Doğrula ve Kullan (Müşteri)
+  Future<bool> verifyAndRedeemPnr(String pnr, String selectedHotel, String userId) async {
+    try {
+      final docRef = _db
+          .collection('hotels')
+          .doc(selectedHotel)
+          .collection('reservations')
+          .doc(pnr);
+
+      final doc = await docRef.get();
+
+      if (!doc.exists) return false;
+
+      final data = doc.data();
+      if (data == null) return false;
+
+      if (data['status'] == 'active') {
+        // PNR Geçerli -> Kullanıldı olarak işaretle
+        await docRef.update({
+          'status': 'used',
+          'usedBy': userId,
+        });
+
+        // Kullanıcının profiline otel bilgisini kaydet
+        await _db.collection('users').doc(userId).update({
+          'hotelName': selectedHotel,
+          'roomNumber': data['roomNumber'],
+          'checkedInAt': FieldValue.serverTimestamp(),
+        });
+
+        return true;
+      }
+      
+      return false; // Zaten kullanılmış veya iptal edilmiş
+    } catch (e) {
+      print("PNR Verify Error: $e");
+      return false;
+    }
+  }
+
+  // Yardımcı: Rastgele 6 haneli kod üretici (Örn: XK92M4)
+  String _generateRandomPnr() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    return List.generate(6, (index) => chars[random.nextInt(chars.length)]).join();
+  }
+
+  // --- KULLANICI ROLÜNÜ GETİR (DEBUG MODU) ---
+  // --- KULLANICI VERİSİNİ GETİR (ROL VE OTEL ADI İÇİN) ---
+  Future<Map<String, dynamic>?> getUserData(String userId) async {
+    try {
       DocumentSnapshot doc = await _db.collection('users').doc(userId).get();
 
       if (doc.exists && doc.data() != null) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        
-        print("📄 VERİTABANINDAN GELEN VERİ: $data"); // 2. Adım: Tüm veriyi göster
-
-        // Rolü kontrol et
-        if (data.containsKey('role')) {
-          String role = data['role'];
-          print("✅ BULUNAN ROL: $role"); // 3. Adım: Rol bulundu
-          return role;
-        } else {
-          print("⚠️ DİKKAT: 'role' alanı bu belgede YOK! Varsayılan 'customer' dönüyor.");
-          return 'customer';
-        }
+        return doc.data() as Map<String, dynamic>;
       } else {
         print("❌ HATA: Kullanıcı veritabanında bulunamadı!");
-        return 'customer';
+        return null;
       }
     } catch (e) {
       print("🔥 KRİTİK HATA: $e");
-      return 'customer';
+      return null;
     }
   }
 
@@ -208,6 +301,6 @@ class DatabaseService {
       'role': role,              // YENİ EKLENEN ALAN
       'uid': uid,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
   }
 }

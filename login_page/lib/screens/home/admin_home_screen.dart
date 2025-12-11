@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../service/auth.dart';
+import 'home_screen.dart';
 import '../../widgets/auth_wrapper.dart';
-import 'pre_trip_screen.dart';
 import '../events_activities/admin_events_screen.dart';
-// ... (imports replaced)
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../admin/admin_room_management_screen.dart';
+import '../../service/database_service.dart';
 
 class AdminHomeScreen extends StatefulWidget {
-// ...
-// ...
-
   const AdminHomeScreen({super.key});
 
   @override
@@ -18,6 +17,23 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   final user = FirebaseAuth.instance.currentUser;
+  String? _hotelName;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchHotelName();
+  }
+
+  Future<void> _fetchHotelName() async {
+    if (user == null) return;
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+    if (doc.exists && mounted) {
+      setState(() {
+        _hotelName = doc.data()?['hotelName'] ?? 'Grand Hayat Otel';
+      });
+    }
+  }
 
   String get userName {
     if (user?.displayName != null && user!.displayName!.isNotEmpty) {
@@ -29,31 +45,69 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     return 'Admin';
   }
 
+  int _selectedIndex = 0;
+  
+  void _onItemTapped(int index) {
+    if (index == 0) {
+      setState(() => _selectedIndex = 0);
+    } else if (index == 1) {
+      if (_hotelName != null) {
+        setState(() => _selectedIndex = 1);
+      } else {
+        _showComingSoonDialog(context, 'Otel bilgisi yükleniyor...');
+      }
+    } else {
+      _showComingSoonDialog(context, index == 2 ? 'Bildirimler' : 'Ayarlar');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
-      appBar: AppBar(
+      appBar: _selectedIndex == 0 ? _buildAppBar() : null, // Sadece Dashboard'da AppBar göster
+      body: _selectedIndex == 0 
+          ? _buildDashboard() 
+          : AdminRoomManagementScreen(hotelName: _hotelName!),
+      bottomNavigationBar: _AdminBottomBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFFF6F7FB),
         scrolledUnderElevation: 0,
         titleSpacing: 0,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => PreTripScreen(userName: userName),
-              ),
-            );
-          },
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          tooltip: 'Geri Dön',
-        ),
+        leading: null, // Ana ekran olduğu için geri butonu yok
+        automaticallyImplyLeading: false, // Otomatik ok işaretini de kapat
         actions: [
-          // Admin badge
+          TextButton.icon(
+            onPressed: () {
+               Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => HomeScreen(
+                  userName: userName,
+                  isAdmin: true, // Gecikmeyi önlemek için true gönderiyoruz
+                ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.visibility, color: Colors.blue, size: 20),
+            label: const Text(
+              'Guest View',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+          ),
           Container(
             margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.orange.withOpacity(0.15),
               borderRadius: BorderRadius.circular(20),
@@ -61,13 +115,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.admin_panel_settings, color: Colors.orange, size: 16),
+                Icon(Icons.admin_panel_settings, color: Colors.orange, size: 18),
                 SizedBox(width: 4),
                 Text(
-                  'Admin',
+                  'Admin Panel',
                   style: TextStyle(
                     color: Colors.orange,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
@@ -127,17 +181,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ],
           ),
         ),
-      ),
-      body: SingleChildScrollView(
+      );
+  }
+
+  Widget _buildDashboard() {
+    return SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Otel Bilgi Kartı
-            _AdminHotelCard(),
+            _AdminHotelCard(hotelName: _hotelName ?? 'Yükleniyor...'),
             const SizedBox(height: 20),
-
-            // Hızlı İstatistikler
             const Text(
               'Bugünkü Özet',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -187,8 +241,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ],
             ),
             const SizedBox(height: 24),
-
-            // Yönetim Butonları
             const Text(
               'Otel Yönetimi',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -277,12 +329,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ],
             ),
             const SizedBox(height: 24),
-
-            // Son Aktiviteler
             const Text(
               'Son Aktiviteler',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
+            // ... Activity cards ... (simplified for brevity if needed, but keeping full for safety)
             const SizedBox(height: 12),
             _ActivityCard(
               icon: Icons.room_service,
@@ -307,28 +358,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
             const SizedBox(height: 20),
           ],
-        ),
-      ),
-      bottomNavigationBar: _AdminBottomBar(
-        onTap: (item) {
-          switch (item) {
-            case _AdminBottomItem.dashboard:
-              // Zaten buradayız
-              break;
-            case _AdminBottomItem.orders:
-              _showComingSoonDialog(context, 'Siparişler');
-              break;
-            case _AdminBottomItem.guests:
-              _showComingSoonDialog(context, 'Misafirler');
-              break;
-            case _AdminBottomItem.settings:
-              _showComingSoonDialog(context, 'Ayarlar');
-              break;
-          }
-        },
-      ),
+      )
     );
   }
+
+  // Helper method for ActivityCard if I replaced it with something new, but I am keeping existing ones largely.
+  // Actually, I should just paste the full Dashboard body content into _buildDashboard
+
 
   void _showComingSoonDialog(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -341,108 +377,141 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 }
 
-// Otel Bilgi Kartı
 class _AdminHotelCard extends StatelessWidget {
+  final String hotelName;
+
+  const _AdminHotelCard({required this.hotelName});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E3A5F), Color(0xFF2E5077)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1E3A5F).withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -20,
-            top: -20,
-            child: Icon(
-              Icons.hotel,
-              size: 120,
-              color: Colors.white.withOpacity(0.1),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    final user = FirebaseAuth.instance.currentUser;
+    final adminName = user?.displayName ?? 'Yönetici';
+
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: DatabaseService().getHotelInfo(hotelName),
+      builder: (context, infoSnapshot) {
+        int totalRooms = 0;
+        
+        if (infoSnapshot.hasData && infoSnapshot.data != null) {
+            final data = infoSnapshot.data!;
+            totalRooms = data['totalRooms'] ?? 0;
+        }
+
+        return StreamBuilder<List<Map<String, dynamic>>>(
+          stream: DatabaseService().getHotelReservations(hotelName),
+          builder: (context, resSnapshot) {
+            int occupiedRooms = 0;
+
+            if (resSnapshot.hasData && resSnapshot.data != null) {
+              // 'active' veya 'used' statüsündeki rezervasyonlar dolu sayılır
+              final reservations = resSnapshot.data!;
+              occupiedRooms = reservations.where((r) => r['status'] == 'active' || r['status'] == 'used').length;
+            }
+
+            final availableRooms = totalRooms - occupiedRooms;
+
+            return Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1E3A5F), Color(0xFF2E5077)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1E3A5F).withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                   Positioned(
+                right: -20,
+                top: -20,
+                child: Icon(
+                  Icons.hotel,
+                  size: 120,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.business,
-                        color: Colors.white,
-                        size: 24,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.business,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                hotelName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                adminName,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Grand Hayat Otel',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Dogukan Direksiz',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _HotelInfoItem(
+                          label: 'Toplam Oda',
+                          value: totalRooms.toString(),
+                          icon: Icons.meeting_room,
+                        ),
+                         _HotelInfoItem(
+                          label: 'Dolu',
+                          value: occupiedRooms.toString(),
+                          icon: Icons.person,
+                        ),
+                         _HotelInfoItem(
+                          label: 'Müsait',
+                          value: availableRooms.toString(),
+                          icon: Icons.check_circle_outline,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _HotelInfoItem(
-                      icon: Icons.king_bed,
-                      label: 'Toplam Oda',
-                      value: '48',
-                    ),
-                    _HotelInfoItem(
-                      icon: Icons.people,
-                      label: 'Dolu',
-                      value: '32',
-                    ),
-                    _HotelInfoItem(
-                      icon: Icons.event_available,
-                      label: 'Müsait',
-                      value: '16',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -484,7 +553,6 @@ class _HotelInfoItem extends StatelessWidget {
   }
 }
 
-// İstatistik Kartı
 class _StatCard extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -552,7 +620,6 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-// Admin Servis Tile
 class _AdminServiceTile extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -617,7 +684,6 @@ class _AdminServiceTile extends StatelessWidget {
   }
 }
 
-// Aktivite Kartı
 class _ActivityCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -695,53 +761,56 @@ class _ActivityCard extends StatelessWidget {
   }
 }
 
-// Admin Bottom Bar
 enum _AdminBottomItem { dashboard, orders, guests, settings }
 
 class _AdminBottomBar extends StatelessWidget {
-  final ValueChanged<_AdminBottomItem>? onTap;
-  const _AdminBottomBar({this.onTap});
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const _AdminBottomBar({
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const labelStyle = TextStyle(fontSize: 10, color: Colors.black87, height: 1.1);
     return BottomAppBar(
-      elevation: 8,
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _AdminBottomBarItem(
-                icon: Icons.dashboard,
-                label: 'Dashboard',
-                labelStyle: labelStyle,
-                isActive: true,
-                onTap: () => onTap?.call(_AdminBottomItem.dashboard),
-              ),
-              _AdminBottomBarItem(
-                icon: Icons.receipt_long,
-                label: 'Siparişler',
-                labelStyle: labelStyle,
-                onTap: () => onTap?.call(_AdminBottomItem.orders),
-              ),
-              _AdminBottomBarItem(
-                icon: Icons.people,
-                label: 'Misafirler',
-                labelStyle: labelStyle,
-                onTap: () => onTap?.call(_AdminBottomItem.guests),
-              ),
-              _AdminBottomBarItem(
-                icon: Icons.settings,
-                label: 'Ayarlar',
-                labelStyle: labelStyle,
-                onTap: () => onTap?.call(_AdminBottomItem.settings),
-              ),
-            ],
+      color: Colors.white,
+      elevation: 10,
+      shadowColor: Colors.black12,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _AdminBottomBarItem(
+            icon: Icons.dashboard_rounded,
+            label: 'Panel',
+            labelStyle: const TextStyle(fontSize: 12),
+            isActive: currentIndex == 0,
+            onTap: () => onTap(0),
           ),
-        ),
+          _AdminBottomBarItem(
+            icon: Icons.bed, // Odalar ikonu
+            label: 'Odalar',
+            labelStyle: const TextStyle(fontSize: 12),
+             isActive: currentIndex == 1,
+            onTap: () => onTap(1), 
+          ),
+           _AdminBottomBarItem(
+            icon: Icons.notifications,
+            label: 'Bildirimler',
+            labelStyle: const TextStyle(fontSize: 12),
+             isActive: currentIndex == 2,
+            onTap: () => onTap(2), 
+          ),
+           _AdminBottomBarItem(
+            icon: Icons.settings,
+            label: 'Ayarlar',
+            labelStyle: const TextStyle(fontSize: 12),
+             isActive: currentIndex == 3,
+            onTap: () => onTap(3), 
+          ),
+        ],
       ),
     );
   }

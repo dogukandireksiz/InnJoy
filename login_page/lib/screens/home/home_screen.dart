@@ -9,7 +9,10 @@ import '../housekeeping/housekeeping_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../service/database_service.dart';
 import '../../utils/custom_dialog.dart';
-import 'pre_trip_screen.dart';
+import 'hotel_selection_screen.dart';
+import '../../widgets/auth_wrapper.dart';
+
+import 'admin_home_screen.dart';
 
 /// Ana Ekran (Home Screen)
 ///
@@ -17,13 +20,47 @@ import 'pre_trip_screen.dart';
 /// ve fatura detaylarına erişebildiği ana kontrol panelidir.
 class HomeScreen extends StatefulWidget {
   final String userName;
-  const HomeScreen({super.key, required this.userName});
+  final bool? isAdmin; // Gecikmeyi önlemek için opsiyonel parametre
+
+  const HomeScreen({
+    super.key, 
+    required this.userName, 
+    this.isAdmin,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late bool _isAdmin;
+
+  @override
+  void initState() {
+    super.initState();
+    // Eğer parametre geldiyse direkt onu kullan (Gecikme olmaz)
+    // Gelmediyse varsayılan false ve asenkron kontrol
+    _isAdmin = widget.isAdmin ?? false; 
+    
+    // Parametre gelmediyse yine de kontrol et
+    if (widget.isAdmin == null) {
+      _checkUserRole();
+    }
+  }
+
+  Future<void> _checkUserRole() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userData = await DatabaseService().getUserData(user.uid);
+      final role = userData?['role'];
+      if (mounted) {
+        setState(() {
+          _isAdmin = role == 'admin';
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,20 +69,64 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         backgroundColor: const Color(0xFFF6F7FB),
         scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
         titleSpacing: 0,
         // PreTripScreen'e geri dönüş butonu (login_page projesinden korundu)
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => PreTripScreen(userName: widget.userName),
-              ),
-            );
-          },
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          tooltip: 'Back',
-        ),
+        leading: _isAdmin 
+          ? null 
+          : IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.grey),
+              onPressed: () {
+                // Müşteri ise otel seçimine gitsin
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const HotelSelectionScreen()),
+                );
+              },
+              tooltip: 'Back',
+            ),
         actions: [
+          if (_isAdmin) ...[
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.visibility, color: Colors.blue, size: 18),
+                  SizedBox(width: 4),
+                  Text(
+                    'Guest View',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                 Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AdminHomeScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.admin_panel_settings, color: Colors.orange, size: 20),
+              label: const Text(
+                'Admin Panel',
+                style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
+          ],
           IconButton(
             onPressed: () async {
               final shouldLogout = await CustomDialog.show(
@@ -58,36 +139,44 @@ class _HomeScreenState extends State<HomeScreen> {
               );
               if (shouldLogout == true) {
                 await FirebaseAuth.instance.signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                    (route) => false,
+                  );
+                }
               }
             },
             icon: const Icon(Icons.exit_to_app, color: Colors.red),
           ),
         ],
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Welcome back,',
-                    style: TextStyle(color: Colors.black54, fontSize: 14),
-                  ),
-                  Text(
-                    widget.userName.isEmpty ? 'Guest Name' : widget.userName,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
+        title: _isAdmin
+            ? null
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Welcome back,',
+                          style: TextStyle(color: Colors.black54, fontSize: 14),
+                        ),
+                        Text(
+                          widget.userName.isEmpty ? 'Guest Name' : widget.userName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

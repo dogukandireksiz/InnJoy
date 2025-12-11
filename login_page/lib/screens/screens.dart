@@ -1,6 +1,6 @@
 // Screens barrel file - Tüm ekranları tek bir yerden import etmek için
 export 'home/home_screen.dart';
-export 'home/pre_trip_screen.dart';
+
 export 'auth/login_screen.dart';
 export 'auth/signup_screen.dart';
 export 'services/service_screen.dart';

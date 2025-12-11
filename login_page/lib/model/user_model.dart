@@ -6,21 +6,24 @@ class UserModel {
   final String? nameSurname;   // Kullanıcının adı ve soyadı
   final String? mailAddress;   // Kullanıcının e-posta adresi
   final String? password;      // Kullanıcının şifresi (Normalde şifre Firestore'da tutulmaz!)
+  final String? hotelName;     // Yöneticinin sorumlu olduğu otel ismi
 
   UserModel({
     required this.uid,
     required this.nameSurname,
     required this.mailAddress,
     required this.password,
+    this.hotelName,            // Opsiyonel parametre
   });
 
   // JSON'dan UserModel nesnesi oluşturur (Firestore'dan veri çekerken kullanılır)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       uid: json["uid"],
-      nameSurname: json["username"],       // Firestore'daki "username" alanı
+      nameSurname: json["name_username"] ?? json["username"],       // Firestore'daki "name_username" (yoksa username) alanı
       mailAddress: json["mailAddress"],    // Firestore'daki "mailAddress" alanı
       password: json["password"],          // Firestore'daki "password" alanı
+      hotelName: json["hotelName"],        // Firestore'daki "hotelName" alanı
     );
   }
 
@@ -31,6 +34,7 @@ class UserModel {
       "name_username": nameSurname,  // Firestore'da bu isimle kaydedilecek
       "mailAddress": mailAddress,
       "password": password,
+      "hotelName": hotelName,        // Otel ismini kaydet
     };
   }
 }
