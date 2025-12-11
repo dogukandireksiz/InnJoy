@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:ui';
 import '../services/service_screen.dart';
 import '../events_activities/events_activities_screen.dart';
+import '../events_activities/event_details_screen.dart';
 import '../payment/payment_screen.dart';
 import '../room_service/room_service_screen.dart';
 import '../housekeeping/housekeeping_screen.dart';
@@ -21,11 +23,13 @@ import 'admin_home_screen.dart';
 class HomeScreen extends StatefulWidget {
   final String userName;
   final bool? isAdmin; // Gecikmeyi önlemek için opsiyonel parametre
+  final String? hotelName; // Admin Guest View için opsiyonel
 
   const HomeScreen({
     super.key, 
     required this.userName, 
     this.isAdmin,
+    this.hotelName,
   });
 
   @override
@@ -34,6 +38,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late bool _isAdmin;
+  String? _hotelName;
 
   @override
   void initState() {
@@ -41,9 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // Eğer parametre geldiyse direkt onu kullan (Gecikme olmaz)
     // Gelmediyse varsayılan false ve asenkron kontrol
     _isAdmin = widget.isAdmin ?? false; 
+    _hotelName = widget.hotelName;
     
-    // Parametre gelmediyse yine de kontrol et
-    if (widget.isAdmin == null) {
+    // Parametre gelmediyse veya otel adı yoksa kontrol et (User ise)
+    if (widget.isAdmin == null || (_hotelName == null && !_isAdmin)) {
       _checkUserRole();
     }
   }
@@ -53,9 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (user != null) {
       final userData = await DatabaseService().getUserData(user.uid);
       final role = userData?['role'];
+      final hotel = userData?['hotelName'];
       if (mounted) {
         setState(() {
-          _isAdmin = role == 'admin';
+          // Eğer admin parametresi geldiyse onu ezme, sadece hotelName al
+          if (widget.isAdmin == null) _isAdmin = role == 'admin';
+          if (_hotelName == null) _hotelName = hotel;
         });
       }
     }
@@ -230,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const EventsActivitiesScreen()),
+                      MaterialPageRoute(builder: (_) => EventsActivitiesScreen(hotelName: _hotelName ?? 'GrandHyatt Hotel')),
                     );
                   },
                   style: TextButton.styleFrom(
@@ -249,17 +258,78 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 120,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: const [
-                  _EventCard(title: 'Live Jazz Night', subtitle: 'Lounge Bar • 8:00 PM'),
-                  SizedBox(width: 12),
-                  _EventCard(title: 'Sunset Happy Hour', subtitle: 'Rooftop Pool • 5:00 PM'),
-                  SizedBox(width: 12),
-                  _EventCard(title: 'Movie Night', subtitle: 'Garden • 9:00 PM'),
-                ],
-              ),
+              height: 170,
+              child: _hotelName == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: DatabaseService().getHotelEvents(_hotelName!),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(child: Text("Yüklenemedi"));
+                        }
+
+                        final allEvents = snapshot.data ?? [];
+                        // Filter published and future events if needed. For now just published.
+                        final events = allEvents.where((e) => e['isPublished'] == true).toList();
+                        
+                        // Sort by date 
+                        events.sort((a, b) {
+                           final da = (a['date'] as Timestamp?)?.toDate() ?? DateTime(0);
+                           final db = (b['date'] as Timestamp?)?.toDate() ?? DateTime(0);
+                           return da.compareTo(db);
+                        });
+
+                        if (events.isEmpty) {
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Container(
+                               decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(12),
+                               ),
+                               alignment: Alignment.center,
+                               child: const Text(
+                                  "Etkinliklerimiz yakında",
+                                  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+                               ),
+                            ),
+                          );
+                        }
+
+                        return ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: events.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 12),
+                          itemBuilder: (context, index) {
+                            final e = events[index];
+                            final title = e['title'] ?? 'Adsız Etkinlik';
+                            final time = e['time'] ?? '';
+                            final imageAsset = e['imageAsset'];
+
+                            return _EventCard(
+                              title: title,
+                              subtitle: time,
+                              imageAsset: imageAsset,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => EventDetailsScreen(
+                                      event: e,
+                                      hotelName: _hotelName!,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
             ),
             const SizedBox(height: 20),
 
@@ -406,46 +476,78 @@ class _ServiceTile extends StatelessWidget {
 class _EventCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  const _EventCard({required this.title, required this.subtitle});
+  final String? imageAsset; // Dinamik resim desteği
+  final VoidCallback? onTap;
+
+  const _EventCard({
+    required this.title, 
+    required this.subtitle,
+    this.imageAsset,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 220,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4))],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), bottomLeft: Radius.circular(16)),
-            child: Image.asset(
-              'assets/images/arkaplanyok1.png',
-              width: 90,
-              height: 120,
-              fit: BoxFit.cover,
-            ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 160,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12), // rounded-xl equivalent
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))], // shadow-sm
+        ),
+        clipBehavior: Clip.hardEdge, // Overflow hidden for rounded corners
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+          Image.asset(
+            imageAsset ?? 'assets/images/arkaplanyok1.png', // Varsayılan resim
+            width: double.infinity,
+            height: 80, // h-20 equivalent
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                  width: double.infinity, 
+                  height: 80, 
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.broken_image, color: Colors.grey),
+              );
+            },
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.all(10), // p-2.5
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title, 
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800, // Daha kalın
+                    fontSize: 16, // Daha büyük (was 14)
+                    color: Color(0xFF1C1C1E), 
+                  ), 
+                  maxLines: 1, 
+                  overflow: TextOverflow.ellipsis
+                ),
+                const SizedBox(height: 4), // was 2
+                Text(
+                  subtitle, 
+                  style: TextStyle(
+                    color: Colors.grey[700], // Daha okunaklı gri (was 8A8A8E)
+                    fontSize: 13, // was 12
+                    fontWeight: FontWeight.w500, // Biraz kalınlık
+                  ), 
+                  maxLines: 1, 
+                  overflow: TextOverflow.ellipsis
+                ),
+              ],
             ),
           )
         ],
       ),
-    );
+    ),
+  );
   }
 }
 

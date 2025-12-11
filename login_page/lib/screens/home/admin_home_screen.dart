@@ -90,9 +90,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => HomeScreen(
-                  userName: userName,
-                  isAdmin: true, // Gecikmeyi önlemek için true gönderiyoruz
-                ),
+                    userName: userName, // State getter'ını kullan
+                    isAdmin: true, 
+                    hotelName: _hotelName, 
+                  ),
                 ),
               );
             },
@@ -309,7 +310,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const AdminEventsScreen(),
+                          builder: (_) => AdminEventsScreen(hotelName: _hotelName ?? ''),
                         ),
                       );
                     },

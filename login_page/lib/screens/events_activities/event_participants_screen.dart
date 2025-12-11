@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+import '../../service/database_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+
+class EventParticipantsScreen extends StatelessWidget {
+  final String hotelName;
+  final String eventId;
+  final String eventTitle;
+
+  const EventParticipantsScreen({
+    super.key,
+    required this.hotelName,
+    required this.eventId,
+    required this.eventTitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Katılımcılar: $eventTitle'),
+        centerTitle: true,
+      ),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: DatabaseService().getEventParticipants(hotelName, eventId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return const Center(child: Text('Bir hata oluştu.'));
+          }
+
+          final participants = snapshot.data ?? [];
+
+          if (participants.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                   SizedBox(height: 16),
+                   Text('Henüz kayıtlı katılımcı yok.', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                ],
+              ),
+            );
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: participants.length,
+            separatorBuilder: (context, index) => const Divider(),
+            itemBuilder: (context, index) {
+              final participant = participants[index];
+              final name = participant['userName'] ?? 'İsimsiz Misafir';
+              final room = participant['roomNumber'] ?? '-'; // '101' etc.
+              final timestamp = participant['timestamp'] as Timestamp?;
+              final timeStr = timestamp != null 
+                  ? DateFormat('dd MMM yyyy, HH:mm').format(timestamp.toDate()) 
+                  : '';
+
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue.shade100,
+                  foregroundColor: Colors.blue.shade800,
+                  child: Text(name.substring(0, 1).toUpperCase()),
+                ),
+                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text('Kayıt Tarihi: $timeStr'),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: Text(
+                    'Oda: $room',
+                    style: TextStyle(
+                      color: Colors.green.shade800,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}

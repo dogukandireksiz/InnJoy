@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../service/database_service.dart';
 import 'events_activities_manage_screen.dart';
+import 'event_participants_screen.dart';
 
 class AdminEventsScreen extends StatefulWidget {
-  const AdminEventsScreen({super.key});
+  final String hotelName;
+  const AdminEventsScreen({super.key, required this.hotelName});
 
   @override
   State<AdminEventsScreen> createState() => _AdminEventsScreenState();
@@ -16,6 +20,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
   DateTime _today = DateTime.now();
   Timer? _dayTick;
 
+  // Generate next 5 days for the scroller
   List<DateTime> get _days =>
       List.generate(5, (i) => DateTime(_today.year, _today.month, _today.day + i));
 
@@ -77,89 +82,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
     super.dispose();
   }
 
-  List<_EventData> get _events => [
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day),
-          title: 'Sunset Yoga Session',
-          time: '4:00 PM - 5:00 PM',
-          location: 'Poolside Deck',
-          imageAsset: 'assets/images/arkaplanyok.png',
-          capacity: 20,
-          registered: 15,
-          isPublished: true,
-        ),
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day),
-          title: 'Live Jazz at the Lounge',
-          time: '8:00 PM - 10:00 PM',
-          location: 'The Oak Bar',
-          imageAsset: 'assets/images/arkaplanyok1.png',
-          capacity: 50,
-          registered: 32,
-          isPublished: true,
-        ),
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 1),
-          title: 'Cooking Masterclass',
-          time: '11:00 AM - 1:00 PM',
-          location: 'Gourmet Kitchen',
-          imageAsset: 'assets/images/arkaplan.jpg',
-          capacity: 15,
-          registered: 10,
-          isPublished: true,
-        ),
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 2),
-          title: 'Wine Tasting',
-          time: '6:00 PM - 7:30 PM',
-          location: 'Cellar Room',
-          imageAsset: 'assets/images/arkaplanyok1.png',
-          capacity: 25,
-          registered: 18,
-          isPublished: false,
-        ),
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 3),
-          title: 'Pool Games',
-          time: '3:00 PM - 4:00 PM',
-          location: 'Main Pool',
-          imageAsset: 'assets/images/arkaplanyok.png',
-          capacity: 30,
-          registered: 8,
-          isPublished: true,
-        ),
-        _EventData(
-          date: DateTime(_today.year, _today.month, _today.day + 4),
-          title: 'City Walking Tour',
-          time: '10:00 AM - 12:00 PM',
-          location: 'Lobby Start',
-          imageAsset: 'assets/images/arkaplan.jpg',
-          capacity: 20,
-          registered: 5,
-          isPublished: false,
-        ),
-      ];
-
   @override
   Widget build(BuildContext context) {
-    final selectedDates = _selectedDayIndexes.map((i) {
-      final d = _days[i];
-      return DateTime(d.year, d.month, d.day);
-    }).toList();
-    final q = _query.trim().toLowerCase();
-    final searching = q.isNotEmpty;
-    final allFiltered = _events.where((e) {
-      if (!searching) return false;
-      return e.title.toLowerCase().contains(q) ||
-          e.location.toLowerCase().contains(q) ||
-          e.time.toLowerCase().contains(q);
-    }).toList();
-    final items = searching
-        ? allFiltered
-        : (_selectedDayIndexes.isEmpty
-            ? [..._events]
-            : _events.where((e) => selectedDates.any((d) => _isSameDay(e.date, d))).toList());
-
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -168,79 +92,96 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
         backgroundColor: const Color(0xFFF6F7FB),
         elevation: 0,
         scrolledUnderElevation: 0,
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.admin_panel_settings, color: Colors.orange, size: 16),
-                SizedBox(width: 4),
-                Text(
-                  'Admin',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _SearchBar(
-            initialValue: _query,
-            onChanged: (v) => setState(() => _query = v),
-            onClear: () => setState(() => _query = ''),
-          ),
-          const SizedBox(height: 12),
-          _DateScroller(
-            days: _days,
-            selectedIndexes: _selectedDayIndexes,
-            onToggle: (i) => setState(() {
-              if (_selectedDayIndexes.contains(i)) {
-                _selectedDayIndexes.remove(i);
-              } else {
-                _selectedDayIndexes.add(i);
-              }
-            }),
-          ),
-          const SizedBox(height: 16),
-          if (items.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  searching
-                      ? 'Aramanızla eşleşen etkinlik bulunamadı.'
-                      : (_selectedDayIndexes.isEmpty
-                          ? 'Yaklaşan etkinlik yok.'
-                          : 'Seçili tarihlerde etkinlik yok.'),
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: DatabaseService().getHotelEvents(widget.hotelName),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+             return Center(child: Text("Hata: ${snapshot.error}"));
+          }
+          
+          final allEvents = snapshot.data ?? [];
+          
+          // Filter and Process
+          final selectedDates = _selectedDayIndexes.map((i) {
+            final d = _days[i];
+            return DateTime(d.year, d.month, d.day);
+          }).toList();
+          
+          final q = _query.trim().toLowerCase();
+          final searching = q.isNotEmpty;
+
+          // Map to internal logic objects if needed, or just use Maps.
+          // Let's filter first.
+          final filtered = allEvents.where((e) {
+             // Search filter
+             if (searching) {
+               final title = (e['title'] ?? '').toString().toLowerCase();
+               final loc = (e['location'] ?? '').toString().toLowerCase();
+               return title.contains(q) || loc.contains(q);
+             }
+             
+             // Date filter
+             if (_selectedDayIndexes.isEmpty) return true; // Should not happen with current logic (default 0)
+             
+             // Check if event date matches any selected date
+             if (e['date'] != null && e['date'] is Timestamp) {
+               final eDate = (e['date'] as Timestamp).toDate();
+               return selectedDates.any((d) => _isSameDay(eDate, d));
+             }
+             return false;
+          }).toList();
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _SearchBar(
+                initialValue: _query,
+                onChanged: (v) => setState(() => _query = v),
+                onClear: () => setState(() => _query = ''),
               ),
-            )
-          else ...[
-            ..._buildGroupedResults(items),
-          ],
-          const SizedBox(height: 80), // FAB için boşluk
-        ],
+              const SizedBox(height: 12),
+              _DateScroller(
+                days: _days,
+                selectedIndexes: _selectedDayIndexes,
+                onToggle: (i) => setState(() {
+                  if (_selectedDayIndexes.contains(i)) {
+                    _selectedDayIndexes.remove(i);
+                  } else {
+                    _selectedDayIndexes.add(i);
+                  }
+                }),
+              ),
+              const SizedBox(height: 16),
+              if (filtered.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      searching
+                          ? 'Aramanızla eşleşen etkinlik bulunamadı.'
+                          : 'Seçili tarihlerde etkinlik yok.',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                )
+              else 
+                ..._buildGroupedResults(filtered),
+                
+              const SizedBox(height: 80), 
+            ],
+          );
+        }
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const EventsActivitiesManageScreen(),
+              builder: (_) => EventsActivitiesManageScreen(hotelName: widget.hotelName),
             ),
           );
         },
@@ -254,68 +195,89 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
     );
   }
 
-  List<Widget> _buildGroupedResults(List<_EventData> items) {
+  List<Widget> _buildGroupedResults(List<Map<String, dynamic>> items) {
     final widgets = <Widget>[];
-    final sorted = [...items]..sort((a, b) => a.date.compareTo(b.date));
+    // Sort logic handled by Firestore mostly, but good to re-sort if we merged lists or something.
+    // Ensure we parse dates for sorting
+    items.sort((a, b) {
+      final da = (a['date'] as Timestamp?)?.toDate() ?? DateTime(0);
+      final db = (b['date'] as Timestamp?)?.toDate() ?? DateTime(0);
+      return da.compareTo(db);
+    });
+
     DateTime? lastDate;
-    for (var i = 0; i < sorted.length; i++) {
-      final e = sorted[i];
-      if (lastDate == null || !_isSameDay(lastDate, e.date)) {
+    for (var i = 0; i < items.length; i++) {
+      final e = items[i];
+      final dateTs = e['date'] as Timestamp?;
+      final date = dateTs?.toDate() ?? DateTime.now();
+      
+      if (lastDate == null || !_isSameDay(lastDate, date)) {
         if (lastDate != null) widgets.add(const SizedBox(height: 16));
         widgets.add(Text(
-          _headerFor(e.date),
+          _headerFor(date),
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ));
         widgets.add(const SizedBox(height: 12));
-        lastDate = DateTime(e.date.year, e.date.month, e.date.day);
+        lastDate = DateTime(date.year, date.month, date.day);
       }
+      
       widgets.add(_AdminEventItem(
-        title: e.title,
-        time: e.time,
-        location: e.location,
-        imageAsset: e.imageAsset,
-        capacity: e.capacity,
-        registered: e.registered,
-        isPublished: e.isPublished,
+        data: e,
+        hotelName: widget.hotelName, // Pass hotelName
         onEdit: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${e.title} düzenleme - Backend bekleniyor'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.orange,
+            Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => EventsActivitiesManageScreen(
+                hotelName: widget.hotelName,
+                eventToEdit: e,
+              ),
             ),
           );
         },
         onDelete: () {
-          _showDeleteConfirmation(context, e.title);
+          _showDeleteConfirmation(context, e);
         },
       ));
-      if (i != sorted.length - 1) widgets.add(const SizedBox(height: 10));
+      if (i != items.length - 1) widgets.add(const SizedBox(height: 10));
     }
     return widgets;
   }
 
-  void _showDeleteConfirmation(BuildContext context, String eventTitle) {
+  void _showDeleteConfirmation(BuildContext context, Map<String, dynamic> event) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Etkinliği Sil'),
-        content: Text('$eventTitle etkinliğini silmek istediğinize emin misiniz?'),
+        content: Text('${event['title']} etkinliğini silmek istediğinize emin misiniz?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('İptal'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('$eventTitle silindi (Backend bekleniyor)'),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: Colors.red,
-                ),
-              );
+              try {
+                await DatabaseService().deleteEvent(widget.hotelName, event['id']);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${event['title']} silindi'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              } catch (e) {
+                 if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Hata: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Sil'),
@@ -403,30 +365,28 @@ class _DateScroller extends StatelessWidget {
 }
 
 class _AdminEventItem extends StatelessWidget {
-  final String title;
-  final String time;
-  final String location;
-  final String imageAsset;
-  final int capacity;
-  final int registered;
-  final bool isPublished;
+  final Map<String, dynamic> data;
+  final String hotelName;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const _AdminEventItem({
-    required this.title,
-    required this.time,
-    required this.location,
-    required this.imageAsset,
-    required this.capacity,
-    required this.registered,
-    required this.isPublished,
+    required this.data,
+    required this.hotelName,
     this.onEdit,
     this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
+    final title = data['title'] ?? 'Adsız Etkinlik';
+    final time = data['time'] ?? ''; // Using display string
+    final location = data['location'] ?? '';
+    final imageAsset = data['imageAsset'] ?? 'assets/images/arkaplanyok.png';
+    final capacity = data['capacity'] ?? 0;
+    final registered = data['registered'] ?? 0;
+    final isPublished = data['isPublished'] ?? false;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -439,23 +399,27 @@ class _AdminEventItem extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16), // Increased padding
+      constraints: const BoxConstraints(minHeight: 160), // Enforce taller card
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
                   children: [
                     Expanded(
                       child: Text(
                         title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         color: isPublished 
                             ? Colors.green.withOpacity(0.1) 
@@ -465,66 +429,91 @@ class _AdminEventItem extends StatelessWidget {
                       child: Text(
                         isPublished ? 'Yayında' : 'Taslak',
                         style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: isPublished ? Colors.green : Colors.grey,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: isPublished ? Colors.green : Colors.grey[700],
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Icon(Icons.schedule, size: 16, color: Colors.black54),
+                    const Icon(Icons.schedule, size: 18, color: Colors.black54),
                     const SizedBox(width: 6),
-                    Text(time, style: const TextStyle(color: Colors.black54, fontSize: 13)),
+                    Text(time, style: const TextStyle(color: Colors.black54, fontSize: 15, fontWeight: FontWeight.w500)),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.place, size: 16, color: Colors.black54),
+                    const Icon(Icons.place, size: 18, color: Colors.black54),
                     const SizedBox(width: 6),
-                    Text(location, style: const TextStyle(color: Colors.black54, fontSize: 13)),
+                    Text(location, style: const TextStyle(color: Colors.black54, fontSize: 15, fontWeight: FontWeight.w500)),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.people, size: 16, color: Colors.black54),
+                    const Icon(Icons.people, size: 18, color: Colors.black54),
                     const SizedBox(width: 6),
                     Text(
                       '$registered / $capacity kayıt',
                       style: TextStyle(
                         color: registered >= capacity ? Colors.red : Colors.black54,
-                        fontSize: 13,
-                        fontWeight: registered >= capacity ? FontWeight.w600 : FontWeight.normal,
+                        fontSize: 14,
+                        fontWeight: registered >= capacity ? FontWeight.w700 : FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Row(
+                const SizedBox(height: 20), // More space before buttons
+                Wrap( // Use Wrap to prevent overflow if buttons need more space
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     OutlinedButton.icon(
                       onPressed: onEdit,
-                      icon: const Icon(Icons.edit, size: 16),
+                      icon: const Icon(Icons.edit, size: 18),
                       label: const Text('Düzenle'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        textStyle: const TextStyle(fontSize: 12),
+                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                         textStyle: const TextStyle(fontSize: 13),
+                         visualDensity: VisualDensity.compact,
                       ),
                     ),
-                    const SizedBox(width: 8),
                     OutlinedButton.icon(
                       onPressed: onDelete,
-                      icon: const Icon(Icons.delete, size: 16, color: Colors.red),
+                      icon: const Icon(Icons.delete, size: 18, color: Colors.red),
                       label: const Text('Sil', style: TextStyle(color: Colors.red)),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        textStyle: const TextStyle(fontSize: 12),
-                        side: const BorderSide(color: Colors.red),
+                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                         textStyle: const TextStyle(fontSize: 13),
+                         side: const BorderSide(color: Colors.red),
+                         visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                    OutlinedButton.icon( // Participants button moved here
+                      onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EventParticipantsScreen(
+                                hotelName: hotelName, 
+                                eventId: data['id'] ?? '',
+                                eventTitle: title,
+                              ),
+                            ),
+                          );
+                      },
+                      icon: const Icon(Icons.groups, size: 18, color: Colors.blue),
+                      label: const Text('Katılımcılar', style: TextStyle(color: Colors.blue)),
+                      style: OutlinedButton.styleFrom(
+                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                         textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                         side: const BorderSide(color: Colors.blue),
+                         visualDensity: VisualDensity.compact,
                       ),
                     ),
                   ],
@@ -532,10 +521,26 @@ class _AdminEventItem extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          
+          const SizedBox(width: 16),
+
+          // Image Right (Significantly Bigger)
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(imageAsset, width: 80, height: 80, fit: BoxFit.cover),
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              imageAsset, 
+              width: 140, // Significantly bigger
+              height: 140, // Significantly bigger
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: 140,
+                  height: 140,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.image, color: Colors.grey),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -579,26 +584,4 @@ class _SearchBar extends StatelessWidget {
       textInputAction: TextInputAction.search,
     );
   }
-}
-
-class _EventData {
-  final DateTime date;
-  final String title;
-  final String time;
-  final String location;
-  final String imageAsset;
-  final int capacity;
-  final int registered;
-  final bool isPublished;
-
-  const _EventData({
-    required this.date,
-    required this.title,
-    required this.time,
-    required this.location,
-    required this.imageAsset,
-    required this.capacity,
-    required this.registered,
-    required this.isPublished,
-  });
 }

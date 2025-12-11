@@ -139,7 +139,8 @@ class DatabaseService {
         .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 
-  // --- ETKİNLİKLERİ GETİR ---
+  // --- ETKİNLİKLERİ GETİR (ESKİ - KULLANILMIYOR) ---
+  /*
   Stream<List<Map<String, dynamic>>> getEvents() {
     return _db.collection('events').orderBy('date').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -149,6 +150,115 @@ class DatabaseService {
       }).toList();
     });
   }
+  */
+
+  // --- OTEL ÖZELİNDE ETKİNLİK İŞLEMLERİ ---
+
+  // 1. Etkinlikleri Getir (Otel Bazlı)
+  Stream<List<Map<String, dynamic>>> getHotelEvents(String hotelName) {
+    return _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('events')
+        .orderBy('date')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        var data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    });
+  }
+
+  // 2. Etkinlik Ekle
+  Future<void> addEvent(String hotelName, Map<String, dynamic> eventData) async {
+    await _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('events')
+        .add(eventData);
+  }
+
+  // 3. Etkinlik Güncelle
+  Future<void> updateEvent(String hotelName, String eventId, Map<String, dynamic> eventData) async {
+    await _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('events')
+        .doc(eventId)
+        .update(eventData);
+  }
+
+  // --- ETKİNLİK KAYIT (REGISTRATION) ---
+  Future<Map<String, dynamic>> registerForEvent(String hotelName, String eventId, Map<String, dynamic> userInfo) async {
+    final eventRef = _db.collection('hotels').doc(hotelName).collection('events').doc(eventId);
+    final userRef = eventRef.collection('registrations').doc(userInfo['userId']);
+
+    try {
+      return await _db.runTransaction((transaction) async {
+        final eventSnapshot = await transaction.get(eventRef);
+        
+        if (!eventSnapshot.exists) {
+          return {'success': false, 'message': 'Etkinlik bulunamadı.'};
+        }
+
+        final data = eventSnapshot.data()!;
+        final currentRegistered = data['registered'] ?? 0;
+        final capacity = data['capacity'] ?? 0;
+
+        // 1. Kontenjan Kontrolü
+        if (capacity > 0 && currentRegistered >= capacity) { // capacity > 0 ekledik ki sınırsız kapasite durumunda hep dolu olmasın
+          return {'success': false, 'status': 'full', 'message': 'Kontejan dolu.'};
+        }
+
+        // 2. Kullanıcı daha önce kayıt olmuş mu kontrolü (Opsiyonel: Client side'da da yapılabilir ama burada garanti olsun)
+        final userSnapshot = await transaction.get(userRef);
+        if (userSnapshot.exists) {
+          return {'success': false, 'status': 'already_registered', 'message': 'Zaten kayıtlısınız.'};
+        }
+
+        // 3. Kayıt İşlemi
+        // Etkinlik sayacını artır
+        transaction.update(eventRef, {'registered': currentRegistered + 1});
+        
+        // Alt koleksiyona kullanıcıyı ekle
+        transaction.set(userRef, {
+          ...userInfo,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+        return {'success': true, 'status': 'success', 'message': 'Kayıt başarılı.'};
+      });
+    } catch (e) {
+      print("Registration Error: $e");
+      return {'success': false, 'message': 'Bir hata oluştu: $e'};
+    }
+  }
+
+  // --- ETKİNLİK KATILIMCILARI (ADMIN) ---
+  Stream<List<Map<String, dynamic>>> getEventParticipants(String hotelName, String eventId) {
+    return _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('events')
+        .doc(eventId)
+        .collection('registrations')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  // 4. Etkinlik Sil
+  Future<void> deleteEvent(String hotelName, String eventId) async {
+    await _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('events')
+        .doc(eventId)
+        .delete();
+  }
+
 
   // --- ETKİNLİĞE KATIL ---
   Future<void> joinEvent(String eventId, String eventName) async {
