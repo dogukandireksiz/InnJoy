@@ -7,6 +7,7 @@ import '../events_activities/admin_events_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../admin/admin_room_management_screen.dart';
 import '../../service/database_service.dart';
+import '../services/spa_wellness/spa_admin_placeholder_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -292,7 +293,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     label: 'Spa & Wellness',
                     subtitle: 'Randevular',
                     onTap: () {
-                      _showComingSoonDialog(context, 'Spa Yönetimi');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SpaManageServicesScreen(),
+                        ),
+                      );
                     },
                   ),
                 ),
