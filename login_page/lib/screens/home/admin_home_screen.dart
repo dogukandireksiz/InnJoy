@@ -9,6 +9,7 @@ import '../admin/admin_room_management_screen.dart';
 import '../../service/database_service.dart';
 import '../services/spa_wellness/spa_admin_placeholder_screen.dart';
 import '../edit/chose_edit_screen.dart';
+import '../emergency/emergency_admin_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -250,7 +251,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             );
                             break;
                           case 'emergency':
-                            _showComingSoonDialog(context, 'Acil Durumlar');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const EmergencyAdminScreen()),
+                            );
                             break;
                           case 'settings':
                             _showComingSoonDialog(context, 'Ayarlar');
