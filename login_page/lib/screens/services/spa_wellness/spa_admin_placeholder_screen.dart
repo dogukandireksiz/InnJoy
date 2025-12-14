@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'spa_new_service_screen.dart';
+import 'spa_edit_service_screen.dart';
 
 class SpaServiceItem {
   final String title;
@@ -141,7 +142,12 @@ class _ServiceCard extends StatelessWidget {
                         child: _IconBadge(
                           icon: Icons.edit,
                           onTap: () {
-                            // TODO: edit service
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SpaEditServiceScreen(item: item),
+                              ),
+                            );
                           },
                         ),
                       ),
