@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../model/menu_item_model.dart';
 import 'dart:math';
-
+import '../location/location_model.dart';
 class DatabaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -412,5 +412,73 @@ class DatabaseService {
       'uid': uid,
       'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+  }
+
+      //LOCATİON SERVİCE
+
+  final String hotelId = "o5qzfgsM56fuGn5PNij9"; //şimdilik geçici
+
+  Future<LocationModel?> getLocationDetails(String locationId) async {
+    try{
+      var doc = await _db
+            .collection('hotels')
+            .doc(hotelId)
+            .collection('locations')
+            .doc(locationId)
+            .get();
+
+      if(doc.exists && doc.data() != null){
+        return LocationModel.fromFirestore(doc.data()!,doc.id);
+      }      
+    }catch(e){
+      print("$e");
+    }
+    return null;
+  }
+
+  // Kullanıcının oda numarasını çeken fonksiyon
+  Future<String> getUserRoomNumber() async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot userDoc = await _db
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+
+        if (userDoc.exists) {
+          var data = userDoc.data() as Map<String, dynamic>;
+          return data['room_number']?.toString() ?? "1";
+        }
+      }
+      return "1"; // Kullanıcı yoksa veya veri yoksa varsayılan
+    } catch (e) {
+      throw Exception("Oda numarası çekilirken hata: $e");
+    }
+  }
+
+  // Acil durum bildirimini gönderen fonksiyon
+  Future<void> sendEmergencyAlert({
+    required String emergencyType,
+    required String roomNumber,
+    required String locationContext,
+  }) async {
+    try {
+      await _db.collection('emergency_alerts').add({
+        'type': emergencyType,
+        'room_number': roomNumber,
+        'user_uid': _auth.currentUser?.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+        'status': 'active',
+        'location_context': locationContext,
+      });
+    } catch (e) {
+      throw Exception("Bildirim gönderilemedi: $e");
+    }
+  }
+
+  // Oda verilerini dinleyen Stream (UI'daki StreamBuilder için)
+  Stream<DocumentSnapshot> getRoomStream(String documentId) {
+    return _db.collection('rooms').doc(documentId).snapshots();
   }
 }

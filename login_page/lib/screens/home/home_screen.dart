@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:login_page/screens/emergency/emergency_screen.dart';
 import 'dart:ui';
 import '../services/service_screen.dart';
 import '../events_activities/events_activities_screen.dart';
@@ -13,9 +14,9 @@ import '../../service/database_service.dart';
 import '../../utils/custom_dialog.dart';
 import 'hotel_selection_screen.dart';
 import '../../widgets/auth_wrapper.dart';
-
+import '../../map/map_screen.dart';
 import 'admin_home_screen.dart';
-
+import '../payment/payment_detail_screen.dart';
 /// Ana Ekran (Home Screen)
 ///
 /// Kullanıcının otel deneyimini yönettiği, hizmetlere, etkinliklere
@@ -348,7 +349,11 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 52,
         width: 52,
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const EmergencyScreen() )
+            );
+          },
           backgroundColor: Colors.red,
           elevation: 4,
           child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 26),
@@ -363,6 +368,10 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (item == _BottomItem.profile) {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
+          } else if(item == _BottomItem.map){
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const MapScreen())
             );
           }
         },
@@ -597,7 +606,7 @@ class _SpendingCard extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PaymentScreen()),
+                MaterialPageRoute(builder: (_) => const PaymentDetailScreen()),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -628,7 +637,7 @@ class _SpendingCard extends StatelessWidget {
   }
 }
 
-enum _BottomItem { home, theme, services, profile }
+enum _BottomItem { home, map, services, profile }
 
 /// Özel Alt Navigasyon Çubuğu (Custom Bottom Bar)
 ///
@@ -668,10 +677,10 @@ class _CustomBottomBar extends StatelessWidget {
                           onTap: () => onTap?.call(_BottomItem.home),
                         ),
                         _BottomBarItem(
-                          icon: Icons.brightness_6,
-                          label: 'Theme',
+                          icon: Icons.map,
+                          label: 'Map',
                           labelStyle: labelStyle,
-                          onTap: () => onTap?.call(_BottomItem.theme),
+                          onTap: () => onTap?.call(_BottomItem.map),
                         ),
                       ],
                     ),

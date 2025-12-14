@@ -6,6 +6,7 @@ import 'change_password_screen.dart';
 import '../../utils/custom_dialog.dart';
 import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
+import 'package:login_page/service/database_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,6 +17,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final user = FirebaseAuth.instance.currentUser;
+  final DatabaseService _dbService = DatabaseService();
+  
 
   String get userName {
     if (user?.displayName != null && user!.displayName!.isNotEmpty) {
@@ -184,11 +187,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         value: 'GrandHyatt Hotel',
                       ),
                       const Divider(height: 1),
-                      _InfoItem(
-                        icon: Icons.door_front_door_outlined,
-                        label: 'Room Number',
-                        value: '1204',
-                      ),
+                      FutureBuilder<String>(
+                        future: _dbService.getUserRoomNumber(),
+                        builder: (context,snapshot){
+                          String displayValue = "...";
+                          if (snapshot.hasData) {
+                            displayValue = snapshot.data!;
+                          } else if (snapshot.hasError) {
+                            displayValue = "Hata";
+                          }
+
+                          // Ekrana basılan widget
+                          return _InfoItem(
+                            icon: Icons.door_front_door_outlined,
+                            label: 'Room Number',
+                            value: displayValue, 
+                          );
+                        },
+                      ), 
+                        
+   
+                     
                       const Divider(height: 1),
                       _InfoItem(
                         icon: Icons.calendar_today_outlined,
