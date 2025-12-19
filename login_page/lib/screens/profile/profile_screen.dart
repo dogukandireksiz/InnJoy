@@ -7,6 +7,7 @@ import '../../utils/custom_dialog.dart';
 import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
 import 'package:login_page/service/database_service.dart';
+import './notifications_chose_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -253,7 +254,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _SettingsItem(
                         icon: Icons.notifications_outlined,
                         label: 'Notifications',
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationsChoseScreen(),
+                            ),
+                          );
+                        },
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
