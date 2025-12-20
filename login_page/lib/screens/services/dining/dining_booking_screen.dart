@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'dining_pricelist_screen.dart';
+import '../../../service/database_service.dart';
+import 'package:flutter/cupertino.dart';
 
 class DiningBookingScreen extends StatefulWidget {
-  final String? preselectedVenue;
+  final String hotelName;
+  final String restaurantId;
+  final String restaurantName;
+  final String? imageUrl;
 
   const DiningBookingScreen({
     super.key,
-    this.preselectedVenue,
+    required this.hotelName,
+    required this.restaurantId,
+    required this.restaurantName,
+    this.imageUrl,
   });
 
   @override
@@ -14,26 +21,22 @@ class DiningBookingScreen extends StatefulWidget {
 }
 
 class _DiningBookingScreenState extends State<DiningBookingScreen> {
-  String? _selectedVenue;
   DateTime _selectedDate = DateTime.now();
   int _guestCount = 2;
-  String? _selectedTime;
+  // Fixed time as requested
+  TimeOfDay _selectedTime = const TimeOfDay(hour: 20, minute: 0); 
   final TextEditingController _specialRequestsController = TextEditingController();
-
-  final List<String> _availableTimes = [
-    '6:00 PM',
-    '6:30 PM',
-    '7:00 PM',
-    '7:30 PM',
-    '8:00 PM',
-    '8:30 PM',
-  ];
+  final DatabaseService _db = DatabaseService();
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedVenue = widget.preselectedVenue;
-    _selectedTime = '6:30 PM';
+    // If current time is after 20:00, default to tomorrow
+    final now = DateTime.now();
+    if (now.hour >= 20) {
+      _selectedDate = now.add(const Duration(days: 1));
+    }
   }
 
   @override
@@ -43,16 +46,27 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
   }
 
   Future<void> _selectDate() async {
+    final now = DateTime.now();
+    // Determine the first selectable date:
+    // If it's past 20:00 today, the earliest slot is tomorrow.
+    // Otherwise, it's today.
+    final firstDate = now.hour >= 20 ? now.add(const Duration(days: 1)) : now;
+    
+    // If current _selectedDate is older than firstDate (e.g. stale state), update it
+    if (_selectedDate.isBefore(DateTime(firstDate.year, firstDate.month, firstDate.day))) {
+      _selectedDate = firstDate;
+    }
+
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime.now(),
+      firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 90)),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1677FF),
+              primary: Color(0xFF137fec), // App Primary Color
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black87,
@@ -69,55 +83,212 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
     }
   }
 
-  void _confirmReservation() {
-    if (_selectedVenue == null) {
+
+  void _selectTime() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => Container(
+        height: 300,
+        color: Colors.white,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200,
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                use24hFormat: true,
+                initialDateTime: DateTime(
+                  DateTime.now().year,
+                  DateTime.now().month,
+                  DateTime.now().day,
+                  _selectedTime.hour,
+                  _selectedTime.minute,
+                ),
+                onDateTimeChanged: (val) {
+                  setState(() {
+                    _selectedTime = TimeOfDay.fromDateTime(val);
+                  });
+                },
+              ),
+            ),
+            // Close button
+            CupertinoButton(
+              child: const Text('OK', style: TextStyle(
+                color: Color(0xFF137fec), 
+                fontSize: 18, 
+                fontWeight: FontWeight.bold
+              )),
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper for 24h formatting
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
+  Future<void> _confirmReservation() async {
+    setState(() => _isLoading = true);
+
+    // Construct the full DateTime for 20:00 on the selected day
+    final reservationDateTime = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _selectedTime.hour,
+      _selectedTime.minute,
+    );
+
+    final result = await _db.makeReservation(
+      widget.hotelName,
+      widget.restaurantId,
+      widget.restaurantName,
+      reservationDateTime,
+      _guestCount,
+      _specialRequestsController.text,
+    );
+
+    if (!mounted) return;
+
+    setState(() => _isLoading = false);
+
+    if (result['success'] == true) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.check_rounded, color: Colors.green.shade600, size: 40),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Reservation Confirmed!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF101922),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your table is ready for you.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 24),
+                
+                // Details Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF6F7FB),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildDetailRow(Icons.restaurant, widget.restaurantName),
+                      const SizedBox(height: 12),
+                      _buildDetailRow(Icons.calendar_today, _formatDate(_selectedDate)),
+                      const SizedBox(height: 12),
+                      _buildDetailRow(Icons.access_time, _formatTime(_selectedTime)),
+                      const SizedBox(height: 12),
+                      _buildDetailRow(Icons.people, '$_guestCount Guests'),
+                      const Divider(height: 24),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF137fec).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF137fec).withOpacity(0.2)),
+                        ),
+                        child: Text(
+                          'Table ${result['tableNumber']}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF137fec),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close dialog
+                      Navigator.pop(context); // Close screen
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF137fec),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: const Text('Done', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lütfen bir restoran seçin'),
+        SnackBar(
+          content: Text(result['message'] ?? 'Reservation failed'),
+          backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
       );
-      return;
     }
+  }
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 28),
-            SizedBox(width: 8),
-            Text('Rezervasyon Onaylandı'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Restoran: $_selectedVenue'),
-            const SizedBox(height: 4),
-            Text('Tarih: ${_formatDate(_selectedDate)}'),
-            const SizedBox(height: 4),
-            Text('Saat: $_selectedTime'),
-            const SizedBox(height: 4),
-            Text('Misafir Sayısı: $_guestCount'),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // Dialog kapat
-              Navigator.pop(context); // Booking ekranından çık
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1677FF),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  Widget _buildDetailRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Colors.grey[600]),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF101922),
             ),
-            child: const Text('Tamam', style: TextStyle(color: Colors.white)),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -129,10 +300,56 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
+  Widget _buildHeaderImage() {
+    if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
+      final isNetwork = widget.imageUrl!.startsWith('http');
+      return Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+          image: DecorationImage(
+            image: isNetwork 
+                ? NetworkImage(widget.imageUrl!) as ImageProvider
+                : AssetImage(widget.imageUrl!),
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+
+    
+    // Fallback: Fetch from settings if not passed (e.g. from FAB)
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: _db.getRestaurantSettings(widget.hotelName, widget.restaurantId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        final data = snapshot.data;
+        final String? dynamicUrl = data?['imageUrl']; 
+        
+        if (dynamicUrl != null && dynamicUrl.isNotEmpty) {
+          final isNetwork = dynamicUrl.startsWith('http');
+          return Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              image: DecorationImage(
+                image: isNetwork 
+                    ? NetworkImage(dynamicUrl) as ImageProvider
+                    : AssetImage(dynamicUrl),
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final venues = DiningData.venues.values.toList();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
@@ -154,138 +371,65 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Restoran Seçimi
-            const Text(
-              'Select a restaurant',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
+            // Restaurant Info Card with Image
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
-            
-            SizedBox(
-              height: 140,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: venues.length,
-                itemBuilder: (context, index) {
-                  final venue = venues[index];
-                  final isSelected = _selectedVenue == venue.name;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedVenue = venue.name),
-                    child: Container(
-                      width: 150,
-                      margin: const EdgeInsets.only(right: 12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected ? const Color(0xFF1677FF) : Colors.transparent,
-                          width: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderImage(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.restaurantName,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF101922),
+                          ),
                         ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Stack(
-                          children: [
-                            // Image
-                            if (venue.headerImagePath != null)
-                              Image.asset(
-                                venue.headerImagePath!,
-                                width: 150,
-                                height: 140,
-                                fit: BoxFit.cover,
-                              )
-                            else
-                              Container(
-                                width: 150,
-                                height: 140,
-                                color: Colors.grey[300],
-                              ),
-                            // Gradient overlay
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    colors: [
-                                      Colors.black.withOpacity(0.7),
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      venue.name,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      _getVenueType(venue.name),
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            // Selected check
-                            if (isSelected)
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF1677FF),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                          ],
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Exclusive Dining Experience',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-
+            
             const SizedBox(height: 24),
 
-            // Tarih ve Misafir Sayısı
+            // Date & Guests Row
             Row(
               children: [
-                // Date
+                // Date Selector
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Date',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black54,
-                        ),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
                       ),
                       const SizedBox(height: 8),
                       GestureDetector(
@@ -301,10 +445,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                             children: [
                               Text(
                                 _formatDate(_selectedDate),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 15,
-                                ),
+                                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
                               ),
                               const Spacer(),
                               Icon(Icons.calendar_today_outlined, color: Colors.grey[600], size: 20),
@@ -316,17 +457,13 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Guests
+                // Guest Counter
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Guests',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -340,9 +477,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              if (_guestCount > 1) {
-                                setState(() => _guestCount--);
-                              }
+                              if (_guestCount > 1) setState(() => _guestCount--);
                             },
                             child: Container(
                               width: 32,
@@ -359,23 +494,18 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                             child: Text(
                               _guestCount.toString(),
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                             ),
                           ),
                           GestureDetector(
                             onTap: () {
-                              if (_guestCount < 20) {
-                                setState(() => _guestCount++);
-                              }
+                              if (_guestCount < 20) setState(() => _guestCount++);
                             },
                             child: Container(
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1677FF),
+                                color: const Color(0xFF137fec),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(Icons.add, size: 18, color: Colors.white),
@@ -391,58 +521,62 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
 
             const SizedBox(height: 24),
 
-            // Saat Seçimi
+            // Time Selection (Fixed)
             const Text(
               'Time',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
             ),
             const SizedBox(height: 12),
-            
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: _availableTimes.map((time) {
-                final isSelected = _selectedTime == time;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedTime = time),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF1677FF) : Colors.white,
-                      borderRadius: BorderRadius.circular(25),
-                      border: Border.all(
-                        color: isSelected ? const Color(0xFF1677FF) : Colors.grey[300]!,
+            GestureDetector(
+              onTap: _selectTime,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF137fec),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF137fec).withOpacity(0.4), // Stronger shadow
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.access_time_filled, color: Colors.white, size: 24),
+                    const SizedBox(width: 10),
+                    Text(
+                      _formatTime(_selectedTime),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                    child: Text(
-                      time,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Center(
+              child: Text(
+                'Select your preferred seating time.',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
             ),
 
             const SizedBox(height: 24),
 
-            // Özel İstekler
+            // Special Requests
             const Text(
               'Special Requests (Optional)',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
             ),
             const SizedBox(height: 8),
-            
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -453,7 +587,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                 controller: _specialRequestsController,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: 'e.g. allergies, window seat',
+                  hintText: 'e.g. allergies, high chair needed, window seat...',
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
@@ -479,36 +613,29 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: _confirmReservation,
+            onPressed: _isLoading ? null : _confirmReservation,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1677FF),
+              backgroundColor: const Color(0xFF137fec),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text(
-              'Confirm Reservation',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: _isLoading 
+              ? const SizedBox(
+                  width: 24, height: 24, 
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                )
+              : const Text(
+                  'Confirm Reservation',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
           ),
         ),
       ),
     );
   }
-
-  String _getVenueType(String name) {
-    switch (name) {
-      case 'The Azure Restaurant':
-        return 'Fine Dining';
-      case 'Rooftop Bar':
-        return 'Bar & Lounge';
-      case 'Pool Cafe':
-        return 'Casual Dining';
-      default:
-        return 'Restaurant';
-    }
-  }
 }
+

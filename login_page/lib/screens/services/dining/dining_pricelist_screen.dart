@@ -436,7 +436,12 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => DiningBookingScreen(preselectedVenue: widget.venueName),
+                  builder: (_) => DiningBookingScreen(
+                    hotelName: 'Grand Hayat Otel', // Assuming default/global hotel context here as it's not passed in
+                    restaurantId: widget.venueName, // Using venueName as ID for now or need mapping
+                    restaurantName: widget.venueName,
+                    imageUrl: _venue?.headerImagePath ?? 'assets/images/arkaplan.jpg',
+                  ),
                 ),
               );
             },
@@ -506,7 +511,7 @@ class _MenuItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '\$${item.price.toStringAsFixed(2)}',
+                  '₺${item.price.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

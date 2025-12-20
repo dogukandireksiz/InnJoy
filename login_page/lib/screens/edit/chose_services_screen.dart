@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../services/spa_wellness/spa_admin_placeholder_screen.dart';
-import '../services/fitness/fitness_admin_placeholder_screen.dart';
+import '../services/spa_wellness/spa_management_screen.dart';
+import '../services/fitness/details/fitness_details_screen.dart';
 
 class ChoseServicesScreen extends StatelessWidget {
-  const ChoseServicesScreen({super.key});
+  final String hotelName;
+  
+  const ChoseServicesScreen({super.key, required this.hotelName});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class ChoseServicesScreen extends StatelessWidget {
             onTap: (context) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const SpaManageServicesScreen()),
+                MaterialPageRoute(builder: (_) => SpaManagementScreen(hotelName: hotelName)),
               );
             },
           ),
@@ -48,7 +50,7 @@ class ChoseServicesScreen extends StatelessWidget {
             onTap: (context) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const FitnessAdminPlaceholderScreen()),
+                MaterialPageRoute(builder: (_) => FitnessDetailsScreen(hotelName: hotelName)),
               );
             },
           ),

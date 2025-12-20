@@ -1,374 +1,599 @@
 import 'package:flutter/material.dart';
-import 'room_service_cart_screen.dart';
-import '../../service/database_service.dart';
 import '../../model/menu_item_model.dart';
-
+import '../../service/database_service.dart';
+import 'room_service_cart_screen.dart';
 
 class RoomServiceScreen extends StatefulWidget {
-  const RoomServiceScreen({super.key});
+  final String hotelName;
+  const RoomServiceScreen({super.key, required this.hotelName});
 
   @override
   State<RoomServiceScreen> createState() => _RoomServiceScreenState();
 }
 
-class _RoomServiceScreenState extends State<RoomServiceScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  final Map<MenuItem, int> _cart = {};
+class _RoomServiceScreenState extends State<RoomServiceScreen> {
   final DatabaseService _dbService = DatabaseService();
-
+  late Stream<List<MenuItem>> _menuStream; // Stream stored in state
+  final ScrollController _categoryScrollController = ScrollController(); // Persist scroll
+  
+  String _selectedCategory = 'All';
+  
+  // Cart state
+  final Map<String, int> _cart = {};
+  double _totalPrice = 0.0;
+  int _totalItems = 0;
+  List<MenuItem> _allItems = []; // Store fetched items
+  
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    // Initialize stream once to prevent reloading on setState
+    _menuStream = _dbService.getRoomServiceMenu(widget.hotelName);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _categoryScrollController.dispose();
     super.dispose();
   }
 
-  int get _totalItems => _cart.values.fold(0, (sum, qty) => sum + qty);
-  double get _totalPrice => _cart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
-
-  void _addToCart(MenuItem item) {
-    setState(() {
-      _cart[item] = (_cart[item] ?? 0) + 1;
-    });
-  }
-
-  void _goToCart() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => RoomServiceCartScreen(
-          cart: Map.from(_cart),
-          onCartUpdated: (updatedCart) {
-            setState(() {
-              _cart.clear();
-              _cart.addAll(updatedCart);
-            });
-          },
-          onOrderPlaced: () {
-            setState(() => _cart.clear());
-          },
-        ),
-      ),
-    );
-  }
+  // Standard Categories (matching Admin)
+  final List<Map<String, dynamic>> _categories = [
+    {'name': 'All', 'id': 'All', 'icon': Icons.list, 'color': Colors.grey},
+    {
+      'name': 'Breakfast',
+      'id': 'Breakfast',
+      'icon': Icons.bakery_dining,
+      'color': Colors.amber,
+    },
+    {
+      'name': 'Starters',
+      'id': 'Starters',
+      'icon': Icons.soup_kitchen,
+      'color': Colors.lightGreen,
+    },
+    {
+      'name': 'Main Courses',
+      'id': 'Main Courses',
+      'icon': Icons.restaurant,
+      'color': Colors.redAccent,
+    },
+    {
+      'name': 'Desserts',
+      'id': 'Desserts',
+      'icon': Icons.cake,
+      'color': Colors.pink,
+    },
+    {
+      'name': 'Drinks',
+      'id': 'Drinks',
+      'icon': Icons.local_drink,
+      'color': Colors.teal,
+    },
+    {
+      'name': 'Night Menu',
+      'id': 'Night Menu',
+      'icon': Icons.nights_stay,
+      'color': Colors.indigo,
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Oda Servisi',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-        actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
-                onPressed: _cart.isNotEmpty ? _goToCart : null,
-              ),
-              if (_totalItems > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1677FF),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$_totalItems',
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: const Color(0xFF1677FF),
-          unselectedLabelColor: Colors.black54,
-          indicatorColor: const Color(0xFF1677FF),
-          indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-          isScrollable: true,
-          tabs: const [
-            Tab(text: 'Kahvaltı'),
-            Tab(text: 'Öğle/Akşam'),
-            Tab(text: 'İçecekler'),
-            Tab(text: 'Gece Menüsü'),
-          ],
-        ),
-      ),
       body: StreamBuilder<List<MenuItem>>(
-        stream: _dbService.getMenuItems(),
+        stream: _menuStream, // Use initialized stream
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text("Hata: ${snapshot.error}"));
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final allItems = snapshot.data ?? [];
+          _allItems = snapshot.data ?? [];
 
-          // Gelen verileri kategorilerine göre filtreliyoruz
-          final breakfastItems = allItems.where((i) => i.category == 'breakfast').toList();
-          final mainItems = allItems.where((i) => i.category == 'main').toList();
-          final drinkItems = allItems.where((i) => i.category == 'drink').toList();
-          final nightItems = allItems.where((i) => i.category == 'night').toList();
-
-          return TabBarView(
-            controller: _tabController,
+          return Stack(
             children: [
-              _MenuGrid(items: breakfastItems, cart: _cart, onAdd: _addToCart),
-              _MenuGrid(items: mainItems, cart: _cart, onAdd: _addToCart),
-              _MenuGrid(items: drinkItems, cart: _cart, onAdd: _addToCart),
-              _MenuGrid(items: nightItems, cart: _cart, onAdd: _addToCart),
+              CustomScrollView(
+                slivers: [
+                  _buildSliverAppBar(),
+                  SliverToBoxAdapter(
+                    child: _buildCategoryFilters(),
+                  ),
+                  _buildContentSlivers(),
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)), // Bottom padding
+                ],
+              ),
+              if (_totalItems > 0) _buildCartSummary(),
             ],
           );
         },
       ),
-      bottomNavigationBar: _totalItems > 0
-          ? Container(
-              padding: const EdgeInsets.all(16),
+    );
+  }
+
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      expandedHeight: 200.0,
+      floating: false,
+      pinned: true,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.network(
+              'https://images.squarespace-cdn.com/content/v1/5a74702ce45a7cd601df944b/1619081310495-24HJYGFI7DYQ73O95WYF/hotel-room-service.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(color: Colors.grey[300]),
+            ),
+            Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.2),
+                    Colors.black.withOpacity(0.6),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 16,
+              left: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Room Service',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Delicious meals delivered to your door',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
-              child: SafeArea(
-                child: ElevatedButton(
-                  onPressed: _goToCart,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1677FF),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ],
+        ),
+      ),
+      leading: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.8),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilters() {
+    return Container(
+      height: 60,
+      margin: const EdgeInsets.only(top: 16, bottom: 8),
+      child: ListView.separated(
+        controller: _categoryScrollController, // Use persisted controller
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final cat = _categories[index];
+          final isSelected = _selectedCategory == cat['id'];
+          final color = cat['color'] as Color;
+
+          return GestureDetector(
+            onTap: () => setState(() => _selectedCategory = cat['id']),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? color : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  if (!isSelected)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    cat['icon'],
+                    size: 18,
+                    color: isSelected ? Colors.white : color,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.shopping_cart, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        '$_totalItems ürün',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(width: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Sepeti Görüntüle ₺${_totalPrice.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(width: 8),
+                  Text(
+                    cat['name'],
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildContentSlivers() {
+    // Data is now passed via _allItems since StreamBuilder is hoisted
+    if (_allItems.isEmpty) {
+       return const SliverFillRemaining(
+        child: Center(child: Text("Menu is currently empty")),
+      );
+    }
+
+    if (_selectedCategory == 'All') {
+      return _buildSectionedList();
+    } else {
+      return _buildFilteredList();
+    }
+  }
+
+  Widget _buildSectionedList() {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          // We need to build sections: Header + Items
+          // This is a bit tricky with SliverList dynamic index. 
+          // Easier approach: Build a list of widgets (Headers and Items) manually?
+          // No, let's use a Column inside a single SliverToBoxAdapter PER CATEGORY?
+          // Or one big column? 
+          
+          // Better approach for Sliver: 
+          // Iterate over categories (skip 'All').
+          // If category has items, show header + Grid/List of items.
+          
+          // Filter active categories first to match display logic if needed,
+          // OR iterate over all _categories but check if they have items.
+          // Since we want sections for things that exist:
+          
+          final category = _categories[index + 1]; // Skip 'All'
+          final catId = category['id'];
+          final items = _allItems.where((i) => i.category == catId && i.isActive).toList();
+
+          // If no items, this section shouldn't even be called if we used displayCategories in childCount.
+          // Yet we are using _categories. Let's fix loop to use unique categories found in items?
+          // The previous code iterated _categories. 
+          // If we want consistency, we should iterate over categories that have items.
+          
+          if (items.isEmpty) return const SizedBox.shrink();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                child: Row(
+                  children: [
+                    Text(
+                      category['name'],
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF101922),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            )
-          : null,
-    );
-  }
-}
-
-class _MenuGrid extends StatelessWidget {
-  final List<MenuItem> items;
-  final Map<MenuItem, int> cart;
-  final ValueChanged<MenuItem> onAdd;
-
-  const _MenuGrid({
-    required this.items,
-    required this.cart,
-    required this.onAdd,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-        if (items.isEmpty) {
-      return const Center(child: Text("Bu kategoride ürün bulunamadı."));
-    }
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: items.length,
+                itemBuilder: (context, i) => _buildMenuItemCard(items[i]),
+              ),
+            ],
+          );
+        },
+        childCount: _categories.length - 1, // Exclude 'All'
       ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        final quantity = cart[item] ?? 0;
-        return _MenuItemCard(
-          item: item,
-          quantity: quantity,
-          onAdd: () => onAdd(item),
-        );
-      },
     );
   }
-}
 
-class _MenuItemCard extends StatelessWidget {
-  final MenuItem item;
-  final int quantity;
-  final VoidCallback onAdd;
+  Widget _buildFilteredList() {
+    final items = _allItems.where((i) => i.category == _selectedCategory && i.isActive).toList();
+    
+    if (items.isEmpty) {
+      return const SliverFillRemaining(
+        child: Center(child: Text("No items in this category")),
+      );
+    }
 
-  const _MenuItemCard({
-    required this.item,
-    required this.quantity,
-    required this.onAdd,
-  });
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => _buildMenuItemCard(items[index]),
+          childCount: items.length,
+        ),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildMenuItemCard(MenuItem item) {
+    final quantity = _cart[item.id] ?? 0;
+
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image placeholder with add button
-          Stack(
-            children: [
-              Container(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            // Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                item.imageUrl,
+                width: 100,
                 height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                child: Center(
-                  child: Icon(
-                    _getIconForItem(item.name),
-                    size: 48,
-                    color: Colors.grey[400],
-                  ),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 100,
+                  height: 100,
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.fastfood, color: Colors.grey),
                 ),
               ),
-              Positioned(
-                right: 8,
-                bottom: 8,
-                child: GestureDetector(
-                  onTap: onAdd,
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1677FF),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: quantity > 0
-                        ? Center(
-                            child: Text(
-                              '$quantity',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          )
-                        : const Icon(Icons.add, color: Colors.white, size: 18),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
+            ),
+            const SizedBox(width: 16),
+            // Info
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     item.name,
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Color(0xFF101922),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     item.description,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 11,
-                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                  ),
-                  const Spacer(),
-                  Text(
-                    '${item.price.toStringAsFixed(0)} TL',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      color: Color(0xFF1677FF),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '₺${item.price.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          color: Color(0xFF137fec),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      // Add Button / Counter
+                      quantity == 0
+                        ? InkWell(
+                            onTap: () => _updateCart(item, 1),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF137fec),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                "ADD",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Row(
+                            children: [
+                              _buildQtyIcon(Icons.remove, () => _updateCart(item, -1)),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  '$quantity',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              _buildQtyIcon(Icons.add, () => _updateCart(item, 1)),
+                            ],
+                          ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  IconData _getIconForItem(String name) {
-    final lowerName = name.toLowerCase();
-    if (lowerName.contains('kahve') || lowerName.contains('latte')) return Icons.coffee;
-    if (lowerName.contains('çay')) return Icons.local_cafe;
-    if (lowerName.contains('su') || lowerName.contains('limonata') || lowerName.contains('smoothie')) return Icons.local_drink;
-    if (lowerName.contains('kahvaltı') || lowerName.contains('yumurta')) return Icons.egg_alt;
-    if (lowerName.contains('tost') || lowerName.contains('sandviç')) return Icons.bakery_dining;
-    if (lowerName.contains('pizza')) return Icons.local_pizza;
-    if (lowerName.contains('burger')) return Icons.lunch_dining;
-    if (lowerName.contains('salata')) return Icons.grass;
-    if (lowerName.contains('meyve')) return Icons.apple;
-    if (lowerName.contains('dondurma') || lowerName.contains('sufle')) return Icons.icecream;
-    if (lowerName.contains('köfte') || lowerName.contains('tavuk') || lowerName.contains('kanat')) return Icons.restaurant;
-    if (lowerName.contains('patates')) return Icons.fastfood;
-    if (lowerName.contains('pancake')) return Icons.breakfast_dining;
-    return Icons.restaurant_menu;
+  Widget _buildQtyIcon(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 16, color: const Color(0xFF137fec)),
+      ),
+    );
+  }
+
+  Widget _buildCartSummary() {
+    return Positioned(
+      bottom: 24,
+      left: 16,
+      right: 16,
+      child: GestureDetector(
+        onTap: _goToCart,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF137fec),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF137fec).withOpacity(0.4),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$_totalItems ${_totalItems == 1 ? "item" : "items"}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Text(
+                'Go to Cart • ₺$_totalPrice',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _updateCart(MenuItem item, int change) {
+    setState(() {
+      final currentQty = _cart[item.id] ?? 0;
+      final newQty = currentQty + change;
+
+      if (newQty <= 0) {
+        _cart.remove(item.id);
+      } else {
+        _cart[item.id] = newQty;
+      }
+      
+      _recalculateTotal();
+    });
+  }
+
+  void _recalculateTotal() {
+    int items = 0;
+    double price = 0;
+    
+    _cart.forEach((itemId, qty) {
+      final item = _allItems.firstWhere((i) => i.id == itemId);
+      items += qty;
+      price += item.price * qty;
+    });
+
+    _totalItems = items;
+    _totalPrice = price;
+  }
+
+  void _goToCart() {
+    // Collect cart items
+    final cartItems = _cart.entries.map((entry) {
+      final item = _allItems.firstWhere((i) => i.id == entry.key);
+       // Create a copy or simple object for cart
+      return {
+        'id': item.id,
+        'name': item.name,
+        'price': item.price,
+        'quantity': entry.value,
+        'imageUrl': item.imageUrl,
+      };
+    }).toList();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RoomServiceCartScreen(
+          hotelName: widget.hotelName,
+          cart: _cart.map((key, value) {
+            final item = _allItems.firstWhere((i) => i.id == key);
+            return MapEntry(item, value);
+          }),
+          onCartUpdated: (newCart) {
+            setState(() {
+              _cart.clear();
+              newCart.forEach((item, qty) => _cart[item.id] = qty);
+              _recalculateTotal();
+            });
+          },
+          onOrderPlaced: () {
+            setState(() {
+              _cart.clear();
+              _recalculateTotal();
+            });
+          },
+        ),
+      ),
+    ).then((completed) {
+      if (completed == true) {
+        // Clear cart if order placed
+        setState(() {
+          _cart.clear();
+          _recalculateTotal();
+        });
+      }
+    });
   }
 }

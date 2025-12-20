@@ -77,9 +77,12 @@ Future<UserCredential?> createUser({
       }
 
       // 2. Self-Healing: Eğer Firestore'da kaydı yoksa oluştur (Eski kayıtları kurtarmak için)
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      // DİKKAT: Sadece belge hiç yoksa oluştur, varsa DOKUNMA (Rolü ezmemek için)
+      final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      final userDoc = await userDocRef.get();
+      
       if (!userDoc.exists) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        await userDocRef.set({
           'uid': user.uid,
           'email': email,
           'role': 'customer', 
@@ -155,7 +158,7 @@ Future<UserCredential?> createUser({
 
       return user;
     } catch (e) {
-      print("Twitter Giriş Hatası: $e");
+      print("Twitter Sign-In Error: $e");
       return null;
     }
   }
@@ -198,19 +201,6 @@ Future<UserCredential?> createUser({
       print("$e");
       return null;
     }
-  }
-
-  Future<User?> singInWithTwitter() async {
-    
-      try{
-        TwitterAuthProvider twitterProvider = TwitterAuthProvider();
-
-        UserCredential userCredential = await FirebaseAuth.instance.signInWithProvider(twitterProvider);
-        return userCredential.user;
-      }catch(e){
-        print("$e");
-        return null;
-      }
   }
 
 
@@ -257,12 +247,8 @@ Future<UserCredential?> createUser({
 
     }catch(e){
       print(e.toString());
+      return null;
     }
-    
-
-
-
-
   }
 
 }

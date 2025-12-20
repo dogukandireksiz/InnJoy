@@ -1,500 +1,18 @@
-// import 'package:flutter/material.dart';
-// import 'menu_data.dart';
-// import 'room_service_confirm_screen.dart';
-
-// class RoomServiceCartScreen extends StatefulWidget {
-//   final Map<MenuItem, int> cart;
-//   final ValueChanged<Map<MenuItem, int>> onCartUpdated;
-//   final VoidCallback onOrderPlaced;
-
-//   const RoomServiceCartScreen({
-//     super.key,
-//     required this.cart,
-//     required this.onCartUpdated,
-//     required this.onOrderPlaced,
-//   });
-
-//   @override
-//   State<RoomServiceCartScreen> createState() => _RoomServiceCartScreenState();
-// }
-
-// class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
-//   late Map<MenuItem, int> _cart;
-//   final TextEditingController _noteController = TextEditingController();
-  
-//   // Fiyatlandırma
-//   static const double _serviceCharge = 35.0;
-//   static const double _discount = 20.0;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _cart = Map.from(widget.cart);
-//   }
-
-//   @override
-//   void dispose() {
-//     _noteController.dispose();
-//     super.dispose();
-//   }
-
-//   double get _subtotal => _cart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
-//   double get _total => _subtotal - _discount + _serviceCharge;
-
-//   void _addItem(MenuItem item) {
-//     setState(() {
-//       _cart[item] = (_cart[item] ?? 0) + 1;
-//     });
-//     widget.onCartUpdated(_cart);
-//   }
-
-//   void _removeItem(MenuItem item) {
-//     setState(() {
-//       if (_cart[item] != null && _cart[item]! > 1) {
-//         _cart[item] = _cart[item]! - 1;
-//       } else {
-//         _cart.remove(item);
-//       }
-//     });
-//     widget.onCartUpdated(_cart);
-//   }
-
-//   void _goToConfirm() {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (_) => RoomServiceConfirmScreen(
-//           cart: _cart,
-//           subtotal: _subtotal,
-//           discount: _discount,
-//           serviceCharge: _serviceCharge,
-//           total: _total,
-//           onOrderPlaced: () {
-//             widget.onOrderPlaced();
-//           },
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFFF6F7FB),
-//       appBar: AppBar(
-//         backgroundColor: Colors.white,
-//         elevation: 0,
-//         scrolledUnderElevation: 0,
-//         leading: IconButton(
-//           icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
-//           onPressed: () => Navigator.pop(context),
-//         ),
-//         title: const Text(
-//           'Sipariş Sepeti',
-//           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-//         ),
-//         centerTitle: true,
-//       ),
-//       body: _cart.isEmpty
-//           ? _buildEmptyCart()
-//           : Column(
-//               children: [
-//                 Expanded(
-//                   child: SingleChildScrollView(
-//                     padding: const EdgeInsets.all(16),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         // Sipariş Listesi Başlık
-//                         const Text(
-//                           'Sipariş Listesi',
-//                           style: TextStyle(
-//                             fontSize: 18,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 16),
-                        
-//                         // Sipariş Öğeleri
-//                         ..._cart.entries.map((entry) => _CartItemCard(
-//                           item: entry.key,
-//                           quantity: entry.value,
-//                           onAdd: () => _addItem(entry.key),
-//                           onRemove: () => _removeItem(entry.key),
-//                         )),
-                        
-//                         const SizedBox(height: 24),
-                        
-//                         // Sipariş Notu
-//                         const Text(
-//                           'Sipariş Notunuz',
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 12),
-//                         Container(
-//                           decoration: BoxDecoration(
-//                             color: Colors.white,
-//                             borderRadius: BorderRadius.circular(12),
-//                             border: Border.all(color: Colors.grey[300]!),
-//                           ),
-//                           child: TextField(
-//                             controller: _noteController,
-//                             maxLines: 3,
-//                             decoration: InputDecoration(
-//                               hintText: 'Alerjiler veya özel talepleriniz için...',
-//                               hintStyle: TextStyle(color: Colors.grey[400]),
-//                               border: InputBorder.none,
-//                               contentPadding: const EdgeInsets.all(16),
-//                             ),
-//                           ),
-//                         ),
-                        
-//                         const SizedBox(height: 24),
-                        
-//                         // Toplam Hesap Özeti
-//                         const Text(
-//                           'Toplam Hesap Özeti',
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 12),
-//                         Container(
-//                           padding: const EdgeInsets.all(16),
-//                           decoration: BoxDecoration(
-//                             color: Colors.white,
-//                             borderRadius: BorderRadius.circular(12),
-//                           ),
-//                           child: Column(
-//                             children: [
-//                               _PriceRow(label: 'Alt Toplam', amount: _subtotal),
-//                               const SizedBox(height: 12),
-//                               _PriceRow(
-//                                 label: 'İndirimler',
-//                                 amount: -_discount,
-//                                 isDiscount: true,
-//                               ),
-//                               const SizedBox(height: 12),
-//                               _PriceRow(label: 'Servis Ücreti', amount: _serviceCharge),
-//                               const Padding(
-//                                 padding: EdgeInsets.symmetric(vertical: 12),
-//                                 child: Divider(),
-//                               ),
-//                               Row(
-//                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                                 children: [
-//                                   const Text(
-//                                     'Ödenecek Toplam Tutar',
-//                                     style: TextStyle(
-//                                       fontWeight: FontWeight.w600,
-//                                       fontSize: 15,
-//                                     ),
-//                                   ),
-//                                   Text(
-//                                     '₺${_total.toStringAsFixed(2)}',
-//                                     style: const TextStyle(
-//                                       fontWeight: FontWeight.w700,
-//                                       fontSize: 20,
-//                                       color: Color(0xFF1677FF),
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-                        
-//                         const SizedBox(height: 100), // Bottom button için boşluk
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//       bottomNavigationBar: _cart.isNotEmpty
-//           ? Container(
-//               padding: const EdgeInsets.all(16),
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black.withOpacity(0.05),
-//                     blurRadius: 10,
-//                     offset: const Offset(0, -2),
-//                   ),
-//                 ],
-//               ),
-//               child: SafeArea(
-//                 child: ElevatedButton(
-//                   onPressed: _goToConfirm,
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: const Color(0xFF1677FF),
-//                     padding: const EdgeInsets.symmetric(vertical: 16),
-//                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//                   ),
-//                   child: const Text(
-//                     'Devam Et',
-//                     style: TextStyle(
-//                       color: Colors.white,
-//                       fontSize: 16,
-//                       fontWeight: FontWeight.w600,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             )
-//           : null,
-//     );
-//   }
-
-//   Widget _buildEmptyCart() {
-//     return Center(
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           Icon(
-//             Icons.shopping_cart_outlined,
-//             size: 80,
-//             color: Colors.grey[300],
-//           ),
-//           const SizedBox(height: 16),
-//           Text(
-//             'Sepetiniz boş',
-//             style: TextStyle(
-//               fontSize: 18,
-//               fontWeight: FontWeight.w600,
-//               color: Colors.grey[600],
-//             ),
-//           ),
-//           const SizedBox(height: 8),
-//           Text(
-//             'Menüden ürün ekleyerek başlayın',
-//             style: TextStyle(
-//               color: Colors.grey[500],
-//             ),
-//           ),
-//           const SizedBox(height: 24),
-//           ElevatedButton(
-//             onPressed: () => Navigator.pop(context),
-//             style: ElevatedButton.styleFrom(
-//               backgroundColor: const Color(0xFF1677FF),
-//               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-//               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//             ),
-//             child: const Text(
-//               'Menüye Dön',
-//               style: TextStyle(color: Colors.white),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class _CartItemCard extends StatelessWidget {
-//   final MenuItem item;
-//   final int quantity;
-//   final VoidCallback onAdd;
-//   final VoidCallback onRemove;
-
-//   const _CartItemCard({
-//     required this.item,
-//     required this.quantity,
-//     required this.onAdd,
-//     required this.onRemove,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       margin: const EdgeInsets.only(bottom: 12),
-//       padding: const EdgeInsets.all(12),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(12),
-//         boxShadow: [
-//           BoxShadow(
-//             color: Colors.black.withOpacity(0.03),
-//             blurRadius: 8,
-//             offset: const Offset(0, 2),
-//           ),
-//         ],
-//       ),
-//       child: Row(
-//         children: [
-//           // Ürün görseli
-//           Container(
-//             width: 70,
-//             height: 70,
-//             decoration: BoxDecoration(
-//               color: Colors.grey[100],
-//               borderRadius: BorderRadius.circular(10),
-//             ),
-//             child: Center(
-//               child: Icon(
-//                 getIconForItem(item.name),
-//                 size: 32,
-//                 color: Colors.grey[400],
-//               ),
-//             ),
-//           ),
-//           const SizedBox(width: 12),
-          
-//           // Ürün bilgileri
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     Expanded(
-//                       child: Text(
-//                         item.name,
-//                         style: const TextStyle(
-//                           fontWeight: FontWeight.w600,
-//                           fontSize: 15,
-//                         ),
-//                       ),
-//                     ),
-//                     Text(
-//                       '${item.price.toStringAsFixed(2)}₺',
-//                       style: const TextStyle(
-//                         fontWeight: FontWeight.w600,
-//                         fontSize: 15,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 const SizedBox(height: 4),
-//                 Text(
-//                   item.description,
-//                   style: TextStyle(
-//                     color: Colors.grey[500],
-//                     fontSize: 12,
-//                   ),
-//                   maxLines: 1,
-//                   overflow: TextOverflow.ellipsis,
-//                 ),
-//                 const SizedBox(height: 8),
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     // Not Ekle butonu
-//                     GestureDetector(
-//                       onTap: () {
-//                         // Not ekleme işlevi
-//                       },
-//                       child: const Text(
-//                         'Not Ekle',
-//                         style: TextStyle(
-//                           color: Color(0xFF1677FF),
-//                           fontSize: 13,
-//                           fontWeight: FontWeight.w500,
-//                         ),
-//                       ),
-//                     ),
-//                     // Miktar kontrolleri
-//                     Row(
-//                       children: [
-//                         GestureDetector(
-//                           onTap: onRemove,
-//                           child: Container(
-//                             padding: const EdgeInsets.all(4),
-//                             decoration: BoxDecoration(
-//                               color: Colors.grey[100],
-//                               borderRadius: BorderRadius.circular(6),
-//                             ),
-//                             child: const Icon(Icons.remove, size: 18, color: Colors.black54),
-//                           ),
-//                         ),
-//                         Padding(
-//                           padding: const EdgeInsets.symmetric(horizontal: 12),
-//                           child: Text(
-//                             '$quantity',
-//                             style: const TextStyle(
-//                               fontWeight: FontWeight.w600,
-//                               fontSize: 15,
-//                             ),
-//                           ),
-//                         ),
-//                         GestureDetector(
-//                           onTap: onAdd,
-//                           child: Container(
-//                             padding: const EdgeInsets.all(4),
-//                             decoration: BoxDecoration(
-//                               color: const Color(0xFF1677FF),
-//                               borderRadius: BorderRadius.circular(6),
-//                             ),
-//                             child: const Icon(Icons.add, size: 18, color: Colors.white),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class _PriceRow extends StatelessWidget {
-//   final String label;
-//   final double amount;
-//   final bool isDiscount;
-
-//   const _PriceRow({
-//     required this.label,
-//     required this.amount,
-//     this.isDiscount = false,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: [
-//         Text(
-//           label,
-//           style: TextStyle(
-//             color: Colors.grey[600],
-//             fontSize: 14,
-//           ),
-//         ),
-//         Text(
-//           '${isDiscount ? '' : ''}${amount.toStringAsFixed(2)}₺',
-//           style: TextStyle(
-//             fontWeight: FontWeight.w500,
-//             fontSize: 14,
-//             color: isDiscount ? Colors.green : Colors.black87,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 
 import 'package:flutter/material.dart';
-import '../../model/menu_item_model.dart'; // Model dosyanın yolu burası olmalı
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../service/database_service.dart';
+import '../../model/menu_item_model.dart';
 
 class RoomServiceCartScreen extends StatefulWidget {
-  // Senin _goToCart fonksiyonunun göndermek istediği parametreler bunlar:
+  final String hotelName;
   final Map<MenuItem, int> cart;
   final ValueChanged<Map<MenuItem, int>> onCartUpdated;
   final VoidCallback onOrderPlaced;
 
   const RoomServiceCartScreen({
     super.key,
+    required this.hotelName,
     required this.cart,
     required this.onCartUpdated,
     required this.onOrderPlaced,
@@ -506,91 +24,359 @@ class RoomServiceCartScreen extends StatefulWidget {
 
 class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
   late Map<MenuItem, int> _currentCart;
+  bool _isPlacingOrder = false;
+  final TextEditingController _noteController = TextEditingController();
+  
+  // Delivery Info State
+  String _roomNumber = 'Loading...';
+  String _guestName = 'Loading...';
 
   @override
   void initState() {
     super.initState();
-    // Gelen sepeti kopyala ki üzerinde rahatça değişiklik yapabilelim
     _currentCart = Map.from(widget.cart);
+    _fetchUserInfo();
   }
 
-  // Toplam fiyat hesaplama
-  double get _totalPrice => _currentCart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
+  Future<void> _fetchUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userData = await DatabaseService().getUser(user.uid);
+      if (mounted && userData != null) {
+        setState(() {
+          _roomNumber = userData['roomNumber'] ?? 'Unknown';
+          _guestName = userData['name_username'] ?? 'Guest';
+        });
+      }
+    }
+  }
 
-  void _placeOrder() {
-    // Burada ileride veritabanı işlemi yapılacak
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Siparişiniz alındı!"), backgroundColor: Colors.green),
-    );
-    
-    // Ana sayfaya "Sipariş verildi, sepeti temizle" emrini gönder
-    widget.onOrderPlaced();
-    
-    // Sayfayı kapat
-    Navigator.pop(context);
+  double get _subtotal => _currentCart.entries.fold(0.0, (sum, e) => sum + (e.key.price * e.value));
+  double get _totalPrice => _subtotal;
+
+  void _updateQuantity(MenuItem item, int change) {
+    setState(() {
+      final currentQty = _currentCart[item] ?? 0;
+      final newQty = currentQty + change;
+      if (newQty <= 0) {
+        _currentCart.remove(item);
+      } else {
+        _currentCart[item] = newQty;
+      }
+      widget.onCartUpdated(_currentCart);
+    });
+  }
+
+  Future<void> _placeOrder() async {
+    setState(() => _isPlacingOrder = true);
+    try {
+      final List<Map<String, dynamic>> orderItems = _currentCart.entries.map((e) {
+        return {
+          'name': e.key.name, 
+          'quantity': e.value, 
+          'price': e.key.price,
+          'imageUrl': e.key.imageUrl 
+        };
+      }).toList();
+
+      await DatabaseService().placeRoomServiceOrder(
+        widget.hotelName,
+        _roomNumber,
+        _guestName,
+        orderItems,
+        _totalPrice,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Your order has been placed!"), backgroundColor: Colors.green),
+        );
+        widget.onOrderPlaced();
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isPlacingOrder = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sepetim")),
-      body: _currentCart.isEmpty
-          ? const Center(child: Text("Sepetiniz boş"))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _currentCart.length,
-              itemBuilder: (context, index) {
-                final item = _currentCart.keys.elementAt(index);
-                final quantity = _currentCart[item]!;
-                
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: item.imageUrl.isNotEmpty 
-                      ? Image.network(item.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
-                      : const Icon(Icons.fastfood),
-                    title: Text(item.name),
-                    subtitle: Text("${item.price} TL x $quantity"),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("${(item.price * quantity).toStringAsFixed(2)} TL", 
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              if (quantity > 1) {
-                                _currentCart[item] = quantity - 1;
-                              } else {
-                                _currentCart.remove(item);
-                              }
-                              // Değişikliği anında ana sayfaya bildir
-                              widget.onCartUpdated(_currentCart);
-                            });
-                          },
+      backgroundColor: const Color(0xFFF6F7FB),
+      appBar: AppBar(
+        title: const Text('Confirm Order', style: TextStyle(color: Color(0xFF0d141b), fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFF6F7FB),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF0d141b)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   // 1. Delivery Info
+                   _buildSectionTitle('Delivery Information'),
+                   _buildDeliveryInfoCard(),
+                   
+                   // 2. Order List
+                   _buildSectionTitle('Order List'),
+                   if (_currentCart.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        child: const Column(
+                          children: [
+                             Icon(Icons.shopping_cart_outlined, size: 48, color: Colors.grey),
+                             SizedBox(height: 12),
+                             Text("Your cart is empty.", style: TextStyle(color: Colors.grey, fontSize: 16)),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                      )
+                   else
+                      ..._currentCart.entries.map((e) => _buildCartItem(e.key, e.value)),
+
+
+                   // 3. Note
+                   _buildSectionTitle('Order Notes'),
+                   _buildNoteSection(),
+
+                   // 4. Payment Method
+                   _buildSectionTitle('Payment Method'),
+                   _buildPaymentMethodSection(),
+
+                   // 5. Summary
+                   _buildSectionTitle('Order Summary'),
+                   _buildWebSummaryCard(),
+                ],
+              ),
             ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: _currentCart.isEmpty ? null : _placeOrder,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1677FF),
-              padding: const EdgeInsets.symmetric(vertical: 16),
+       bottomNavigationBar: _buildBottomBar(),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFF0d141b),
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeliveryInfoCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(Icons.meeting_room, 'Room Number', _roomNumber),
+          const Divider(height: 1, indent: 60),
+          _buildInfoRow(Icons.person, 'Guest Name', _guestName),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: const Color(0xFF0d141b)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(child: Text(label, style: const TextStyle(color: Colors.grey))),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCartItem(MenuItem item, int qty) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+      ),
+      child: Row(
+        children: [
+          // Image
+          Container(
+            width: 70, 
+            height: 70,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              image: item.imageUrl.isNotEmpty 
+                  ? DecorationImage(image: NetworkImage(item.imageUrl), fit: BoxFit.cover)
+                  : null,
+              color: Colors.grey[200],
             ),
-            child: Text(
-              "Siparişi Tamamla (₺${_totalPrice.toStringAsFixed(2)})", 
-              style: const TextStyle(color: Colors.white, fontSize: 18)
+            child: item.imageUrl.isEmpty ? const Icon(Icons.fastfood, color: Colors.grey) : null,
+          ),
+          const SizedBox(width: 12),
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(
+                  '${item.price}₺', 
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0d141b)),
+                ),
+              ],
             ),
           ),
+          // Qty Control
+          Row(
+            children: [
+              _buildQtyBtn(Icons.remove, () => _updateQuantity(item, -1)),
+              SizedBox(width: 30, child: Center(child: Text('$qty', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)))),
+              _buildQtyBtn(Icons.add, () => _updateQuantity(item, 1), isPrimary: true),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQtyBtn(IconData icon, VoidCallback onTap, {bool isPrimary = false}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: isPrimary ? const Color(0xFF137fec) : Colors.grey[100],
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 18, color: isPrimary ? Colors.white : Colors.black),
+      ),
+    );
+  }
+
+  Widget _buildNoteSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: TextField(
+        controller: _noteController,
+        maxLines: 3,
+        decoration: InputDecoration(
+          hintText: 'Do you have any special requests or need extra napkins?',
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.all(16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        children: [
+          _buildRadioOption('room_charge', Icons.receipt_long, 'Charge to Room', 'Will be added to your total bill at checkout.'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRadioOption(String value, IconData icon, String title, String subtitle) {
+    // Only one option, so it's always selected (groupValue matches value)
+    return RadioListTile(
+      value: value,
+      groupValue: value, // Always selected
+      onChanged: null, // Read-only
+      activeColor: const Color(0xFF137fec),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
+      subtitle: Text(subtitle, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+      secondary: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(color: const Color(0xFF137fec).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+        child: Icon(icon, color: const Color(0xFF137fec)),
+      ),
+    );
+  }
+
+  Widget _buildWebSummaryCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          _buildSummaryRow('Subtotal', _subtotal),
+          const Divider(height: 24),
+          _buildSummaryRow('Total Amount', _totalPrice, isTotal: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, double amount, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontSize: isTotal ? 18 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, color: isTotal ? Colors.black : Colors.grey)),
+          Text('${amount.toStringAsFixed(2)}₺', style: TextStyle(fontSize: isTotal ? 18 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, color: isTotal ? const Color(0xFF137fec) : Colors.black)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+      ),
+      child: SafeArea(
+        child: ElevatedButton(
+          onPressed: _currentCart.isEmpty || _isPlacingOrder ? null : _placeOrder,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF137fec),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 4,
+          ),
+          child: _isPlacingOrder 
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Text('Place Order • ${_totalPrice.toStringAsFixed(2)}₺', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
       ),
     );

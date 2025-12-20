@@ -10,19 +10,19 @@ import '../legal/legal_document_screen.dart';
 import 'package:flutter/gestures.dart';
 
 class SignUpScreen extends StatefulWidget {
-  // Kullanıcıdan alınacak bilgileri tutan controller'lar
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  
-  SignUpScreen({super.key});
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  // Controllers - State sınıfında tanımlanmalı (memory leak önleme)
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
   bool _isPasswordHidden2 = true;
   bool _isPasswordHidden3 = true;
   UserService userService = UserService(); // Firestore servisi instance
@@ -31,48 +31,58 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isMandatoryAccepted = false;
   bool _isOptionalAccepted = false;
 
+  @override
+  void dispose() {
+    // Controller'ları temizle - memory leak önleme
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   // Firebase Authentication ile yeni kullanıcı oluşturma fonksiyonu
   Future<void> createUser() async{
     // Onay kontrolü
     if (!_isMandatoryAccepted) {
       setState(() {
-         errorMessage = "Lütfen Kullanıcı Sözleşmesi ve Gizlilik Politikasını onaylayınız.";
+         errorMessage = "Please accept the User Agreement and Privacy Policy.";
       });
-      CustomSnackBar.show(context, message: "Lütfen Kullanıcı Sözleşmesi ve Gizlilik Politikasını onaylayınız.");
+      CustomSnackBar.show(context, message: "Please accept the User Agreement and Privacy Policy.");
       return;
     }
 
     // Şifrelerin aynı olup olmadığını kontrol eder
-    if(widget._passwordController.text != widget._confirmPasswordController.text){
+    if(_passwordController.text != _confirmPasswordController.text){
       setState(() {
         errorMessage = "Passwords don't match.";
       });
       return;
     }
-    try{
+    try {
       // Firebase Auth → Yeni kullanıcı oluşturur (e-mail & şifre)
-      final userCred =  await Auth().createUser(
-        email: widget._emailController.text, 
-        password: widget._passwordController.text
+      final userCred = await Auth().createUser(
+        email: _emailController.text, 
+        password: _passwordController.text
       );
 
       if(userCred == null || userCred.user == null){
         return;
       }
 
-      await userCred.user!.updateDisplayName(widget._nameController.text);
+      await userCred.user!.updateDisplayName(_nameController.text);
       await userCred.user!.reload();
 
       // Firebase Authentication'da oluşan UID ile Firestore'a kullanıcı kaydı yazılır
       UserModel newUser = UserModel(
         uid: userCred.user!.uid,                        // Firestore belge ID olarak kullanılacak UID
-        nameSurname: widget._nameController.text,       // Kullanıcı adı-soyadı
-        mailAddress: userCred.user!.email,              // Firebase'in kayıt ettiği email
-        password: widget._passwordController.text       // (Tavsiye edilmez) Firestore'a şifre gönderme
+        nameSurname: _nameController.text,              // Kullanıcı adı-soyadı
+        email: userCred.user!.email,                    // Firebase'in kayıt ettiği email (auth.dart ile tutarlı)
+        password: _passwordController.text              // (Tavsiye edilmez) Firestore'a şifre gönderme
       );
 
       // Firestore → "users" koleksiyonuna kullanıcı kaydı eklenir
-      userService.createDbUser(newUser);
+      await userService.createDbUser(newUser);
 
       if(mounted){
         Navigator.of(context).pop(); // Hesap oluşursa geri döner
@@ -82,6 +92,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         errorMessage = e.message;
       });
+      CustomSnackBar.show(context, message: e.message ?? "Authentication Error");
+    } catch (e) {
+      // Diğer hatalar (Firestore vb.)
+      setState(() {
+        errorMessage = "An error occurred: $e";
+      });
+      print("SignUp Error: $e");
+      CustomSnackBar.show(context, message: "Error creating account: $e");
     }
   }
 
@@ -145,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Kullanıcı adı
                     TextField(
-                      controller: widget._nameController,
+                      controller: _nameController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
@@ -164,7 +182,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // E-mail girişi
                     TextField(
-                      controller:widget._emailController,
+                      controller: _emailController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
@@ -183,7 +201,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Şifre
                     TextField(
-                      controller:widget._passwordController,
+                      controller: _passwordController,
                       obscureText: _isPasswordHidden2,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
@@ -214,7 +232,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Şifre tekrar
                     TextField(
-                      controller:widget._confirmPasswordController,
+                      controller: _confirmPasswordController,
                       obscureText: _isPasswordHidden3,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
@@ -270,7 +288,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               style: const TextStyle(color: Colors.white, fontSize: 13),
                               children: [
                                 TextSpan(
-                                  text: "Kullanıcı Sözleşmesi",
+                                  text: "User Agreement",
                                   style: const TextStyle(
                                     color: Colors.amber,
                                     decoration: TextDecoration.underline,
@@ -291,9 +309,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       );
                                     },
                                 ),
-                                const TextSpan(text: " ve "),
+                                const TextSpan(text: " and "),
                                 TextSpan(
-                                  text: "Gizlilik Politikasını",
+                                  text: "Privacy Policy",
                                   style: const TextStyle(
                                     color: Colors.amber,
                                     decoration: TextDecoration.underline,
@@ -314,7 +332,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       );
                                     },
                                 ),
-                                const TextSpan(text: " okudum, kabul ediyorum."),
+                                const TextSpan(text: ", I have read and accept."),
                               ],
                             ),
                           ),
@@ -346,11 +364,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Expanded(
                           child: RichText(
                             text: TextSpan(
-                              text: "Pazarlama bildirimleri, konum ve kullanım verilerimin kişiselleştirme amacıyla işlenmesine ",
+                              text: "I consent to the processing of my marketing notifications, location and usage data for personalization purposes ",
                               style: const TextStyle(color: Colors.white, fontSize: 13),
                               children: [
                                 TextSpan(
-                                  text: "açık rıza",
+                                  text: "(explicit consent)",
                                   style: const TextStyle(
                                     color: Colors.amber,
                                     decoration: TextDecoration.underline,
@@ -371,7 +389,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       );
                                     },
                                 ),
-                                const TextSpan(text: " veriyorum."),
+                                const TextSpan(text: "."),
                               ],
                             ),
                           ),
@@ -401,7 +419,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             );
                           },
                           child: const Text(
-                            "KVKK Aydınlatma Metni",
+                            "KVKK Information Notice",
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 13,

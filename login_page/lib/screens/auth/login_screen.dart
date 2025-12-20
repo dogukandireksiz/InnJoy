@@ -4,9 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'signup_screen.dart';
-import '../../service/auth.dart'; 
-import 'forget_password.dart'; 
-import '../../utils/custom_snackbar.dart'; 
+import '../../service/auth.dart';
+import 'forget_password.dart';
+import '../../utils/custom_snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> createUser() async {
     try {
       await Auth().createUser(
-          email: _emailController.text, password: _passwordController.text);
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
@@ -41,7 +43,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> signIn() async {
     try {
       await Auth().signIn(
-          email: _emailController.text, password: _passwordController.text);
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      // 2. Self-Healing: Check if Firestore doc exists, if not create it
+      // This is handled inside Auth().signIn() already, but we can double check or just rely on it.
+      // Auth class signIn method already has the logic to create the user doc if missing.
     } on FirebaseAuthException catch (e) {
       setState(() {
         String msg = "An error occurred during login.";
@@ -54,10 +61,15 @@ class _LoginScreenState extends State<LoginScreen> {
         } else if (e.code == 'invalid-credential') {
           msg = "Incorrect email or password.";
         }
-        
+
         errorMessage = msg;
-        
+
         CustomSnackBar.show(context, message: msg);
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = "Login Error: $e";
+        CustomSnackBar.show(context, message: "Giriş hatası: $e");
       });
     }
   }
@@ -87,7 +99,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       height: 150,
                       width: 150,
-                      child: Image.asset("assets/images/arkaplanyok1.png"),
+                      // child: Image.asset("assets/images/arkaplanyok1.png"),
+                      child: Image.asset(
+                        "assets/images/kalitelilogoarkaplanyok.png",
+                      ),
                     ),
 
                     const Text(
@@ -126,7 +141,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.amber),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: Colors.amber,
+                        ),
                         hintText: "E-mail Address",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
@@ -146,10 +164,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.15),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.amber),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.amber,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordHidden ? Icons.visibility : Icons.visibility_off,
+                            _isPasswordHidden
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                             color: Colors.white70,
                           ),
                           onPressed: () {
@@ -211,7 +234,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             MaterialPageRoute(
                               // Dosya adı 'forget_password.dart' olsa bile
                               // içindeki class adı 'ForgotPasswordScreen' olduğu için bunu çağırıyoruz.
-                              builder: (context) => const ForgotPasswordScreen(),
+                              builder: (context) =>
+                                  const ForgotPasswordScreen(),
                             ),
                           );
                         },
@@ -234,20 +258,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       children: [
                         const Expanded(
-                          child: Divider(color: Colors.white, thickness: 3, endIndent: 10),
+                          child: Divider(
+                            color: Colors.white,
+                            thickness: 3,
+                            endIndent: 10,
+                          ),
                         ),
                         const Text(
                           "Or Sign In With",
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const Expanded(
-                          child: Divider(color: Colors.white, thickness: 3, indent: 10),
+                          child: Divider(
+                            color: Colors.white,
+                            thickness: 3,
+                            indent: 10,
+                          ),
                         ),
                       ],
                     ),
 
                     const SizedBox(height: 10),
-                    
+
                     // --- Social Media Buttons ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -257,7 +293,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 90,
                           height: 30,
                           child: IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.google, color: Colors.white, size: 30),
+                            icon: const FaIcon(
+                              FontAwesomeIcons.google,
+                              color: Colors.white,
+                              size: 30,
+                            ),
                             onPressed: () async {
                               final authservice = Auth();
                               await authservice.signInWithGoogle();
@@ -271,13 +311,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 30,
                           child: IconButton(
                             icon: const FaIcon(
-                              FontAwesomeIcons.twitter,
+                              FontAwesomeIcons.xTwitter,
                               color: Colors.white,
                               size: 30,
                             ),
                             onPressed: () async {
                               final authService2 = Auth();
-                              await authService2.singInWithTwitter();
+                              await authService2.signInWithTwitter();
                             },
                           ),
                         ),
@@ -287,7 +327,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 90,
                           height: 30,
                           child: IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.facebook, color: Colors.white, size: 30),
+                            icon: const FaIcon(
+                              FontAwesomeIcons.facebook,
+                              color: Colors.white,
+                              size: 30,
+                            ),
                             onPressed: () async {
                               final authService3 = Auth();
                               await authService3.signInWithFacebook();
@@ -317,7 +361,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                MaterialPageRoute(
+                                  builder: (context) => SignUpScreen(),
+                                ),
                               );
                             },
                             child: const Text(

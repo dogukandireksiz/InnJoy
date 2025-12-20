@@ -19,13 +19,32 @@ class EventDetailsScreen extends StatefulWidget {
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   bool _isLoading = false;
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserRole();
+  }
+
+  Future<void> _checkUserRole() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userData = await DatabaseService().getUserData(user.uid);
+      if (mounted) {
+        setState(() {
+          _isAdmin = userData?['role'] == 'admin';
+        });
+      }
+    }
+  }
 
   Future<void> _handleBooking() async {
     setState(() => _isLoading = true);
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lütfen önce giriş yapın.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please log in first.')));
       setState(() => _isLoading = false);
       return;
     }
@@ -34,24 +53,32 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     // Construct user info (In a real app, fetch more details like Name/Room from Profile)
     final userInfo = {
       'userId': user.uid,
-      'userName': user.displayName ?? user.email ?? 'Misafir',
+      'userName': user.displayName ?? user.email ?? 'Guest',
       'roomNumber': '101', // Placeholder or fetch from context/profile
     };
 
-    final result = await DatabaseService().registerForEvent(widget.hotelName, eventId, userInfo);
+    // Extract event details for saving
+    final eventDetails = {
+      'eventTitle': widget.event['title'],
+      'eventDate': widget.event['date'], // Assuming Timestamp
+      'eventLocation': widget.event['location'],
+      'eventImage': widget.event['imageAsset'], // for thumbnail
+    };
+
+    final result = await DatabaseService().registerForEvent(widget.hotelName, eventId, userInfo, eventDetails);
 
     if (!mounted) return;
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kayıt Başarılı!'), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful!'), backgroundColor: Colors.green));
     } else {
       if (result['status'] == 'full') {
          _showFullDialog();
       } else if (result['status'] == 'already_registered') {
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Zaten bu etkinliğe kayıtlısınız.'), backgroundColor: Colors.orange));
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You are already registered for this event.'), backgroundColor: Colors.orange));
       } else {
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['message'] ?? 'Bir hata oluştu.'), backgroundColor: Colors.red));
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result['message'] ?? 'An error occurred.'), backgroundColor: Colors.red));
       }
     }
   }
@@ -62,9 +89,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Kontenjan Dolu', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
+        title: const Text('Event Full', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
         content: const Text(
-          'Bu etkinlik yoğun ilgi gördü ve kontenjanımız tamamen doldu. Benzer etkinliklere göz atmak ister misiniz?',
+          'This event is fully booked. Would you like to check out similar events?',
           style: TextStyle(fontSize: 16),
         ),
         actions: [
@@ -73,7 +100,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back to Event List
             },
-            child: const Text('Göz At', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text('Browse', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           )
         ],
       ),
@@ -90,6 +117,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final description = widget.event['description'] ?? 'No description provided.';
     final capacity = widget.event['capacity'] ?? 0;
     final registered = widget.event['registered'] ?? 0;
+    final category = widget.event['category']; // Extract category
     
     // Parse Date
     String dateStr = 'Date not specified';
@@ -134,11 +162,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.asset(
-                                imageAsset,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(color: Colors.grey[300], child: const Icon(Icons.error)),
-                              ),
+                              (imageAsset.startsWith('http'))
+                                  ? Image.network(
+                                      imageAsset,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(color: Colors.grey[300], child: const Icon(Icons.error)),
+                                    )
+                                  : Image.asset(
+                                      imageAsset,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(color: Colors.grey[300], child: const Icon(Icons.error)),
+                                    ),
                               if (isFull)
                                 Container(color: Colors.grey.withOpacity(0.8)), // Grey out if full
                             ],
@@ -171,7 +205,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.red.shade300),
                                 ),
-                                child: Text('KONTENJAN DOLU', style: TextStyle(color: Colors.red.shade800, fontWeight: FontWeight.bold)),
+                                child: Text('CAPACITY FULL', style: TextStyle(color: Colors.red.shade800, fontWeight: FontWeight.bold)),
                               ),
                             Text(
                               title,
@@ -182,6 +216,34 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               ),
                             ),
                             const SizedBox(height: 16),
+
+                            // Display Category if available
+                            if (category != null && category.isNotEmpty) ...[
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: _getCategoryColor(category).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: _getCategoryColor(category).withOpacity(0.3)),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(_getCategoryIcon(category), size: 18, color: _getCategoryColor(category)),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      category,
+                                      style: TextStyle(
+                                        color: _getCategoryColor(category),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
                             
                             // Date/Time/Loc Rows
                             _InfoRow(icon: Icons.calendar_today, label: 'Date: $dateStr'),
@@ -193,7 +255,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             // Capacity
                             _InfoRow(
                                 icon: Icons.people, 
-                                label: isFull ? 'Kameriye Dolu' : 'Kontenjan: $registered / $capacity',
+                                label: isFull ? 'Event Full' : 'Capacity: $registered / $capacity',
                                 color: isFull ? Colors.red : null,
                             ),
                             
@@ -272,7 +334,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isLoading 
+                  onPressed: _isLoading || _isAdmin
                       ? null 
                       : () {
                           // Check fullness locally first
@@ -283,7 +345,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isFull ? Colors.grey : const Color(0xFF1D8CF8),
+                    backgroundColor: isFull || _isAdmin ? Colors.grey : const Color(0xFF1D8CF8),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -293,7 +355,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   ),
                   child: _isLoading 
                       ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text(isFull ? 'Kontenjan Dolu' : 'Book Session', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      : Text(
+                          _isAdmin 
+                              ? 'Admins Cannot Register' 
+                              : (isFull ? 'Event Full' : 'Book Session'),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
                 ),
               ),
             ),
@@ -311,6 +378,28 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     return months[m - 1];
   }
   
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'Entertainment': return Colors.purple;
+      case 'Wellness & Life': return Colors.teal; // İsim güncellendi
+      case 'Sports': return Colors.orange;
+      case 'Kids': return Colors.blue;
+      case 'Food & Beverage': return Colors.red;
+      default: return Colors.grey;
+    }
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Entertainment': return Icons.celebration; // Yeni (Parti)
+      case 'Wellness & Life': return Icons.spa; // Eski (Wellness eski kalsın dendi)
+      case 'Sports': return Icons.directions_run; // Yeni (Koşan adam)
+      case 'Kids': return Icons.child_care; // Eski (Bebek arabası/çocuk)
+      case 'Food & Beverage': return Icons.restaurant; // Eski (Klasik çatal bıçak)
+      default: return Icons.category;
+    }
+  }
+
   String _weekdayName(int w) {
       const map = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday'};
       return map[w] ?? '';

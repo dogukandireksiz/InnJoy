@@ -25,7 +25,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     // 1. Validasyon: E-posta alanı boş mu?
     if (_emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen e-posta adresinizi girin.")),
+        const SnackBar(content: Text("Please enter your email address.")),
       );
       return;
     }
@@ -42,14 +42,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text("Başarılı"),
+              title: const Text("Success"),
               content: const Text(
-                "Şifre sıfırlama bağlantısı gönderildi! Lütfen e-posta kutunuzu kontrol edin.",
+                "Password reset link sent! Please check your email inbox.",
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Tamam"),
+                  child: const Text("OK"),
                 ),
               ],
             );
@@ -61,7 +61,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.message ?? "Bir hata oluştu. Tekrar deneyin."),
+            content: Text(e.message ?? "An error occurred. Please try again."),
             backgroundColor: Colors.red,
           ),
         );

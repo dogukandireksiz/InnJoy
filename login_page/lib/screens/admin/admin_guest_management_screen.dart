@@ -26,7 +26,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text('Misafir Yönetimi'),
+        title: const Text('Guest Management'),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black87,
@@ -35,7 +35,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
         onPressed: _showAddGuestDialog,
         backgroundColor: const Color(0xFF2E5077),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Yeni Misafir / PNR', style: TextStyle(color: Colors.white)),
+        label: const Text('New Guest / PNR', style: TextStyle(color: Colors.white)),
       ),
       body: Column(
         children: [
@@ -50,7 +50,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Ara: İsim, Oda No, PNR...',
+                hintText: 'Search: Name, Room No, PNR...',
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white,
@@ -77,7 +77,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                 }
 
                 if (snapshot.hasError) {
-                  return Center(child: Text('Hata: ${snapshot.error}'));
+                  return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
                 final allReservations = snapshot.data ?? [];
@@ -100,7 +100,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                         Icon(Icons.person_search, size: 80, color: Colors.grey[400]),
                         const SizedBox(height: 16),
                         Text(
-                          _searchQuery.isEmpty ? 'Henüz misafir yok.' : 'Kayıt bulunamadı.',
+                          _searchQuery.isEmpty ? 'No guests yet.' : 'No records found.',
                           style: TextStyle(color: Colors.grey[600], fontSize: 16),
                         ),
                       ],
@@ -148,7 +148,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Oda',
+                                  'Room',
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.grey[600],
@@ -174,7 +174,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  res['guestName'] ?? 'İsimsiz',
+                                  res['guestName'] ?? 'Unnamed',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -201,7 +201,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                                     Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Çıkış: ${DateFormat('dd MMM yyyy').format(checkOut)}',
+                                      'Check-out: ${DateFormat('dd MMM yyyy').format(checkOut)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[700],
@@ -221,7 +221,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              isUsed ? 'Aktif' : 'Bekliyor', // Used = Giriş yapmış yani otelde aktif
+                              isUsed ? 'Active' : 'Pending', // Used = Checked in, active at hotel
                               style: TextStyle(
                                 color: isUsed ? Colors.green : Colors.orange,
                                 fontWeight: FontWeight.w600,
@@ -252,7 +252,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('Yeni Misafir / PNR'),
+            title: const Text('New Guest / PNR'),
             content: Form(
               key: _formKey,
               child: Column(
@@ -260,17 +260,17 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                 children: [
                   TextFormField(
                     controller: _roomController,
-                    decoration: const InputDecoration(labelText: 'Oda Numarası'),
-                    validator: (v) => v!.isEmpty ? 'Zorunlu' : null,
+                    decoration: const InputDecoration(labelText: 'Room Number'),
+                    validator: (v) => v!.isEmpty ? 'Required' : null,
                   ),
                   TextFormField(
                     controller: _guestNameController,
-                    decoration: const InputDecoration(labelText: 'Misafir Adı'),
-                    validator: (v) => v!.isEmpty ? 'Zorunlu' : null,
+                    decoration: const InputDecoration(labelText: 'Guest Name'),
+                    validator: (v) => v!.isEmpty ? 'Required' : null,
                   ),
                   const SizedBox(height: 16),
                   ListTile(
-                    title: const Text('Çıkış Tarihi'),
+                    title: const Text('Check-out Date'),
                     subtitle: Text(DateFormat('dd MMM yyyy').format(_checkOutDate)),
                     trailing: const Icon(Icons.calendar_month),
                     contentPadding: EdgeInsets.zero,
@@ -292,7 +292,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('İptal'),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 onPressed: _isLoading ? null : () async {
@@ -304,16 +304,16 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                         widget.hotelName,
                         _roomController.text,
                         _guestNameController.text,
-                        DateTime.now(), // Giriş Tarihi (Varsayılan: Şimdi)
+                        DateTime.now(), // Check-in Date (Default: Now)
                         _checkOutDate,
                       );
                       if (mounted) Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('PNR başarıyla oluşturuldu')),
+                        const SnackBar(content: Text('PNR created successfully')),
                       );
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Hata: $e')),
+                        SnackBar(content: Text('Error: $e')),
                       );
                     } finally {
                       setState(() => _isLoading = false);
@@ -322,7 +322,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                 },
                 child: _isLoading 
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
-                  : const Text('Oluştur'),
+                  : const Text('Create'),
               ),
             ],
           );

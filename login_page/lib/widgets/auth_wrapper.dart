@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:login_page/screens/screens.dart';
 import 'package:login_page/widgets/verification_screen.dart';
 import '../service/database_service.dart';
@@ -37,9 +38,9 @@ class AuthWrapper extends StatelessWidget {
             return VerificationScreen(user: user);
           }
 
-          // ROL VE OTEL KONTROLÜ
-          return FutureBuilder<Map<String, dynamic>?>(
-            future: DatabaseService().getUserData(user!.uid),
+          // ROL VE OTEL KONTROLÜ (STREAM - CANLI TAKİP)
+          return StreamBuilder<Map<String, dynamic>?>(
+            stream: DatabaseService().getUserStream(user!.uid),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
@@ -48,8 +49,15 @@ class AuthWrapper extends StatelessWidget {
               }
 
               final userData = snapshot.data;
-              final role = userData?['role'] ?? 'customer'; // Varsayılan role
-              final hotelName = userData?['hotelName'];
+              // Eğer kullanıcı verisi henüz oluşmamışsa (signup sonrası gecikme olabilir), loading göster veya misafir varsay
+              if (userData == null) {
+                 return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              final role = userData['role'] ?? 'customer'; 
+              final hotelName = userData['hotelName'];
 
               if (role == 'admin') {
                 // 1. Admin ise ama otel ataması yoksa -> ERİŞİM ENGELİ
@@ -61,15 +69,16 @@ class AuthWrapper extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                            const Icon(Icons.error_outline, size: 60, color: Colors.amber),
                             const SizedBox(height: 16),
                             const Text(
-                              'Erişim Reddedildi',
+                              'Admin Account Pending',
                               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             const Text(
-                              'Hesabınız yönetici olarak tanımlanmış ancak size atanmış bir otel bulunamadı.\n\nLütfen yöneticinizle görüşün.',
+                              'Your account has an admin role.\nPlease assign a hotel via Firebase.',
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 16, color: Colors.black54),
                             ),
@@ -79,7 +88,7 @@ class AuthWrapper extends StatelessWidget {
                                 await FirebaseAuth.instance.signOut();
                               },
                               icon: const Icon(Icons.logout),
-                              label: const Text('Çıkış Yap'),
+                              label: const Text('Log Out'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 foregroundColor: Colors.white,
@@ -102,8 +111,20 @@ class AuthWrapper extends StatelessWidget {
                 return const HotelSelectionScreen();
               }
 
+              // Tarih Kontrolü (Fail-safe)
+              // Admin paneli actiginda otomatik siliniyor ama panel acilmazsa buradan engelliyoruz.
+              if (userData['checkOutDate'] != null && userData['checkOutDate'] is Timestamp) {
+                final checkOut = (userData['checkOutDate'] as Timestamp).toDate();
+                if (DateTime.now().isAfter(checkOut)) {
+                  // Tarih geçmiş!
+                  // Kullanıcıyı HotelSelection'a atıyoruz (Girişi engelliyoruz)
+                  // İdealde burada bir "Süreniz doldu" uyarısı verilebilir ama şimdilik seçim ekranına atalım.
+                  return const HotelSelectionScreen();
+                }
+              }
+
               // Oteli varsa -> Direkt Ana Ekrana (HomeScreen)
-              return HomeScreen(userName: user.displayName ?? "Misafir");
+              return HomeScreen(userName: userData['name_username'] ?? user.displayName ?? "Guest");
             },
           );
 

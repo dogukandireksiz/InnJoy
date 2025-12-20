@@ -1,4 +1,4 @@
-import 'package:login_page/model/user_model.dart';
+
 
 class MenuItem{
   final String id;
@@ -7,6 +7,8 @@ class MenuItem{
   final double price;
   final String imageUrl;
   final String category;
+  final bool isActive;
+  final int? preparationTime;
 
   MenuItem({
     required this.id,
@@ -14,8 +16,9 @@ class MenuItem{
     required this.description,
     required this.price,
     required this.imageUrl,
-    required this.category
-
+    required this.category,
+    this.isActive = true,
+    this.preparationTime,
   });
 
   //firebaseden veri çekerken
@@ -27,6 +30,8 @@ class MenuItem{
       price: (data['price'] ?? 0).toDouble(), // Hem int hem double gelirse hata vermez
       imageUrl: data['imageUrl'] ?? '',
       category: data['category'] ?? 'general',
+      isActive: data['isActive'] ?? true,
+      preparationTime: data['preparationTime'],
     );
   }
 
@@ -38,6 +43,8 @@ class MenuItem{
       'price': price,
       'imageUrl': imageUrl,
       'category': category,
+      'isActive': isActive,
+      'preparationTime': preparationTime,
     };
   }
 

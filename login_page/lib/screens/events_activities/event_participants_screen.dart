@@ -19,7 +19,7 @@ class EventParticipantsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Katılımcılar: $eventTitle'),
+        title: Text('Participants: $eventTitle'),
         centerTitle: true,
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
@@ -30,7 +30,7 @@ class EventParticipantsScreen extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return const Center(child: Text('Bir hata oluştu.'));
+            return const Center(child: Text('An error occurred.'));
           }
 
           final participants = snapshot.data ?? [];
@@ -42,7 +42,7 @@ class EventParticipantsScreen extends StatelessWidget {
                 children: [
                    Icon(Icons.people_outline, size: 64, color: Colors.grey),
                    SizedBox(height: 16),
-                   Text('Henüz kayıtlı katılımcı yok.', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                   Text('No registered participants yet.', style: TextStyle(color: Colors.grey, fontSize: 16)),
                 ],
               ),
             );
@@ -54,7 +54,7 @@ class EventParticipantsScreen extends StatelessWidget {
             separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (context, index) {
               final participant = participants[index];
-              final name = participant['userName'] ?? 'İsimsiz Misafir';
+              final name = participant['userName'] ?? 'Unnamed Guest';
               final room = participant['roomNumber'] ?? '-'; // '101' etc.
               final timestamp = participant['timestamp'] as Timestamp?;
               final timeStr = timestamp != null 
@@ -68,7 +68,7 @@ class EventParticipantsScreen extends StatelessWidget {
                   child: Text(name.substring(0, 1).toUpperCase()),
                 ),
                 title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('Kayıt Tarihi: $timeStr'),
+                subtitle: Text('Registration Date: $timeStr'),
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -77,7 +77,7 @@ class EventParticipantsScreen extends StatelessWidget {
                     border: Border.all(color: Colors.green.shade200),
                   ),
                   child: Text(
-                    'Oda: $room',
+                    'Room: $room',
                     style: TextStyle(
                       color: Colors.green.shade800,
                       fontWeight: FontWeight.w600,

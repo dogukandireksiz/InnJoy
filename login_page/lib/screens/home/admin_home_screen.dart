@@ -7,9 +7,18 @@ import '../events_activities/admin_events_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../admin/admin_room_management_screen.dart';
 import '../../service/database_service.dart';
-import '../services/spa_wellness/spa_admin_placeholder_screen.dart';
+import '../services/spa_wellness/spa_management_screen.dart';
+import '../admin/restaurant_management_screen.dart';
+import '../admin/room_service_management_screen.dart';
+import '../admin/admin_requests_screen.dart';
+import '../admin/admin_housekeeping_screen.dart';
+import '../../widgets/custom_top_navigation_bar.dart';
+import '../../widgets/admin_action_bar.dart';
 import '../edit/chose_edit_screen.dart';
 import '../emergency/emergency_admin_screen.dart';
+import '../../widgets/management_panel.dart';
+
+import 'dart:math' as math;
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -21,6 +30,10 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   final user = FirebaseAuth.instance.currentUser;
   String? _hotelName;
+  
+  // Data caching flags to prevent flicker on navigation back
+  bool _isLoading = true;
+  bool _dataLoaded = false;
 
   @override
   void initState() {
@@ -29,13 +42,49 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Future<void> _fetchHotelName() async {
-    if (user == null) return;
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+    // Skip if data already loaded (prevents flicker on navigation back)
+    if (_dataLoaded) {
+      if (mounted && _isLoading) {
+        setState(() => _isLoading = false);
+      }
+      return;
+    }
+    
+    if (user == null) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _dataLoaded = true;
+        });
+      }
+      return;
+    }
+    
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get();
     if (doc.exists && mounted) {
       setState(() {
         _hotelName = doc.data()?['hotelName'] ?? 'Grand Hayat Otel';
+        _isLoading = false;
+        _dataLoaded = true;
+      });
+    } else if (mounted) {
+      setState(() {
+        _isLoading = false;
+        _dataLoaded = true;
       });
     }
+  }
+
+  /// Force refresh all cached data - call this on pull-to-refresh
+  Future<void> _forceRefresh() async {
+    setState(() {
+      _isLoading = true;
+      _dataLoaded = false; // Reset cache flag to allow re-fetch
+    });
+    await _fetchHotelName();
   }
 
   String get userName {
@@ -49,267 +98,656 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   int _selectedIndex = 0;
-  
+  final List<int> _navigationHistory = [0]; // Stack to track navigation history
+
   void _onItemTapped(int index) {
+    if (index == _selectedIndex) return; // Don't add to history if same tab
+    
     if (index == 0) {
-      setState(() => _selectedIndex = 0);
+      setState(() {
+        _selectedIndex = 0;
+        _navigationHistory.clear();
+        _navigationHistory.add(0);
+      });
     } else if (index == 1) {
       if (_hotelName != null) {
-        setState(() => _selectedIndex = 1);
+        setState(() {
+          _navigationHistory.add(index);
+          _selectedIndex = 1;
+        });
       } else {
-        _showComingSoonDialog(context, 'Otel bilgisi yükleniyor...');
+        _showComingSoonDialog(context, 'Loading hotel info...');
       }
-    } else {
-      _showComingSoonDialog(context, index == 2 ? 'Bildirimler' : 'Ayarlar');
+    } else if (index == 2) {
+      // All Requests - show as tab (like Rooms)
+      if (_hotelName != null) {
+        setState(() {
+          _navigationHistory.add(index);
+          _selectedIndex = 2;
+        });
+      } else {
+        _showComingSoonDialog(context, 'Loading hotel info...');
+      }
+    } else if (index == 3) {
+      _openManagementPanel(context);
     }
+  }
+
+  void _goBack() {
+    if (_navigationHistory.length > 1) {
+      _navigationHistory.removeLast(); // Remove current
+      setState(() {
+        _selectedIndex = _navigationHistory.last;
+      });
+    }
+  }
+
+  void _openManagementPanel(BuildContext context) {
+    showManagementPanel(
+      context: context,
+      hotelName: _hotelName ?? 'Innjoy',
+      userName: userName,
+      onNavigate: (route) {
+        // Close panel first
+        Navigator.pop(context);
+        // Handle routes
+        switch (route) {
+          case 'dashboard':
+            setState(() => _selectedIndex = 0);
+            break;
+          case 'rooms':
+            if (_hotelName != null) setState(() => _selectedIndex = 1);
+            break;
+          case 'housekeeping':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => AdminHousekeepingScreen(hotelName: _hotelName ?? 'Innjoy')),
+            );
+            break;
+          case 'requests':
+            if (_hotelName != null) setState(() => _selectedIndex = 2);
+            break;
+          case 'edits':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ChoseEditScreen(hotelName: _hotelName)),
+            );
+            break;
+          case 'emergency':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const EmergencyAdminScreen()),
+            );
+            break;
+          case 'settings':
+            _showComingSoonDialog(context, 'Settings');
+            break;
+        }
+      },
+      onSignOut: () async {
+        await Auth().signOut();
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const AuthWrapper()),
+            (route) => false,
+          );
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
-      appBar: _selectedIndex == 0 ? _buildAppBar() : null, // Sadece Dashboard'da AppBar göster
-      body: _selectedIndex == 0 
-          ? _buildDashboard() 
-          : AdminRoomManagementScreen(hotelName: _hotelName!),
-      // Alt menü (Odalar/Bildirimler/Ayarlar) kaldırıldı
+    return PopScope(
+      canPop: _navigationHistory.length <= 1, // Only allow pop if at root (Dashboard)
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _navigationHistory.length > 1) {
+          _goBack();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF3F4F6),
+        body: _buildBody(),
+        bottomNavigationBar: _ModernBottomNav(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
+      ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFFF6F7FB),
-        scrolledUnderElevation: 0,
-        titleSpacing: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black87),
-          onPressed: () => _openManagementPanel(context),
-          tooltip: 'Menü',
-        ),
-        automaticallyImplyLeading: false, // Otomatik ok işaretini de kapat
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => HomeScreen(
-                    userName: userName, // State getter'ını kullan
-                    isAdmin: true, 
-                    hotelName: _hotelName, 
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(Icons.visibility, color: Colors.blue, size: 20),
-            label: const Text(
-              'Guest View',
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.admin_panel_settings, color: Colors.orange, size: 18),
-                SizedBox(width: 4),
-                Text(
-                  'Admin Panel',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () async {
-              final shouldLogout = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Çıkış Yap'),
-                  content: const Text('Çıkmak istediğinize emin misiniz?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('İptal'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('Çıkış Yap'),
-                    ),
-                  ],
-                ),
-              );
-              if (shouldLogout == true) {
-                await Auth().signOut();
-                if (context.mounted) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const AuthWrapper()),
-                    (route) => false,
-                  );
-                }
-              }
-            },
-            icon: const Icon(Icons.exit_to_app, color: Colors.red),
-          ),
-        ],
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Yönetici Paneli',
-                style: TextStyle(color: Colors.black54, fontSize: 14),
-              ),
-              Text(
-                userName,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildDashboard();
+      case 1:
+        return AdminRoomManagementScreen(
+          hotelName: _hotelName!,
+          onBack: () => _onItemTapped(0),
+        );
+      case 2:
+        return AdminRequestsScreen(
+          hotelName: _hotelName!,
+        );
+      default:
+        return _buildDashboard();
+    }
   }
 
-  void _openManagementPanel(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        final width = MediaQuery.of(ctx).size.width;
-        final panelWidth = width * 0.82; // like a side sheet
-        return GestureDetector(
-          onTap: () => Navigator.pop(ctx),
-          child: Stack(
-            children: [
-              // Dim background
-              Container(color: Colors.black.withOpacity(0.25)),
-              // Sheet
-              Align(
-                alignment: Alignment.centerLeft,
-                child: SafeArea(
-                  child: Container(
-                    width: panelWidth,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
+
+  Widget _buildDashboard() {
+    return RefreshIndicator(
+      onRefresh: _forceRefresh,
+      color: const Color(0xFF334155),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Curved Header
+            _buildCurvedHeader(),
+            
+            const SizedBox(height: 16),
+            
+            // Main Content
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  // Quick Access Section
+                  const Text(
+                    'Quick Access',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F2937),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                    
+                    // Quick Access Grid
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _QuickAccessCard(
+                            icon: Icons.room_service,
+                            label: 'Room Service',
+                            subtitle: 'Edit Menu',
+                            color: const Color(0xFFFFA726), // Orange 400
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => RoomServiceManagementScreen(
+                                    hotelName: _hotelName ?? '',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _QuickAccessCard(
+                            icon: Icons.restaurant,
+                            label: 'Dining',
+                            subtitle: 'Restaurant & Bar',
+                            color: const Color(0xFF66BB6A), // Green 400
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => RestaurantManagementScreen(
+                                    hotelName: _hotelName ?? 'Urban Joy Hotel',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
-                    child: _ManagementPanel(
-                      hotelName: _hotelName ?? 'Innjoy',
-                      userName: userName,
-                      onNavigate: (route) {
-                        // Close panel first
-                        Navigator.pop(ctx);
-                        // Handle routes
-                        switch (route) {
-                          case 'dashboard':
-                            setState(() => _selectedIndex = 0);
-                            break;
-                          case 'rooms':
-                            if (_hotelName != null) setState(() => _selectedIndex = 1);
-                            break;
-                          case 'housekeeping':
-                            _showComingSoonDialog(context, 'Housekeeping');
-                            break;
-                          case 'requests':
-                            _showComingSoonDialog(context, 'Requests');
-                            break;
-                          case 'edits':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => ChoseEditScreen(hotelName: _hotelName ?? 'Innjoy')),
-                            );
-                            break;
-                          case 'emergency':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const EmergencyAdminScreen()),
-                            );
-                            break;
-                          case 'settings':
-                            _showComingSoonDialog(context, 'Ayarlar');
-                            break;
-                        }
-                      },
-                      onSignOut: () async {
-                        Navigator.pop(ctx);
-                        await Auth().signOut();
-                        if (mounted) {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (_) => const AuthWrapper()),
-                            (route) => false,
-                          );
-                        }
-                      },
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _QuickAccessCard(
+                            icon: Icons.spa,
+                            label: 'Spa & Wellness',
+                            subtitle: 'Appointments',
+                            color: const Color(0xFFEC407A), // Pink 400
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => SpaManagementScreen(
+                                    hotelName: _hotelName ?? '',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _QuickAccessCard(
+                            icon: Icons.event,
+                            label: 'Events',
+                            subtitle: 'Event Management',
+                            color: const Color(0xFF5C6BC0), // Indigo 400
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      AdminEventsScreen(hotelName: _hotelName ?? ''),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _QuickAccessCard(
+                            icon: Icons.edit,
+                            label: 'Edit Services',
+                            subtitle: 'Manage Content',
+                            color: const Color(0xFF26C6DA), // Cyan 400 (using Housekeeping/clean color)
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChoseEditScreen(hotelName: _hotelName),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _QuickAccessCard(
+                            icon: Icons.emergency,
+                            label: 'Emergency',
+                            subtitle: 'Alerts & Safety',
+                            color: const Color(0xFFEF5350), // Red 400
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const EmergencyAdminScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 100), // Bottom padding for nav bar
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildCurvedHeader() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF334155), Color(0xFF1e293b)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          child: Column(
+            children: [
+              // Top Action Buttons
+              Row(
+                children: [
+                  const Spacer(),
+                  AdminActionBar(
+                    activeView: AdminPanelView.admin,
+                    theme: ToggleTheme.dark,
+                    onGuestViewTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => HomeScreen(
+                            userName: userName,
+                            isAdmin: true,
+                            hotelName: _hotelName,
+                          ),
+                        ),
+                      );
+                    },
+                    onAdminPanelTap: () {},
+                    onLogoutTap: () async {
+                      final shouldLogout = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Log Out'),
+                          content: const Text('Are you sure you want to log out?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              style: TextButton.styleFrom(foregroundColor: Colors.red),
+                              child: const Text('Log Out'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (shouldLogout == true && context.mounted) {
+                        final navigator = Navigator.of(context);
+                        await Auth().signOut();
+                        navigator.pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                          (route) => false,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Hotel Info Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _hotelName ?? 'Loading...',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          userName,
+                          style: const TextStyle(
+                            color: Color(0xFFBFDBFE),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // User Avatar
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        color: Color(0xFF6B7280),
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Today's Summary Title
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Today's Summary",
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
+              
+              const SizedBox(height: 20),
+              
+              // Occupancy Stats Row
+              if (_hotelName != null && _hotelName!.isNotEmpty)
+                _buildOccupancyStats()
+              else
+                const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOccupancyStats() {
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: DatabaseService().getHotelInfo(_hotelName!),
+      builder: (context, infoSnapshot) {
+        int totalRooms = 0;
+
+        if (infoSnapshot.hasData && infoSnapshot.data != null) {
+          final data = infoSnapshot.data!;
+          totalRooms = data['totalRooms'] ?? 0;
+        }
+
+        return StreamBuilder<List<Map<String, dynamic>>>(
+          stream: DatabaseService().getHotelReservations(_hotelName!),
+          builder: (context, resSnapshot) {
+            int occupiedRooms = 0;
+            int checkInsToday = 0;
+            int checkOutsToday = 0;
+
+            if (resSnapshot.hasData && resSnapshot.data != null) {
+              final reservations = resSnapshot.data!;
+              occupiedRooms = reservations
+                  .where((r) => r['status'] == 'active' || r['status'] == 'used')
+                  .length;
+              
+              // Calculate today's check-ins and check-outs
+              final now = DateTime.now();
+              final today = DateTime(now.year, now.month, now.day);
+              
+              for (var res in reservations) {
+                // Check-ins: reservations starting today
+                if (res['checkInDate'] != null) {
+                  DateTime? checkIn;
+                  if (res['checkInDate'] is String) {
+                    checkIn = DateTime.tryParse(res['checkInDate']);
+                  }
+                  if (checkIn != null) {
+                    final checkInDay = DateTime(checkIn.year, checkIn.month, checkIn.day);
+                    if (checkInDay == today) {
+                      checkInsToday++;
+                    }
+                  }
+                }
+                
+                // Check-outs: reservations ending today
+                if (res['checkOutDate'] != null) {
+                  DateTime? checkOut;
+                  if (res['checkOutDate'] is String) {
+                    checkOut = DateTime.tryParse(res['checkOutDate']);
+                  }
+                  if (checkOut != null) {
+                    final checkOutDay = DateTime(checkOut.year, checkOut.month, checkOut.day);
+                    if (checkOutDay == today) {
+                      checkOutsToday++;
+                    }
+                  }
+                }
+              }
+            }
+
+            final availableRooms = totalRooms - occupiedRooms;
+            final occupancyPercent = totalRooms > 0 
+                ? ((occupiedRooms / totalRooms) * 100).round() 
+                : 0;
+
+            return StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('hotels')
+                  .doc(_hotelName!)
+                  .collection('room_service')
+                  .doc('orders')
+                  .collection('items')
+                  .where('status', whereIn: ['Active', 'Pending', 'Preparing'])
+                  .snapshots(),
+              builder: (context, ordersSnapshot) {
+                int activeOrders = 0;
+                if (ordersSnapshot.hasData) {
+                  activeOrders = ordersSnapshot.data!.docs.length;
+                }
+                
+                return StreamBuilder<List<Map<String, dynamic>>>(
+                  stream: DatabaseService().getHotelHousekeepingRequests(_hotelName!),
+                  builder: (context, housekeepingSnapshot) {
+                    int activeRequests = 0;
+                    if (housekeepingSnapshot.hasData) {
+                      activeRequests = housekeepingSnapshot.data!
+                          .where((r) => r['status'] == 'Active' || r['status'] == 'Pending' || r['status'] == 'In Progress')
+                          .length;
+                    }
+                    
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        children: [
+                          // First Row: Occupancy Chart + Room Stats
+                          Row(
+                            children: [
+                              // Circular Progress Chart
+                              SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: _CircularOccupancyChart(
+                                  percentage: occupancyPercent,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Stats
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    _HeaderStatItem(
+                                      icon: Icons.meeting_room,
+                                      iconColor: const Color(0xFF93C5FD),
+                                      value: totalRooms.toString(),
+                                      label: 'Total',
+                                    ),
+                                    _HeaderStatItem(
+                                      icon: Icons.person,
+                                      iconColor: const Color(0xFFFDBA74),
+                                      value: occupiedRooms.toString(),
+                                      label: 'Occupied',
+                                    ),
+                                    _HeaderStatItem(
+                                      icon: Icons.check_circle,
+                                      iconColor: const Color(0xFF86EFAC),
+                                      value: availableRooms.toString(),
+                                      label: 'Available',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Divider
+                          Container(
+                            height: 1,
+                            color: Colors.white.withOpacity(0.2),
+                          ),
+                          const SizedBox(height: 16),
+                          // Second Row: Check-ins, Check-outs, Orders, Requests
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _HeaderStatItem(
+                                icon: Icons.login,
+                                iconColor: const Color(0xFF10B981),
+                                value: checkInsToday.toString(),
+                                label: 'Check-ins',
+                              ),
+                              _HeaderStatItem(
+                                icon: Icons.logout,
+                                iconColor: const Color(0xFFF97316),
+                                value: checkOutsToday.toString(),
+                                label: 'Check-outs',
+                              ),
+                              _HeaderStatItem(
+                                icon: Icons.room_service,
+                                iconColor: Colors.orange,
+                                value: activeOrders.toString(),
+                                label: 'Orders',
+                              ),
+                              _HeaderStatItem(
+                                icon: Icons.cleaning_services,
+                                iconColor: const Color(0xFF22C55E),
+                                value: activeRequests.toString(),
+                                label: 'Requests',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildDashboard() {
-    return SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _AdminHotelCard(hotelName: _hotelName ?? 'Yükleniyor...'),
-            const SizedBox(height: 20),
-            const _OccupancySection(),
-            const SizedBox(height: 24),
-            // Otel Yönetimi bölümü kaldırıldı
-            // Events gösterim bölümü (tek örnek kart)
-            const _EventsShowcaseSection(),
-            const SizedBox(height: 24),
-            // Son Aktiviteler bölümü kaldırıldı
-          ],
-      )
-    );
-  }
-
-  // Helper method for ActivityCard if I replaced it with something new, but I am keeping existing ones largely.
-  // Actually, I should just paste the full Dashboard body content into _buildDashboard
-
-
   void _showComingSoonDialog(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$feature - Backend entegrasyonu bekleniyor'),
+        content: Text('$feature - Backend integration pending'),
         behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.orange,
       ),
@@ -317,175 +755,114 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 }
 
-class _AdminHotelCard extends StatelessWidget {
-  final String hotelName;
+// Circular Occupancy Chart Widget
+class _CircularOccupancyChart extends StatelessWidget {
+  final int percentage;
 
-  const _AdminHotelCard({required this.hotelName});
+  const _CircularOccupancyChart({required this.percentage});
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final adminName = user?.displayName ?? 'Yönetici';
-
-    return StreamBuilder<Map<String, dynamic>?>(
-      stream: DatabaseService().getHotelInfo(hotelName),
-      builder: (context, infoSnapshot) {
-        int totalRooms = 0;
-        
-        if (infoSnapshot.hasData && infoSnapshot.data != null) {
-            final data = infoSnapshot.data!;
-            totalRooms = data['totalRooms'] ?? 0;
-        }
-
-        return StreamBuilder<List<Map<String, dynamic>>>(
-          stream: DatabaseService().getHotelReservations(hotelName),
-          builder: (context, resSnapshot) {
-            int occupiedRooms = 0;
-
-            if (resSnapshot.hasData && resSnapshot.data != null) {
-              // 'active' veya 'used' statüsündeki rezervasyonlar dolu sayılır
-              final reservations = resSnapshot.data!;
-              occupiedRooms = reservations.where((r) => r['status'] == 'active' || r['status'] == 'used').length;
-            }
-
-            final availableRooms = totalRooms - occupiedRooms;
-
-            return Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1E3A5F), Color(0xFF2E5077)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1E3A5F).withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+    return CustomPaint(
+      painter: _CircularChartPainter(percentage: percentage),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '$percentage%',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
               ),
-              child: Stack(
-                children: [
-                   Positioned(
-                right: -20,
-                top: -20,
-                child: Icon(
-                  Icons.hotel,
-                  size: 120,
-                  color: Colors.white.withOpacity(0.1),
-                ),
+            ),
+            const Text(
+              'Occupied',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 8,
               ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.business,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                hotelName,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                adminName,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _HotelInfoItem(
-                          label: 'Toplam Oda',
-                          value: totalRooms.toString(),
-                          icon: Icons.meeting_room,
-                        ),
-                         _HotelInfoItem(
-                          label: 'Dolu',
-                          value: occupiedRooms.toString(),
-                          icon: Icons.person,
-                        ),
-                         _HotelInfoItem(
-                          label: 'Müsait',
-                          value: availableRooms.toString(),
-                          icon: Icons.check_circle_outline,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-class _HotelInfoItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
+class _CircularChartPainter extends CustomPainter {
+  final int percentage;
 
-  const _HotelInfoItem({
+  _CircularChartPainter({required this.percentage});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 4;
+
+    // Background circle
+    final bgPaint = Paint()
+      ..color = Colors.white.withOpacity(0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6;
+
+    canvas.drawCircle(center, radius, bgPaint);
+
+    // Progress arc
+    final progressPaint = Paint()
+      ..color = const Color(0xFFFB923C) // Orange
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6
+      ..strokeCap = StrokeCap.round;
+
+    final sweepAngle = (percentage / 100) * 2 * math.pi;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// Header Stat Item Widget
+class _HeaderStatItem extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String value;
+  final String label;
+
+  const _HeaderStatItem({
     required this.icon,
-    required this.label,
+    required this.iconColor,
     required this.value,
+    required this.label,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white70, size: 20),
+        Icon(icon, color: iconColor, size: 22),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           label,
           style: const TextStyle(
-            color: Colors.white60,
-            fontSize: 11,
+            color: Color(0xFFBFDBFE),
+            fontSize: 9,
           ),
         ),
       ],
@@ -493,83 +870,19 @@ class _HotelInfoItem extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AdminServiceTile extends StatelessWidget {
+// Quick Access Card Widget
+class _QuickAccessCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String subtitle;
+  final Color color;
   final VoidCallback? onTap;
 
-  const _AdminServiceTile({
+  const _QuickAccessCard({
     required this.icon,
     required this.label,
     required this.subtitle,
+    required this.color,
     this.onTap,
   });
 
@@ -578,13 +891,14 @@ class _AdminServiceTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -594,27 +908,29 @@ class _AdminServiceTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Icon(icon, color: Colors.orange, size: 24),
+              child: Icon(icon, color: color, size: 22),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               label,
               style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF111827),
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               subtitle,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[500],
+                color: Colors.grey.shade500,
               ),
             ),
           ],
@@ -624,537 +940,92 @@ class _AdminServiceTile extends StatelessWidget {
   }
 }
 
-class _ActivityCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final String time;
-  final Color color;
+// Modern Bottom Navigation
+class _ModernBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
 
-  const _ActivityCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.time,
-    required this.color,
-  });
+  const _ModernBottomNav({required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border(
+          top: BorderSide(color: Colors.grey.shade200),
+        ),
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[400],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Alt navigasyon bileşenleri kaldırıldı
-
-class _ManagementPanel extends StatelessWidget {
-  final String hotelName;
-  final String userName;
-  final void Function(String route) onNavigate;
-  final VoidCallback onSignOut;
-
-  const _ManagementPanel({
-    required this.hotelName,
-    required this.userName,
-    required this.onNavigate,
-    required this.onSignOut,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Row(
-                children: const [
-                  Icon(Icons.apartment, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text('Innjoy', style: TextStyle(fontWeight: FontWeight.w700)),
-                ],
+              _NavItem(
+                icon: Icons.grid_view,
+                label: 'Dashboard',
+                isActive: currentIndex == 0,
+                onTap: () => onTap(0),
               ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
+              _NavItem(
+                icon: Icons.bed,
+                label: 'Rooms',
+                isActive: currentIndex == 1,
+                onTap: () => onTap(1),
+              ),
+              _NavItem(
+                icon: Icons.assignment_ind,
+                label: 'Requests',
+                isActive: currentIndex == 2,
+                onTap: () => onTap(2),
+              ),
+              _NavItem(
+                icon: Icons.menu,
+                label: 'Menu',
+                isActive: currentIndex == 3,
+                onTap: () => onTap(3),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF6F7FB),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const CircleAvatar(radius: 18, backgroundColor: Colors.blue, child: Icon(Icons.person, color: Colors.white)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(userName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      const Text('Front Desk Manager', style: TextStyle(color: Colors.black54, fontSize: 12)),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.chevron_right),
-                )
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          _PanelItem(icon: Icons.dashboard_rounded, label: 'Dashboard', selected: true, onTap: () => onNavigate('dashboard')),
-          _PanelItem(icon: Icons.bed, label: 'Rooms', onTap: () => onNavigate('rooms')),
-          _PanelItem(icon: Icons.cleaning_services, label: 'Housekeeping', onTap: () => onNavigate('housekeeping')),
-          _PanelItem(icon: Icons.inbox, label: 'Requests', badge: '3', onTap: () => onNavigate('requests')),
-          _PanelItem(icon: Icons.edit, label: 'Edits', onTap: () => onNavigate('edits')),
-          _PanelItem(icon: Icons.emergency_share, label: 'Acil Durumlar', onTap: () => onNavigate('emergency')),
-          const Spacer(),
-          const Divider(),
-          _PanelItem(icon: Icons.settings, label: 'Settings', onTap: () => onNavigate('settings')),
-          const SizedBox(height: 8),
-          TextButton.icon(
-            onPressed: onSignOut,
-            icon: const Icon(Icons.logout),
-            label: const Text('Sign Out'),
-          ),
-          const SizedBox(height: 4),
-          const Text('v2.4.0 • Innjoy Management', style: TextStyle(color: Colors.black38, fontSize: 11)),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _PanelItem extends StatelessWidget {
+class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String? badge;
-  final bool selected;
+  final bool isActive;
   final VoidCallback onTap;
 
-  const _PanelItem({
+  const _NavItem({
     required this.icon,
     required this.label,
+    required this.isActive,
     required this.onTap,
-    this.badge,
-    this.selected = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: selected ? Colors.blue.withOpacity(0.12) : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: selected ? Colors.blue : Colors.black87),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-            if (badge != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(badge!, style: const TextStyle(color: Colors.white, fontSize: 12)),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OccupancySection extends StatelessWidget {
-  const _OccupancySection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text('Occupancy', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            _TodayBadge(),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 4)),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(child: _DonutOccupancy(percent: 0.85, totalRooms: 124)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  children: const [
-                    _StatusItem(color: Colors.green, label: 'Ready', value: '12'),
-                    SizedBox(height: 8),
-                    _StatusItem(color: Colors.blue, label: 'In Cleaning', value: '5'),
-                    SizedBox(height: 8),
-                    _StatusItem(color: Colors.red, label: 'Needs Attn', value: '2'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: const [
-            Expanded(child: _MiniStatCard(icon: Icons.login, label: 'Check-ins', value: '14', color: Colors.green)),
-            SizedBox(width: 12),
-            Expanded(child: _MiniStatCard(icon: Icons.logout, label: 'Check-outs', value: '8', color: Colors.orange)),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _TodayBadge extends StatelessWidget {
-  const _TodayBadge();
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.calendar_today, size: 14, color: Colors.black54),
-          SizedBox(width: 6),
-          Text('Today', style: TextStyle(fontSize: 12, color: Colors.black87)),
-        ],
-      ),
-    );
-  }
-}
-
-class _DonutOccupancy extends StatelessWidget {
-  final double percent;
-  final int totalRooms;
-  const _DonutOccupancy({required this.percent, required this.totalRooms});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          height: 100,
-          width: 100,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                height: 100,
-                width: 100,
-                child: CircularProgressIndicator(
-                  value: percent,
-                  strokeWidth: 10,
-                  backgroundColor: Colors.grey.shade200,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('${(percent * 100).round()}%', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                  const Text('OCCUPIED', style: TextStyle(fontSize: 10, color: Colors.black54)),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text('Total Rooms: $totalRooms', style: const TextStyle(fontSize: 11, color: Colors.black54)),
-      ],
-    );
-  }
-}
-
-class _StatusItem extends StatelessWidget {
-  final Color color;
-  final String label;
-  final String value;
-  const _StatusItem({required this.color, required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.circle, color: color, size: 10),
-          const SizedBox(width: 10),
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 13))),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}
-
-class _MiniStatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-  const _MiniStatCard({required this.icon, required this.label, required this.value, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-              Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-            ]),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EventsShowcaseSection extends StatelessWidget {
-  const _EventsShowcaseSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Bugünün Etkinlikleri',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AdminEventsScreen(hotelName: (context.findAncestorStateOfType<_AdminHomeScreenState>()?._hotelName) ?? ''),
-                  ),
-                );
-              },
-              child: const Text('See all'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        _EventCard(
-          title: 'Morning Yoga Flow',
-          location: 'Sky Terrace Deck',
-          timeBadge: '10:00',
-          image: const AssetImage('assets/images/yoga.jpg'),
-        ),
-      ],
-    );
-  }
-}
-
-class _EventCard extends StatelessWidget {
-  final String title;
-  final String location;
-  final String timeBadge;
-  final ImageProvider image;
-
-  const _EventCard({
-    required this.title,
-    required this.location,
-    required this.timeBadge,
-    required this.image,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Image(
-                    image: image,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6, offset: const Offset(0, 2)),
-                    ],
-                  ),
-                  child: Text(
-                    timeBadge,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-            ],
+          Icon(
+            icon,
+            color: isActive ? const Color(0xFFF97316) : Colors.black87,
+            size: 24,
           ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.place_outlined, size: 16, color: Colors.black54),
-                    const SizedBox(width: 6),
-                    Text(
-                      location,
-                      style: const TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
-                  ],
-                ),
-              ],
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isActive ? const Color(0xFFF97316) : Colors.black87,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

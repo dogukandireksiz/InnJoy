@@ -12,25 +12,6 @@ class HotelSelectionScreen extends StatefulWidget {
 }
 
 class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
-  final List<Map<String, String>> _hotels = [
-    {
-      'name': 'Urban Joy Hotel',
-      'image': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
-    },
-    {
-      'name': 'Grand Horizon Suites',
-      'image': 'https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1025&q=80',
-    },
-    {
-      'name': 'Sunset Bay Inn',
-      'image': 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1049&q=80',
-    },
-    {
-      'name': 'Cityscape Central Hotel',
-      'image': 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80',
-    },
-  ];
-
   String _searchQuery = '';
   String? _currentHotelName;
 
@@ -52,26 +33,21 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
     }
   }
 
-  void _onHotelSelected(String hotelName) {
+  void _onHotelSelected(String hotelName, {String? hotelId}) {
     // Eğer kullanıcı zaten bu otele kayıtlıysa direkt ana ekrana git
     if (_currentHotelName != null && _currentHotelName == hotelName) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomeScreen(userName: 'Misafir')),
+        MaterialPageRoute(builder: (_) => HomeScreen(userName: 'Guest')),
       );
     } else {
       // Değilse PNR sor
-      _showPnrDialog(context, hotelName);
+      // Use hotelId if available (for database lookups), otherwise fall back to hotelName
+      _showPnrDialog(context, hotelName, hotelId: hotelId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredHotels = _hotels.where((hotel) {
-      final name = hotel['name']!.toLowerCase();
-      final query = _searchQuery.toLowerCase();
-      return name.contains(query);
-    }).toList();
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -84,7 +60,7 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                   RichText(
+                  RichText(
                     text: const TextSpan(
                       children: [
                         TextSpan(
@@ -132,26 +108,185 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
                     prefixIcon: Icon(Icons.search, color: Colors.grey),
                     hintText: 'Search Hotel',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
 
-              // Hotel List
-              if (filteredHotels.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text('No hotels found', style: TextStyle(color: Colors.grey)),
+              // Hotel List (StreamBuilder)
+              StreamBuilder<List<Map<String, dynamic>>>(
+                stream: DatabaseService().getHotels(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+
+                  final hotels = snapshot.data ?? [];
+
+                  // FORCE SHOW: Urban Joy Hotel (Client-side Only)
+                  // Ensures it appears in the list even if parent doc is missing (Ghost Doc)
+                  // Details will be fetched from 'hotel information' subcollection by the card.
+                  if (!hotels.any(
+                    (h) =>
+                        h['name'] == 'Urban Joy Hotel' ||
+                        h['id'] == 'Urban Joy Hotel',
+                  )) {
+                    hotels.add({
+                      'id': 'Urban Joy Hotel',
+                      'name': 'Urban Joy Hotel',
+                      'hotelName': 'Urban Joy Hotel',
+                      'isManual': true,
+                    });
+                  }
+
+                  // Ensure current user's hotel is in the list if plausible
+                  if (_currentHotelName != null &&
+                      _currentHotelName!.isNotEmpty) {
+                    final exists = hotels.any(
+                      (h) =>
+                          (h['name'] == _currentHotelName) ||
+                          (h['hotelName'] == _currentHotelName) ||
+                          (h['id'] == _currentHotelName),
+                    );
+
+                    if (!exists) {
+                      // Manually add the current hotel so the user can select it
+                      // We assume the stored _currentHotelName is the ID or Name
+                      hotels.add({
+                        'id': _currentHotelName,
+                        'name': _currentHotelName,
+                        'hotelName': _currentHotelName,
+                        'isManual': true, // Marker
+                      });
+                    }
+                  }
+
+                  final filteredHotels = hotels.where((hotel) {
+                    // Use the same name resolution logic as the card
+                    String? name = hotel['name'];
+                    String? hotelName = hotel['hotelName'];
+                    String? id = hotel['id'];
+
+                    String displayName = (name != null && name.isNotEmpty)
+                        ? name
+                        : (hotelName != null && hotelName.isNotEmpty)
+                        ? hotelName
+                        : (id ?? 'Unknown Hotel');
+
+                    final query = _searchQuery.toLowerCase();
+                    return displayName.toLowerCase().contains(query);
+                  }).toList();
+
+                  // Sort: User's hotel first
+                  if (_currentHotelName != null) {
+                    filteredHotels.sort((a, b) {
+                      final aId = a['id'];
+                      final aName = a['name'] ?? a['hotelName'];
+
+                      final bId = b['id'];
+                      final bName = b['name'] ?? b['hotelName'];
+
+                      bool isA =
+                          (aId == _currentHotelName ||
+                          aName == _currentHotelName);
+                      bool isB =
+                          (bId == _currentHotelName ||
+                          bName == _currentHotelName);
+
+                      if (isA && !isB) return -1;
+                      if (!isA && isB) return 1;
+                      return 0;
+                    });
+                  }
+
+                  if (filteredHotels.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          'No hotels found',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: filteredHotels.map((hotel) {
+                      final String hotelId = hotel['id'];
+
+                      // Check if this is the user's hotel
+                      bool isUserHotel = false;
+                      if (_currentHotelName != null) {
+                        isUserHotel =
+                            (hotelId == _currentHotelName) ||
+                            (hotel['name'] == _currentHotelName) ||
+                            (hotel['hotelName'] == _currentHotelName);
+                      }
+
+                      // Base name from the 'hotels' collection document
+                      final String baseName =
+                          hotel['name'] ?? hotel['hotelName'] ?? hotelId;
+
+                      return StreamBuilder<Map<String, dynamic>?>(
+                        stream: DatabaseService().getHotelInfo(hotelId),
+                        builder: (context, infoSnapshot) {
+                          String displayName = baseName;
+                          // Default image if missing
+                          String imageUrl =
+                              'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80';
+
+                          if (infoSnapshot.hasData &&
+                              infoSnapshot.data != null) {
+                            final info = infoSnapshot.data!;
+                            if (info['name'] != null &&
+                                info['name'].toString().isNotEmpty) {
+                              displayName = info['name'];
+                            }
+                            // Also check 'hotelName' inside info, just in case
+                            else if (info['hotelName'] != null &&
+                                info['hotelName'].toString().isNotEmpty) {
+                              displayName = info['hotelName'];
+                            }
+
+                            if (info['imageUrl'] != null &&
+                                info['imageUrl'].toString().isNotEmpty) {
+                              imageUrl = info['imageUrl'];
+                            }
+                          }
+
+                          // If we are still loading the detailed info, show the card with base info
+                          // instead of waiting or showing nothing.
+                          return _HotelCard(
+                            name: displayName,
+                            imageUrl: imageUrl,
+                            isUserHotel: isUserHotel,
+                            onSelect: () =>
+                                _onHotelSelected(displayName, hotelId: hotelId),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+              // Debug info (Temporary - unseen but useful if we could see logs)
+              if (_currentHotelName != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Current Hotel: $_currentHotelName",
+                    style: const TextStyle(fontSize: 10, color: Colors.grey),
                   ),
-                )
-              else
-                ...filteredHotels.map((hotel) => _HotelCard(
-                      name: hotel['name']!,
-                      imageUrl: hotel['image']!,
-                      onSelect: () => _onHotelSelected(hotel['name']!),
-                    )),
+                ),
             ],
           ),
         ),
@@ -159,24 +294,30 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
     );
   }
 
-  void _showPnrDialog(BuildContext context, String hotelName) {
+  void _showPnrDialog(
+    BuildContext context,
+    String hotelName, {
+    String? hotelId,
+  }) {
     final TextEditingController pnrController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('$hotelName Girişi'),
+        title: Text('$hotelName Check-In'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Lütfen resepsiyondan aldığınız 6 haneli PNR kodunu giriniz.'),
+            const Text(
+              'Please enter the 6-digit PNR code you received from reception.',
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: pnrController,
               decoration: const InputDecoration(
-                labelText: 'PNR Kodu',
+                labelText: 'PNR Code',
                 border: OutlineInputBorder(),
-                hintText: 'Örn: XK92M4',
+                hintText: 'e.g. XK92M4',
               ),
               textCapitalization: TextCapitalization.characters,
             ),
@@ -185,7 +326,7 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -202,14 +343,15 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (ctx) => const Center(child: CircularProgressIndicator()),
+                builder: (ctx) =>
+                    const Center(child: CircularProgressIndicator()),
               );
 
               // PNR Doğrulama
               bool isValid = await DatabaseService().verifyAndRedeemPnr(
                 pnrController.text.trim().toUpperCase(),
-                 hotelName, 
-                 userId
+                hotelId ?? hotelName, // Use ID if available, otherwise name
+                userId,
               );
 
               // Loading kapat
@@ -218,13 +360,15 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
               if (isValid) {
                 // Başarılı -> PreTripScreen'e yönlendir
                 navigator.pushReplacement(
-                  MaterialPageRoute(builder: (_) => HomeScreen(userName: 'Misafir')),
+                  MaterialPageRoute(
+                    builder: (_) => HomeScreen(userName: 'Guest'),
+                  ),
                 );
               } else {
                 // Hata göster
                 messenger.showSnackBar(
                   const SnackBar(
-                    content: Text('Geçersiz veya kullanılmış PNR kodu!'),
+                    content: Text('Invalid or already used PNR code!'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -234,7 +378,7 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
               backgroundColor: const Color(0xFF5A67D8),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Giriş Yap'),
+            child: const Text('Check In'),
           ),
         ],
       ),
@@ -246,11 +390,13 @@ class _HotelCard extends StatelessWidget {
   final String name;
   final String imageUrl;
   final VoidCallback onSelect;
+  final bool isUserHotel;
 
   const _HotelCard({
     required this.name,
     required this.imageUrl,
     required this.onSelect,
+    this.isUserHotel = false,
   });
 
   @override
@@ -261,7 +407,9 @@ class _HotelCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         image: DecorationImage(
-          image: NetworkImage(imageUrl),
+          image: imageUrl.startsWith('http')
+              ? NetworkImage(imageUrl) as ImageProvider
+              : AssetImage(imageUrl),
           fit: BoxFit.cover,
         ),
         boxShadow: [
@@ -281,10 +429,7 @@ class _HotelCard extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.7),
-                ],
+                colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
               ),
             ),
           ),
@@ -295,26 +440,60 @@ class _HotelCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                        color: Colors.black54,
+                Row(
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22, // Reduced slightly to fit badge if needed
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                            color: Colors.black54,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    if (isUserHotel)
+                      Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Text(
+                          'Your Hotel',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 GestureDetector(
                   onTap: onSelect,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.25),
                       borderRadius: BorderRadius.circular(12),

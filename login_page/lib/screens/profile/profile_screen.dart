@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:login_page/service/auth.dart';
 import '../../widgets/auth_wrapper.dart';
 import 'change_password_screen.dart';
 import '../../utils/custom_dialog.dart';
 import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
-import 'package:login_page/service/database_service.dart';
-import './notifications_chose_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,8 +17,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final user = FirebaseAuth.instance.currentUser;
-  final DatabaseService _dbService = DatabaseService();
-  
 
   String get userName {
     if (user?.displayName != null && user!.displayName!.isNotEmpty) {
@@ -30,6 +27,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return user!.email!.split('@').first;
     }
     return 'Guest';
+  }
+
+  Stream<Map<String, dynamic>?> _getUserAccommodationStream() {
+    if (user == null) return Stream.value(null);
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .snapshots()
+        .map((snapshot) => snapshot.data());
+  }
+
+  String _monthName(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
   }
 
   @override
@@ -180,54 +192,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _InfoCard(
-                    children: [
-                      _InfoItem(
-                        icon: Icons.hotel_outlined,
-                        label: 'Hotel',
-                        value: 'GrandHyatt Hotel',
-                      ),
-                      const Divider(height: 1),
-                      FutureBuilder<String>(
-                        future: _dbService.getUserRoomNumber(),
-                        builder: (context,snapshot){
-                          String displayValue = "...";
-                          if (snapshot.hasData) {
-                            displayValue = snapshot.data!;
-                          } else if (snapshot.hasError) {
-                            displayValue = "Hata";
-                          }
-
-                          // Ekrana basılan widget
-                          return _InfoItem(
+                  StreamBuilder<Map<String, dynamic>?>(
+                    stream: _getUserAccommodationStream(),
+                    builder: (context, snapshot) {
+                      final data = snapshot.data;
+                      final hotelName = data?['hotelName'] ?? 'Not available';
+                      final roomNumber = data?['roomNumber'] ?? '-';
+                      final checkIn = data?['checkInDate'];
+                      final checkOut = data?['checkOutDate'];
+                      
+                      String checkInStr = '-';
+                      String checkOutStr = '-';
+                      
+                      if (checkIn != null) {
+                        final dt = checkIn is Timestamp ? checkIn.toDate() : DateTime.now();
+                        checkInStr = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+                      }
+                      if (checkOut != null) {
+                        final dt = checkOut is Timestamp ? checkOut.toDate() : DateTime.now();
+                        checkOutStr = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+                      }
+                      
+                      return _InfoCard(
+                        children: [
+                          _InfoItem(
+                            icon: Icons.hotel_outlined,
+                            label: 'Hotel',
+                            value: hotelName,
+                          ),
+                          const Divider(height: 1),
+                          _InfoItem(
                             icon: Icons.door_front_door_outlined,
                             label: 'Room Number',
-                            value: displayValue, 
-                          );
-                        },
-                      ), 
-                        
-   
-                     
-                      const Divider(height: 1),
-                      _InfoItem(
-                        icon: Icons.calendar_today_outlined,
-                        label: 'Check-in Date',
-                        value: '10 Kasım 2025',
-                      ),
-                      const Divider(height: 1),
-                      _InfoItem(
-                        icon: Icons.event_outlined,
-                        label: 'Check-out Date',
-                        value: '15 Kasım 2025',
-                      ),
-                      const Divider(height: 1),
-                      _InfoItem(
-                        icon: Icons.people_outline,
-                        label: 'Number of Guests',
-                        value: '2 Adults',
-                      ),
-                    ],
+                            value: roomNumber,
+                          ),
+                          const Divider(height: 1),
+                          _InfoItem(
+                            icon: Icons.calendar_today_outlined,
+                            label: 'Check-in Date',
+                            value: checkInStr,
+                          ),
+                          const Divider(height: 1),
+                          _InfoItem(
+                            icon: Icons.event_outlined,
+                            label: 'Check-out Date',
+                            value: checkOutStr,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
@@ -254,14 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _SettingsItem(
                         icon: Icons.notifications_outlined,
                         label: 'Notifications',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const NotificationsChoseScreen(),
-                            ),
-                          );
-                        },
+                        onTap: () {},
                       ),
                       const Divider(height: 1),
                       _SettingsItem(

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../service/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class EventsActivitiesManageScreen extends StatefulWidget {
   final String hotelName;
@@ -21,18 +24,26 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
   final _eventNameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
+  final _imageUrlController = TextEditingController();
   final _capacityController = TextEditingController(text: '50');
   
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  bool _isPublished = false;
-  String? _selectedImage; // Asset path for now
+  bool _isPublished = true; // Default: Yayınla açık
+  String? _selectedImage; // Asset path or URL
+  File? _imageFile;
   
-  // Mock image list for selection
-  final List<String> _availableImages = [
-    'assets/images/arkaplanyok.png',
-    'assets/images/arkaplanyok1.png',
-    'assets/images/arkaplan.jpg',
+  // Validation error tracking
+  bool _dateError = false;
+  bool _timeError = false;
+  
+  String? _selectedCategory;
+  final List<String> _categories = [
+    'Entertainment',
+    'Wellness & Life',
+    'Sports',
+    'Kids',
+    'Food & Beverage'
   ];
 
   @override
@@ -41,40 +52,42 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
     if (widget.eventToEdit != null) {
       final e = widget.eventToEdit!;
       _eventNameController.text = e['title'] ?? '';
-      _descriptionController.text = e['description'] ?? ''; // Assuming description field
+      _descriptionController.text = e['description'] ?? '';
       _locationController.text = e['location'] ?? '';
       _capacityController.text = (e['capacity'] ?? 50).toString();
       _isPublished = e['isPublished'] ?? false;
       _selectedImage = e['imageAsset'];
+      _selectedCategory = e['category'];
       
       // Timestamp to DateTime
       if (e['date'] != null) {
         if (e['date'] is Timestamp) {
           _selectedDate = (e['date'] as Timestamp).toDate();
         } else if (e['date'] is DateTime) {
-          _selectedDate = e['date']; // For compatibility if passed as DateTime locally
+          _selectedDate = e['date'];
         }
       }
 
-      // Time conversion (stored as string "HH:MM AG/PM" or similar, stick to string for simplicity as per existing logic, or parse it)
-      // The previous code stored time as string. Let's try to parse it or just set it if we stored it as discrete fields.
-      // For simplicity, let's assume we store 'time' as a string in the previous dummy data.
-      // But for better management, we should probably store hour/minute or a DateTime.
-      // Existing dummy data used formatted string "4:00 PM - 5:00 PM".
-      // Let's stick to generating that string, but for editing, we might lose precision if we don't parse.
-      // For this task, I'll clear the time if it's complex, or try to parse if standard.
-      // Let's just reset time for now if it's a new edit unless we store struct.
-      // Actually, let's look at the read code. It was a string.
-      // Let's add a todo or just keep it simple: User re-selects time or we parse simple "HH:MM".
+      // Time conversion
       if (e['timeRaw'] != null) {
-         // Assuming we will store 'timeRaw' as "HH:MM" for easier parsing back
          final parts = (e['timeRaw'] as String).split(':');
          if (parts.length == 2) {
            _selectedTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
          }
       }
-    } else {
-       _selectedImage = _availableImages.first;
+
+      if (_selectedImage != null && _selectedImage!.startsWith('http')) {
+        _imageUrlController.text = _selectedImage!;
+      }
+    }
+    _imageUrlController.addListener(_onUrlChanged);
+  }
+
+  void _onUrlChanged() {
+    if (_imageFile == null) {
+      setState(() {
+        _selectedImage = _imageUrlController.text;
+      });
     }
   }
 
@@ -84,7 +97,21 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
     _descriptionController.dispose();
     _locationController.dispose();
     _capacityController.dispose();
+    // _imageUrlController.dispose(); // Removing standard dispose to avoid issues if re-initializing, or keeping it but ensuring clean state.
+    _imageUrlController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image != null) {
+      setState(() {
+        _imageFile = File(image.path);
+        _selectedImage = null; // Prioritize local file
+      });
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -114,35 +141,62 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
+  void _selectTime(BuildContext context) {
+    showCupertinoModalPopup(
       context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.blue,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
+      builder: (_) => Container(
+        height: 300,
+        color: Colors.white,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: Colors.grey[100],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Select Time', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: const Text('OK', style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                    )),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
             ),
-          ),
-          child: child!,
-        );
-      },
+            Expanded(
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                use24hFormat: true,
+                initialDateTime: DateTime(
+                  DateTime.now().year,
+                  DateTime.now().month,
+                  DateTime.now().day,
+                  _selectedTime?.hour ?? 12,
+                  _selectedTime?.minute ?? 0,
+                ),
+                onDateTimeChanged: (val) {
+                  setState(() {
+                    _selectedTime = TimeOfDay.fromDateTime(val);
+                    _timeError = false;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
-    if (picked != null && picked != _selectedTime) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
   }
 
   String _formatDate(DateTime date) {
     const months = [
-      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -154,19 +208,15 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
   }
 
   Future<void> _saveEvent() async {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lütfen tarih seçiniz'), backgroundColor: Colors.red),
-        );
-        return;
-      }
-      if (_selectedTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lütfen saat seçiniz'), backgroundColor: Colors.red),
-        );
-        return;
-      }
+    // Check date and time validation
+    setState(() {
+      _dateError = _selectedDate == null;
+      _timeError = _selectedTime == null;
+    });
+    
+    if (!_formKey.currentState!.validate() || _dateError || _timeError) {
+      return;
+    }
 
       final timeString = _formatTime(_selectedTime!);
       // Combine date and time to sorting date
@@ -178,14 +228,28 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
         _selectedTime!.minute,
       );
 
+      // Upload if new file selected
+      if (_imageFile != null) {
+        try {
+          _selectedImage = await DatabaseService().uploadEventImage(
+            _imageFile!, 
+            widget.hotelName
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to upload image: $e')));
+          return;
+        }
+      }
+
       final eventData = {
         'title': _eventNameController.text,
         'description': _descriptionController.text, // New field, make sure to display it if needed
         'location': _locationController.text,
         'capacity': int.parse(_capacityController.text),
+        'category': _selectedCategory,
         'registered': widget.eventToEdit?['registered'] ?? 0,
         'isPublished': _isPublished,
-        'imageAsset': _selectedImage,
+        'imageAsset': _selectedImage ?? 'assets/images/arkaplanyok.png', // Fallback or URL
         'date': Timestamp.fromDate(dateTime),
         'time': timeString, // Display string
         'timeRaw': timeString, // For parsing back
@@ -199,7 +263,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
           await DatabaseService().addEvent(widget.hotelName, eventData);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${_eventNameController.text} oluşturuldu'), backgroundColor: Colors.green),
+              SnackBar(content: Text('${_eventNameController.text} created'), backgroundColor: Colors.green),
             );
           }
         } else {
@@ -207,7 +271,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
           await DatabaseService().updateEvent(widget.hotelName, widget.eventToEdit!['id'], eventData);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${_eventNameController.text} güncellendi'), backgroundColor: Colors.green),
+              SnackBar(content: Text('${_eventNameController.text} updated'), backgroundColor: Colors.green),
             );
           }
         }
@@ -215,11 +279,74 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
       } catch (e) {
         if (mounted) {
            ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
           );
         }
       }
+  }
+
+  Widget _buildPlaceholder() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.add_a_photo, size: 40, color: Colors.grey[400]),
+          const SizedBox(height: 8),
+          Text(
+            'Add Image',
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImagePreview() {
+    // 1. Önce dosya varsa göster
+    if (_imageFile != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.file(_imageFile!, fit: BoxFit.cover),
+      );
     }
+    
+    // 2. URL girilmişse göster
+    if (_imageUrlController.text.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.network(
+          _imageUrlController.text,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildPlaceholder(),
+        ),
+      );
+    }
+    
+    // 3. Seçili görsel varsa (düzenleme modunda)
+    if (_selectedImage != null && _selectedImage!.isNotEmpty) {
+      if (_selectedImage!.startsWith('http')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.network(
+            _selectedImage!,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildPlaceholder(),
+          ),
+        );
+      } else if (_selectedImage!.startsWith('assets')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.asset(
+            _selectedImage!,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildPlaceholder(),
+          ),
+        );
+      }
+    }
+    
+    // 4. Hiçbiri yoksa placeholder göster
+    return _buildPlaceholder();
   }
 
   @override
@@ -235,7 +362,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          widget.eventToEdit == null ? 'Yeni Etkinlik' : 'Etkinliği Düzenle',
+          widget.eventToEdit == null ? 'New Event' : 'Edit Event',
           style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -251,87 +378,55 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Upload Event Image Section
-              Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey[200]!),
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: _buildImagePreview(),
                 ),
+              ),
+
+              // Image URL Input
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_selectedImage != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(
-                          _selectedImage!,
-                          height: 150,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const SizedBox(
-                               height: 60,
-                               child: Center(child: Icon(Icons.broken_image, color: Colors.grey)),
-                            );
-                          },
-                        ),
-                      )
-                    else 
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.cloud_upload_outlined,
-                          color: Colors.blue,
-                          size: 32,
-                        ),
-                      ),
-                    const SizedBox(height: 12),
                     const Text(
-                      'Etkinlik Görseli',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+                      'or Image URL',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
                     ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 50,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _availableImages.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (context, index) {
-                          final img = _availableImages[index];
-                          final isSelected = img == _selectedImage;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedImage = img;
-                              });
-                            },
-                            child: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                border: isSelected ? Border.all(color: Colors.blue, width: 2) : null,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
-                                child: Image.asset(img, fit: BoxFit.cover),
-                              ),
-                            ),
-                          );
-                        },
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _imageUrlController,
+                      decoration: InputDecoration(
+                        hintText: 'https://example.com/image.jpg',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.link, color: Colors.grey[500]),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[200]!),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[200]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.blue),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       ),
-                    )
+                      keyboardType: TextInputType.url,
+                    ),
                   ],
                 ),
               ),
@@ -343,7 +438,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Etkinlik Detayları',
+                      'Event Details',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -354,14 +449,14 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
 
                     // Event Name
                     const Text(
-                      'Etkinlik Adı',
+                      'Event Name',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _eventNameController,
                       decoration: InputDecoration(
-                        hintText: 'Örn: Sabah Yogası',
+                        hintText: 'Ex: Karaoke Night',
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.grey[50],
@@ -381,16 +476,54 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Etkinlik adı gereklidir';
+                          return 'Event name is required';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 20),
 
+                    // Kategori Dropdown
+                    const Text(
+                      'Category',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      decoration: InputDecoration(
+                        hintText: 'Select Category',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[200]!),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey[200]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.blue),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      ),
+                      items: _categories.map((cat) {
+                        return DropdownMenuItem(
+                          value: cat,
+                          child: Text(cat),
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => _selectedCategory = val),
+                      validator: (v) => v == null ? 'Please select a category' : null,
+                    ),
+                    const SizedBox(height: 20),
+
                     // Description
                     const Text(
-                      'Açıklama',
+                      'Description',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
                     ),
                     const SizedBox(height: 8),
@@ -398,7 +531,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                       controller: _descriptionController,
                       maxLines: 4,
                       decoration: InputDecoration(
-                        hintText: 'Etkinlik hakkında detaylı bilgi...',
+                        hintText: 'Detailed information about the event...',
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.grey[50],
@@ -418,20 +551,13 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Açıklama gereklidir';
+                          return 'Description is required';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
-
-                    // Logistics Section
-                    const Text(
-                      'Lojistik',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 16),
-
+                    
                     // Date and Time Row
                     Row(
                       children: [
@@ -439,7 +565,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Tarih', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                              const Text('Date', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
                               const SizedBox(height: 8),
                               GestureDetector(
                                 onTap: () => _selectDate(context),
@@ -448,21 +574,26 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                   decoration: BoxDecoration(
                                     color: Colors.grey[50],
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey[200]!),
+                                    border: Border.all(color: _dateError ? Colors.red : Colors.grey[200]!),
                                   ),
                                   child: Row(
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          _selectedDate != null ? _formatDate(_selectedDate!) : 'Tarih Seç',
+                                          _selectedDate != null ? _formatDate(_selectedDate!) : 'Select Date',
                                           style: TextStyle(color: _selectedDate != null ? Colors.black87 : Colors.grey[400], fontSize: 14),
                                         ),
                                       ),
-                                      Icon(Icons.calendar_today, color: Colors.grey[600], size: 20),
+                                      Icon(Icons.calendar_today, color: _dateError ? Colors.red : Colors.grey[600], size: 20),
                                     ],
                                   ),
                                 ),
                               ),
+                              if (_dateError)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6, left: 4),
+                                  child: Text('Select a date', style: TextStyle(color: Colors.red[700], fontSize: 12)),
+                                ),
                             ],
                           ),
                         ),
@@ -471,7 +602,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Saat', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                              const Text('Time', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
                               const SizedBox(height: 8),
                               GestureDetector(
                                 onTap: () => _selectTime(context),
@@ -480,21 +611,26 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                   decoration: BoxDecoration(
                                     color: Colors.grey[50],
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey[200]!),
+                                    border: Border.all(color: _timeError ? Colors.red : Colors.grey[200]!),
                                   ),
                                   child: Row(
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          _selectedTime != null ? _formatTime(_selectedTime!) : 'Saat Seç',
+                                          _selectedTime != null ? _formatTime(_selectedTime!) : 'Select Time',
                                           style: TextStyle(color: _selectedTime != null ? Colors.black87 : Colors.grey[400], fontSize: 14),
                                         ),
                                       ),
-                                      Icon(Icons.access_time, color: Colors.grey[600], size: 20),
+                                      Icon(Icons.access_time, color: _timeError ? Colors.red : Colors.grey[600], size: 20),
                                     ],
                                   ),
                                 ),
                               ),
+                              if (_timeError)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6, left: 4),
+                                  child: Text('Select a time', style: TextStyle(color: Colors.red[700], fontSize: 12)),
+                                ),
                             ],
                           ),
                         ),
@@ -509,12 +645,12 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Konum', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                              const Text('Location', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
                               const SizedBox(height: 8),
                               TextFormField(
                                 controller: _locationController,
                                 decoration: InputDecoration(
-                                  hintText: 'Havuz kenarı',
+                                  hintText: 'Poolside',
                                   hintStyle: TextStyle(color: Colors.grey[400]),
                                   filled: true,
                                   fillColor: Colors.grey[50],
@@ -534,7 +670,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Konum gerekli';
+                                    return 'Location is required';
                                   }
                                   return null;
                                 },
@@ -547,7 +683,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Kapasite', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                              const Text('Capacity', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
                               const SizedBox(height: 8),
                               TextFormField(
                                 controller: _capacityController,
@@ -573,10 +709,10 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Kapasite gerekli';
+                                    return 'Capacity is required';
                                   }
                                   if (int.tryParse(value) == null) {
-                                    return 'Sayı girin';
+                                    return 'Enter a number';
                                   }
                                   return null;
                                 },
@@ -589,7 +725,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                     const SizedBox(height: 24),
 
                     // Visibility Section
-                    const Text('Görünürlük', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87)),
+                    const Text('Visibility', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87)),
                     const SizedBox(height: 12),
 
                     // Publish Toggle
@@ -606,8 +742,8 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Yayınla', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                                Text('Etkinliği misafirler için görünür yap.', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                                const Text('Publish', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                                Text('Make event visible to guests.', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                               ],
                             ),
                           ),
@@ -645,7 +781,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                     elevation: 0,
                   ),
                   child: Text(
-                    widget.eventToEdit == null ? 'Kaydet' : 'Değişiklikleri Kaydet',
+                    widget.eventToEdit == null ? 'Save' : 'Save Changes',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -653,7 +789,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('İptal', style: TextStyle(color: Colors.blue, fontSize: 16, fontWeight: FontWeight.w500)),
+                child: const Text('Cancel', style: TextStyle(color: Colors.blue, fontSize: 16, fontWeight: FontWeight.w500)),
               ),
             ],
           ),
