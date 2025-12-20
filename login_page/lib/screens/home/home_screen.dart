@@ -18,10 +18,11 @@ import '../../widgets/auth_wrapper.dart';
 import '../customer/my_plans_screen.dart';
 import '../requests/customer_requests_screen.dart';
 import '../payment/spending_tracker_screen.dart';
-
+import '../../map/map_screen.dart';
 import 'admin_home_screen.dart';
 import '../../widgets/custom_top_navigation_bar.dart';
 import '../../widgets/admin_action_bar.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Ana Ekran (Home Screen)
 ///
@@ -663,9 +664,9 @@ class _HomeScreenState extends State<HomeScreen> {
         width: 52,
         child: FloatingActionButton(
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const EmergencyScreen())
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const EmergencyScreen()));
           },
           backgroundColor: Colors.red,
           elevation: 4,
@@ -690,6 +691,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 .then(
                   (_) => _forceRefreshData(),
                 ); // Refresh data after profile changes
+          } else if (item == _BottomItem.map) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const MapScreen(
+                  selectedLocation: LatLng(
+                    37.21597166446968,
+                    28.3524471232014584,
+                  ),
+                ),
+              ),
+            );
           }
         },
       ),
@@ -1309,7 +1321,7 @@ class _SpendingCard extends StatelessWidget {
   }
 }
 
-enum _BottomItem { home, theme, services, profile }
+enum _BottomItem { home, map, services, profile }
 
 /// Özel Alt Navigasyon Çubuğu (Custom Bottom Bar)
 ///
@@ -1356,10 +1368,10 @@ class _CustomBottomBar extends StatelessWidget {
                           onTap: () => onTap?.call(_BottomItem.home),
                         ),
                         _BottomBarItem(
-                          icon: Icons.brightness_6,
-                          label: 'Theme',
+                          icon: Icons.map,
+                          label: 'Map',
                           labelStyle: labelStyle,
-                          onTap: () => onTap?.call(_BottomItem.theme),
+                          onTap: () => onTap?.call(_BottomItem.map),
                         ),
                       ],
                     ),

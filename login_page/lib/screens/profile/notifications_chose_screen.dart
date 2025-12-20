@@ -1,14 +1,45 @@
 import 'package:flutter/material.dart';
+import '../../service/database_service.dart';
 
 class NotificationsChoseScreen extends StatefulWidget {
   const NotificationsChoseScreen({super.key});
 
   @override
-  State<NotificationsChoseScreen> createState() => _NotificationsChoseScreenState();
+  State<NotificationsChoseScreen> createState() =>
+      _NotificationsChoseScreenState();
 }
 
 class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
-  final List<bool> _values = List<bool>.filled(6, false);
+  List<bool> _values = List<bool>.filled(6, false);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInterests();
+  }
+
+  Future<void> _loadUserInterests() async {
+    final interests = await DatabaseService().getUserInterests();
+    if (!mounted) return;
+
+    setState(() {
+      // Mevcut etiketler ile veritabanından gelenleri eşleştir
+      final labels = [
+        'Entertainment',
+        'Wellness & Life',
+        'Sports',
+        'Kids',
+        'Food & Beverage',
+        'Other',
+      ];
+
+      for (int i = 0; i < labels.length; i++) {
+        if (interests.contains(labels[i])) {
+          _values[i] = true;
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +105,11 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
         ),
         title: const Text(
           'Notifications',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
       ),
       body: ListView.separated(
@@ -127,7 +162,31 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
               child: SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: hasAnyOn ? () => Navigator.pop(context) : null,
+                  onPressed: hasAnyOn
+                      ? () async {
+                          // Seçili kategorileri listele
+                          List<String> selectedInterests = [];
+                          for (int i = 0; i < _values.length; i++) {
+                            if (_values[i]) {
+                              selectedInterests.add(labels[i]);
+                            }
+                          }
+
+                          // Veritabanına kaydet
+                          await DatabaseService().updateUserInterests(
+                            selectedInterests,
+                          );
+
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Tercihler kaydedildi ✅"),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          }
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
@@ -173,7 +232,9 @@ class _CardBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = usePurpleToggle ? const Color(0xFF7E57C2) : Colors.blue;
+    final Color activeColor = usePurpleToggle
+        ? const Color(0xFF7E57C2)
+        : Colors.blue;
     return Container(
       height: 96,
       decoration: BoxDecoration(
@@ -239,11 +300,8 @@ class _CardBlock extends StatelessWidget {
                     begin: const Color(0xFFB0B4BB),
                     end: value ? activeColor : const Color(0xFFB0B4BB),
                   ),
-                  builder: (context, color, _) => Icon(
-                    Icons.notifications_none,
-                    size: 16,
-                    color: color,
-                  ),
+                  builder: (context, color, _) =>
+                      Icon(Icons.notifications_none, size: 16, color: color),
                 )
               else
                 const SizedBox(height: 16),
@@ -254,7 +312,7 @@ class _CardBlock extends StatelessWidget {
                 purpleTheme: usePurpleToggle,
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -266,7 +324,11 @@ class _Toggle extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   final bool purpleTheme;
 
-  const _Toggle({required this.value, required this.onChanged, this.purpleTheme = false});
+  const _Toggle({
+    required this.value,
+    required this.onChanged,
+    this.purpleTheme = false,
+  });
 
   @override
   Widget build(BuildContext context) {

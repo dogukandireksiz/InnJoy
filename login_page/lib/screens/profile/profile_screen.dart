@@ -7,6 +7,7 @@ import 'change_password_screen.dart';
 import '../../utils/custom_dialog.dart';
 import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
+import './notifications_chose_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -39,8 +40,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _monthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -58,7 +71,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         title: const Text(
           'Profile',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
         actions: [
           IconButton(
@@ -132,17 +149,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // E-posta
                   Text(
                     user?.email ?? 'email@example.com',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Kişisel Bilgiler
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -151,10 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const Text(
                     'Personal Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 12),
                   _InfoCard(
@@ -175,9 +186,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Konaklama Bilgileri
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -186,10 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const Text(
                     'Accommodation Details',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 12),
                   StreamBuilder<Map<String, dynamic>?>(
@@ -200,19 +208,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       final roomNumber = data?['roomNumber'] ?? '-';
                       final checkIn = data?['checkInDate'];
                       final checkOut = data?['checkOutDate'];
-                      
+
                       String checkInStr = '-';
                       String checkOutStr = '-';
-                      
+
                       if (checkIn != null) {
-                        final dt = checkIn is Timestamp ? checkIn.toDate() : DateTime.now();
-                        checkInStr = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+                        final dt = checkIn is Timestamp
+                            ? checkIn.toDate()
+                            : DateTime.now();
+                        checkInStr =
+                            '${dt.day} ${_monthName(dt.month)} ${dt.year}';
                       }
                       if (checkOut != null) {
-                        final dt = checkOut is Timestamp ? checkOut.toDate() : DateTime.now();
-                        checkOutStr = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+                        final dt = checkOut is Timestamp
+                            ? checkOut.toDate()
+                            : DateTime.now();
+                        checkOutStr =
+                            '${dt.day} ${_monthName(dt.month)} ${dt.year}';
                       }
-                      
+
                       return _InfoCard(
                         children: [
                           _InfoItem(
@@ -245,9 +259,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Ayarlar ve Tercihler
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -256,10 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const Text(
                     'Settings',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 12),
                   _SettingsCard(
@@ -267,7 +278,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _SettingsItem(
                         icon: Icons.notifications_outlined,
                         label: 'Notifications',
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationsChoseScreen(),
+                            ),
+                          );
+                        },
                       ),
                       const Divider(height: 1),
                       _SettingsItem(
@@ -284,7 +302,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ChangePasswordScreen(),
+                              builder: (context) =>
+                                  const ChangePasswordScreen(),
                             ),
                           );
                         },
@@ -354,9 +373,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Çıkış Yap Butonu
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -377,7 +396,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       await Auth().signOut();
                       if (context.mounted) {
                         Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                          MaterialPageRoute(
+                            builder: (context) => const AuthWrapper(),
+                          ),
                           (route) => false,
                         );
                       }
@@ -401,7 +422,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
           ],
         ),
@@ -467,10 +488,7 @@ class _InfoItem extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -556,10 +574,7 @@ class _SettingsItem extends StatelessWidget {
             if (trailing != null) ...[
               Text(
                 trailing!,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(width: 8),
             ],

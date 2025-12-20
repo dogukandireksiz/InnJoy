@@ -1719,42 +1719,75 @@ class DatabaseService {
     required String roomNumber,
     required String locationContext,
   }) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) throw Exception("User not logged in");
-
     try {
-      // Get user's hotel first
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      final hotelName = userDoc.data()?['hotelName'];
-      if (hotelName == null) throw Exception("Hotel not found");
-
-      await FirebaseFirestore.instance
-          .collection('hotels')
-          .doc(hotelName)
-          .collection('emergency_alerts')
-          .add({
-        'emergencyType': emergencyType,
-        'roomNumber': roomNumber,
-        'locationContext': locationContext,
-        'userId': user.uid,
+      await _db.collection('emergency_alerts').add({
+        'type': emergencyType,
+        'room_number': roomNumber,
+        'user_uid': _auth.currentUser?.uid,
         'timestamp': FieldValue.serverTimestamp(),
         'status': 'active',
+        'location_context': locationContext,
       });
     } catch (e) {
-      debugPrint("sendEmergencyAlert Error: $e");
-      rethrow;
+      throw Exception("Bildirim gönderilemedi: $e");
     }
   }
 
-  /// Get real-time stream for room/location emergency data
+  // Oda verilerini dinleyen Stream (UI'daki StreamBuilder için)
   Stream<DocumentSnapshot> getRoomStream(String documentId) {
-    return FirebaseFirestore.instance
-        .collection('emergency_routes')
-        .doc(documentId)
+    return _db.collection('rooms').doc(documentId).snapshots();
+  }
+
+  // --- BİLDİRİM TERCİHLERİ ---
+
+  // 1. Kullanıcının seçtiği ilgi alanlarını getir
+  Future<List<String>> getUserInterests() async {
+    User? user = _auth.currentUser;
+    if (user == null) return [];
+
+    try {
+      DocumentSnapshot doc = await _db.collection('users').doc(user.uid).get();
+      if (doc.exists && doc.data() != null) {
+        var data = doc.data() as Map<String, dynamic>;
+        if (data.containsKey('interests')) {
+          return List<String>.from(data['interests']);
+        }
+      }
+      return [];
+    } catch (e) {
+      print("İlgi alanları çekilemedi: $e");
+      return [];
+    }
+  }
+
+  // 2. Kullanıcının ilgi alanlarını güncelle
+  Future<void> updateUserInterests(List<String> interests) async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await _db.collection('users').doc(user.uid).set({
+        'interests': interests,
+      }, SetOptions(merge: true));
+    }
+  }
+
+  // 3. İlgi alanlarına göre yeni etkinlikleri dinle
+  Stream<QuerySnapshot> listenForInterestEvents(
+    String hotelName,
+    List<String> interests,
+  ) {
+    // Sadece şu andan sonra eklenen/güncellenen etkinlikleri dinle
+    // Not: 'createdAt' veya benzeri bir zaman damgası etkinliklerde olmalı.
+    // Şimdilik sadece dinleyici ekliyoruz, client tarafında filtreleme yapacağız.
+    // Firestore whereIn sorgusu ile sadece ilgili kategorileri dinle
+
+    if (interests.isEmpty) return const Stream.empty();
+
+    return _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('events')
+        .where('category', whereIn: interests)
+        // .where('createdAt', isGreaterThan: Timestamp.now()) // Eğer etkinliklerde createdAt varsa bunu açın
         .snapshots();
   }
 }

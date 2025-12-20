@@ -5,6 +5,8 @@ class LocationModel {
   final String fireExitNote;
   final String fireExitDistance;
   final String? imageUrl; // Resim opsiyonel olabilir
+  final double latitude;
+  final double longitude;
 
   LocationModel({
     required this.id,
@@ -13,6 +15,8 @@ class LocationModel {
     required this.fireExitNote,
     required this.fireExitDistance,
     this.imageUrl,
+    required this.latitude,
+    required this.longitude,
   });
 
   // Firebase'den gelen veriyi Dart objesine çeviren fonksiyon
@@ -24,6 +28,8 @@ class LocationModel {
       fireExitNote: data['fire_note'] ?? 'Bilgi yok.',
       fireExitDistance: data['fire_dist'] ?? '-',
       imageUrl: data['image'],
+      latitude: (data['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (data['longitude'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

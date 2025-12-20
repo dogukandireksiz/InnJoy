@@ -1,38 +1,449 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 
-class FullScreenMapPage extends StatelessWidget {
-  final String imageName;
+// Acil Çıkış Kapısı Modeli
+class _EmergencyExit {
+  final String id;
+  final String name;
+  final LatLng location;
+  final String description;
 
-  const FullScreenMapPage({super.key, required this.imageName});
+  const _EmergencyExit({
+    required this.id,
+    required this.name,
+    required this.location,
+    required this.description,
+  });
+}
+
+class FullScreenMapPage extends StatefulWidget {
+  final LatLng selectedLocation; // Hedef (En Yakın Çıkış Kapısı)
+  final LatLng? userLocation; // Kullanıcının o anki konumu
+
+  // İsim bilgisini dışarıdan alabiliriz ama mesafeyi artık kendimiz hesaplayacağız
+  final String? locationName;
+  final String? noteInfo;
+
+  const FullScreenMapPage({
+    super.key,
+    required this.selectedLocation,
+    this.userLocation,
+    this.locationName,
+    this.noteInfo,
+  });
+
+  @override
+  State<FullScreenMapPage> createState() => _FullScreenMapPageState();
+}
+
+class _FullScreenMapPageState extends State<FullScreenMapPage> {
+  final MapController _mapController = MapController();
+  final Distance _distanceCalculator = const Distance(); // Mesafe ölçer
+  LatLng? _foundLocation;
+  bool _isLoadingLocation = false;
+
+  // YEDEK KONUM - MUĞLA SITKI KOÇMAN ÜNİV. MÜHENDİSLİK FAKÜLTESİ
+  final LatLng _backupLocation = const LatLng(37.1614, 28.3758);
+
+  // MÜHENDİSLİK FAKÜLTESİ TÜM ACİL ÇIKIŞ KAPILARI
+  final List<_EmergencyExit> _allEmergencyExits = const [
+    // Ana Giriş Kapısı (Kuzey yönü)
+    _EmergencyExit(
+      id: 'exit_1',
+      name: 'Ana Giriş Kapısı',
+      location: LatLng(37.16141430718726, 28.37590816078527),
+      description: 'Fakülte ana giriş kapısı - Kuzey yönü',
+    ),
+    // Güney Çıkış Kapısı
+    _EmergencyExit(
+      id: 'exit_2',
+      name: 'Güney Çıkış Kapısı',
+      location: LatLng(37.16152202185226, 28.375945340536738),
+      description: 'Fakülte güney çıkış kapısı',
+    ),
+    // Batı Yan Kapısı
+    _EmergencyExit(
+      id: 'exit_3',
+      name: 'Batı Yan Kapısı',
+      location: LatLng(37.161113984268624, 28.37484855454888),
+      description: 'Fakülte batı yan çıkışı - Otopark yönü',
+    ),
+    // Doğu Yan Kapısı (Enerji Malzemeleri Lab. tarafı)
+    _EmergencyExit(
+      id: 'exit_4',
+      name: 'Doğu Yan Kapısı',
+      location: LatLng(37.16120, 28.37680),
+      description: 'Fakülte doğu yan çıkışı - Enerji Lab. yönü',
+    ),
+    // Acil Merdiven Çıkışı (Jeoloji Müh. tarafı)
+    _EmergencyExit(
+      id: 'exit_5',
+      name: 'Acil Merdiven Çıkışı',
+      location: LatLng(37.16100, 28.37520),
+      description: 'Yangın merdiveni çıkışı - Jeoloji Müh. yönü',
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Harita render problemini önlemek için gecikme eklendi
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Haritanın tam olarak render edilmesini bekle
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+
+      if (widget.userLocation == null) {
+        _findLocation();
+      } else {
+        _fitBounds();
+      }
+    });
+  }
+
+  Future<void> _findLocation() async {
+    setState(() {
+      _isLoadingLocation = true;
+    });
+
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        print('Location services are disabled.');
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print('Location permissions are denied');
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition();
+      if (mounted) {
+        setState(() {
+          _foundLocation = LatLng(position.latitude, position.longitude);
+          _fitBounds();
+        });
+      }
+    } catch (e) {
+      print("Error getting location: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingLocation = false;
+        });
+      }
+    }
+  }
+
+  void _fitBounds() {
+    try {
+      final LatLng displayUserLocation =
+          _foundLocation ?? widget.userLocation ?? _backupLocation;
+      _mapController.fitCamera(
+        CameraFit.coordinates(
+          coordinates: [displayUserLocation, widget.selectedLocation],
+          padding: const EdgeInsets.all(80),
+        ),
+      );
+      // Haritayı yeniden render etmesi için küçük bir animasyon tetikle
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          setState(() {}); // Yeniden build tetikle
+        }
+      });
+    } catch (e) {
+      debugPrint("Error fitting bounds: $e");
+    }
+  }
+
+  // --- MESAFE VE YÖNERGE HESAPLAMA ---
+  Map<String, String> _getNavigationInfo(LatLng myPos, LatLng targetPos) {
+    // 1. Mesafeyi Metre Cinsinden Hesapla
+    final double distanceInMeters = _distanceCalculator.as(
+      LengthUnit.Meter,
+      myPos,
+      targetPos,
+    );
+
+    // 2. Yönerge Metni Oluştur
+    String instruction;
+    Color color;
+
+    if (distanceInMeters < 10) {
+      instruction = "HEDEFE ULAŞTINIZ! GÜVENDESİNİZ.";
+      color = Colors.greenAccent;
+    } else if (distanceInMeters < 50) {
+      instruction = "Çok yaklaştınız, çıkış hemen karşınızda.";
+      color = Colors.yellowAccent;
+    } else {
+      instruction = "Kırmızı çizgiyi takip ederek acil çıkışa ilerleyin.";
+      color = Colors.white;
+    }
+
+    return {
+      "distance": "${distanceInMeters.toInt()} metre",
+      "instruction": instruction,
+      // Renk bilgisini string olarak gönderemeyiz ama burada mantığı kurduk,
+      // aşağıda build içinde tekrar kontrol ederiz.
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Hangi konumu kullanacağız?
+    final LatLng displayUserLocation =
+        _foundLocation ?? widget.userLocation ?? _backupLocation;
+    final bool isSimulationMode =
+        _foundLocation == null && widget.userLocation == null;
+
+    // Mesafeyi ve Yönergeyi Hesapla
+    final double distanceVal = _distanceCalculator.as(
+      LengthUnit.Meter,
+      displayUserLocation,
+      widget.selectedLocation,
+    );
+    final String distanceText = "${distanceVal.toInt()} metre";
+
+    // Dinamik Yönerge Rengi ve Metni
+    String instructionText;
+    Color instructionColor;
+
+    if (distanceVal < 10) {
+      instructionText = "GÜVENDESİNİZ! NOKTAYA ULAŞTINIZ.";
+      instructionColor = Colors.greenAccent;
+    } else if (distanceVal < 50) {
+      instructionText = "Çok az kaldı, çıkışa yönelin.";
+      instructionColor = Colors.amber;
+    } else {
+      instructionText = "Kırmızı rotayı takip edin ve hızla ilerleyin.";
+      instructionColor = Colors.white70;
+    }
+
     return Scaffold(
-      backgroundColor: Colors.black, // Arka plan siyah
-      // Kapatma butonu (X) sol üstte
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white, size: 30),
-          onPressed: () => Navigator.pop(context), // Sayfayı kapat
-        ),
-      ),
-      // InteractiveViewer: Resmi parmakla büyütüp gezmeyi sağlar
-      body: Center(
-        child: InteractiveViewer(
-          panEnabled: true, // Sağa sola kaydırma açık
-          boundaryMargin: const EdgeInsets.all(20),
-          minScale: 0.5, // En fazla ne kadar küçülsün
-          maxScale: 4.0, // En fazla ne kadar büyüsün (4 kat)
-          child: Image.asset(
-            'assets/images/$imageName', // Ana sayfadaki aynı yolu kullanıyoruz
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-               return const Center(child: Text("Resim Yüklenemedi", style: TextStyle(color: Colors.white)));
-            },
+      body: Stack(
+        children: [
+          // --- 1. HARİTA ---
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: displayUserLocation,
+              initialZoom: 17.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.oteluygulamasi.app',
+              ),
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: [displayUserLocation, widget.selectedLocation],
+                    color: Colors.redAccent,
+                    strokeWidth: 6.0,
+                  ),
+                ],
+              ),
+              // TÜM ÇIKIŞ KAPILARI İŞARETÇİLERİ
+              MarkerLayer(
+                markers: [
+                  // Kullanıcı konumu (Mavi)
+                  Marker(
+                    point: displayUserLocation,
+                    width: 60,
+                    height: 60,
+                    child: const Icon(
+                      Icons.person_pin_circle,
+                      color: Colors.blue,
+                      size: 55,
+                    ),
+                  ),
+                  // Tüm acil çıkış kapıları
+                  ..._allEmergencyExits.map((exit) {
+                    // Bu çıkış en yakın seçili çıkış mı?
+                    final bool isNearest =
+                        exit.location.latitude ==
+                            widget.selectedLocation.latitude &&
+                        exit.location.longitude ==
+                            widget.selectedLocation.longitude;
+                    return Marker(
+                      point: exit.location,
+                      width: isNearest ? 80 : 60,
+                      height: isNearest ? 80 : 60,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.exit_to_app,
+                            color: isNearest ? Colors.green : Colors.orange,
+                            size: isNearest ? 50 : 40,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isNearest ? Colors.green : Colors.orange,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              isNearest ? 'EN YAKIN' : exit.name.split(' ')[0],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ],
           ),
-        ),
+
+          // --- 2. GERİ DÖN BUTONU ---
+          Positioned(
+            top: 50,
+            left: 20,
+            child: CircleAvatar(
+              backgroundColor: Colors.black.withOpacity(0.6),
+              radius: 25,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
+
+          // --- 3. HARİTAYI ORTALA ---
+          Positioned(
+            right: 20,
+            bottom: 220,
+            child: FloatingActionButton(
+              backgroundColor: Colors.white,
+              child: const Icon(
+                Icons.center_focus_strong,
+                color: Colors.black87,
+              ),
+              onPressed: _fitBounds,
+            ),
+          ),
+
+          // --- 5. BİLGİ VE YÖNERGE KARTI (DİNAMİK) ---
+          Positioned(
+            bottom: 30,
+            left: 20,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E).withOpacity(0.95),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  const BoxShadow(
+                    color: Colors.black45,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Konum Adı ve Mesafe
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.directions_run,
+                        color: Colors.redAccent,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.locationName ?? "Acil Çıkış Noktası",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              "Mesafe: $distanceText", // HESAPLANAN MESAFE BURADA
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: Colors.white24),
+                  ),
+
+                  // DİNAMİK YÖNERGE METNİ
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: instructionColor.withOpacity(0.5),
+                      ),
+                    ),
+                    child: Text(
+                      instructionText, // HESAPLANAN YÖNERGE BURADA
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: instructionColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+
+                  // Ek Not (Varsa)
+                  if (widget.noteInfo != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        widget.noteInfo!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
