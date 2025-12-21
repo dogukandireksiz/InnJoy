@@ -1,0 +1,681 @@
+﻿import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'dart:async';
+import '../../../../service/database_service.dart';
+import '../../../../utils/connectivity_utils.dart';
+
+class SpaBookingScreen extends StatefulWidget {
+  final String hotelName;
+  final Map<String, dynamic> service;
+
+  const SpaBookingScreen({super.key, required this.hotelName, required this.service});
+
+  @override
+  State<SpaBookingScreen> createState() => _SpaBookingScreenState();
+}
+
+class _SpaBookingScreenState extends State<SpaBookingScreen> {
+  DateTime? _selectedDate;
+  String? _selectedTimeSlot;
+  bool _isLoading = false;
+  final String _selectedPaymentMethod = 'room_charge'; // Default
+  List<String> _bookedSlots = [];
+  
+  // Fix for memory leak: Store subscription to cancel on dispose
+  StreamSubscription<List<String>>? _slotsSubscription;
+
+  final List<String> _morningSlots = ['09:00', '10:00', '11:00'];
+  final List<String> _afternoonSlots = ['13:00', '14:00', '15:00', '16:00', '17:00'];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize date to tomorrow or today if needed, for now start null
+  }
+
+  @override
+  void dispose() {
+    // Cancel stream subscription to prevent memory leak
+    _slotsSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _fetchBookedSlots(DateTime date) {
+    // Cancel previous subscription before creating new one
+    _slotsSubscription?.cancel();
+    
+    _slotsSubscription = DatabaseService().getSpaBookedSlots(widget.hotelName, date).listen((slots) {
+      if (mounted) {
+        setState(() {
+          _bookedSlots = slots;
+        });
+      }
+    });
+  }
+
+  Future<void> _bookAppointment() async {
+    if (_selectedDate == null || _selectedTimeSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a date and time.")));
+      return;
+    }
+
+    // Check internet connectivity before proceeding
+    final hasConnection = await ConnectivityUtils.checkAndShowSnackbar(context);
+    if (!hasConnection) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Combine date and time
+      final timeParts = _selectedTimeSlot!.split(':');
+      final hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+      final appointmentDateTime = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        hour,
+        minute,
+      );
+
+      // Call Database Service with complete appointment info
+      await DatabaseService().bookSpaAppointment(
+        serviceName: widget.service['name'] ?? 'Spa Service',
+        duration: "${widget.service['duration'] ?? 60} min",
+        price: (widget.service['price'] ?? 0).toDouble(),
+        appointmentDate: appointmentDateTime,
+        timeSlot: _selectedTimeSlot!,
+        paymentMethod: _selectedPaymentMethod,
+      );
+
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text("Appointment Created"),
+          content: Text(
+            "Your appointment for ${widget.service['name']} has been booked.\n\nDate: ${DateFormat('dd MMM yyyy').format(_selectedDate!)}\nTime: $_selectedTimeSlot",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx); // Close dialog
+                Navigator.pop(context); // Close screen
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String name = widget.service['name'] ?? 'Service';
+    final int duration = widget.service['duration'] ?? 60;
+    final double price = (widget.service['price'] ?? 0).toDouble();
+    final String description = widget.service['description'] ?? 'No description available.';
+    final String imageUrl = widget.service['imageUrl'] ?? 'https://via.placeholder.com/300';
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F7F8),
+      body: CustomScrollView(
+        slivers: [
+          // Hero Header
+          SliverAppBar(
+            expandedHeight: 250,
+            pinned: true,
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.9),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Color(0xFF0d141b)),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (ctx, error, stackTrace) => Container(color: Colors.grey[300]),
+              ),
+            ),
+          ),
+
+          // Content
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title & Price
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0d141b),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '₺${price.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF137fec),
+                            ),
+                          ),
+                          Text(
+                            '$duration min',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 14,
+                              color: Color(0xFF4c739a),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Description
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      color: Color(0xFF4c739a),
+                      height: 1.6,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // Date Selection
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF137fec).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.calendar_month_rounded,
+                          color: Color(0xFF137fec),
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        "Select Date",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0d141b),
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 90,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 14, // Next 2 weeks
+                      separatorBuilder: (_, e) => const SizedBox(width: 12),
+                      itemBuilder: (context, index) {
+                        final date = DateTime.now().add(Duration(days: index));
+                        final isSelected = _selectedDate != null && 
+                            _selectedDate!.day == date.day && 
+                            _selectedDate!.month == date.month;
+                        final isToday = index == 0;
+                        
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedDate = date;
+                              _selectedTimeSlot = null; // Reset time
+                              _bookedSlots = []; // Clear previous slots temporarily
+                            });
+                            _fetchBookedSlots(date);
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 65,
+                            decoration: BoxDecoration(
+                              gradient: isSelected 
+                                  ? const LinearGradient(
+                                      colors: [Color(0xFF137fec), Color(0xFF0A5EC7)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : null,
+                              color: isSelected ? null : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: isSelected 
+                                  ? null 
+                                  : Border.all(
+                                      color: isToday ? const Color(0xFF137fec).withValues(alpha: 0.3) : Colors.grey[300]!,
+                                      width: isToday ? 2 : 1,
+                                    ),
+                              boxShadow: isSelected 
+                                  ? [
+                                      BoxShadow(
+                                        color: const Color(0xFF137fec).withValues(alpha: 0.4),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ] 
+                                  : [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.04),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  DateFormat('EEE').format(date),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: isSelected 
+                                        ? Colors.white.withValues(alpha: 0.8) 
+                                        : Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  DateFormat('dd').format(date),
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected ? Colors.white : const Color(0xFF0d141b),
+                                  ),
+                                ),
+                                if (isToday) ...[
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.white : const Color(0xFF137fec),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Time Selection
+                  if (_selectedDate != null) ...[
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF137fec).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.access_time_rounded,
+                            color: Color(0xFF137fec),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          "Select Time",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0d141b),
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        ..._morningSlots.map((time) => _buildTimeChip(time)),
+                        ..._afternoonSlots.map((time) => _buildTimeChip(time)),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Payment Method
+                    if (_selectedDate != null && _selectedTimeSlot != null) ...[
+                      const Divider(),
+                      const SizedBox(height: 24),
+                      _buildPaymentMethodSection(),
+                      const SizedBox(height: 24),
+                      _buildSummarySection(price),
+                      const SizedBox(height: 100), // Bottom padding
+                    ] else ...[
+                       const SizedBox(height: 100),
+                    ]
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -8),
+            )
+          ],
+        ),
+        child: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              decoration: BoxDecoration(
+                gradient: (_selectedDate != null && _selectedTimeSlot != null && !_isLoading)
+                    ? const LinearGradient(
+                        colors: [Color(0xFF137fec), Color(0xFF0A5EC7)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )
+                    : null,
+                color: (_selectedDate == null || _selectedTimeSlot == null || _isLoading) 
+                    ? Colors.grey[200] 
+                    : null,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: (_selectedDate != null && _selectedTimeSlot != null && !_isLoading)
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFF137fec).withValues(alpha: 0.4),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: (_selectedDate != null && _selectedTimeSlot != null && !_isLoading) 
+                      ? _bookAppointment 
+                      : null,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Center(
+                    child: _isLoading 
+                        ? const SizedBox(
+                            width: 24, 
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.calendar_today_rounded,
+                                size: 20,
+                                color: (_selectedDate != null && _selectedTimeSlot != null) 
+                                    ? Colors.white 
+                                    : Colors.grey[400],
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Book Appointment", 
+                                style: TextStyle(
+                                  fontSize: 17, 
+                                  fontWeight: FontWeight.w700,
+                                  color: (_selectedDate != null && _selectedTimeSlot != null) 
+                                      ? Colors.white 
+                                      : Colors.grey[400],
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeChip(String time) {
+    bool isSelected = _selectedTimeSlot == time;
+    bool isBooked = _bookedSlots.contains(time);
+    
+    // Check if this time slot is in the past for today
+    bool isPastTime = false;
+    if (_selectedDate != null) {
+      final now = DateTime.now();
+      final isToday = _selectedDate!.year == now.year && 
+                      _selectedDate!.month == now.month && 
+                      _selectedDate!.day == now.day;
+      
+      if (isToday) {
+        final timeParts = time.split(':');
+        final slotHour = int.parse(timeParts[0]);
+        final slotMinute = int.parse(timeParts[1]);
+        
+        // If current time is past or equal to the slot time, disable it
+        if (now.hour > slotHour || (now.hour == slotHour && now.minute >= slotMinute)) {
+          isPastTime = true;
+        }
+      }
+    }
+    
+    bool isDisabled = isBooked || isPastTime;
+
+    return GestureDetector(
+      onTap: isDisabled ? null : () => setState(() => _selectedTimeSlot = time),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: isDisabled 
+              ? Colors.grey[100] 
+              : (isSelected 
+                  ? const Color(0xFF137fec) 
+                  : Colors.white),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDisabled 
+                ? Colors.grey[300]! 
+                : (isSelected 
+                    ? const Color(0xFF137fec) 
+                    : Colors.grey[300]!),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected 
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF137fec).withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ] 
+              : null,
+        ),
+        child: Text(
+          time,
+          style: TextStyle(
+            color: isDisabled 
+                ? Colors.grey[400]
+                : (isSelected ? Colors.white : const Color(0xFF0d141b)),
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 15,
+            decoration: isBooked ? TextDecoration.lineThrough : null,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Payment Method",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0d141b),
+          ),
+        ),
+        const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            child: RadioListTile(
+              value: 'room_charge',
+              groupValue: _selectedPaymentMethod,
+              onChanged: null, // Read-only since it's the only option
+              activeColor: const Color(0xFF137fec),
+              title: const Text(
+                'Charge to Room',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xFF0d141b),
+                ),
+              ),
+              subtitle: const Text(
+                'The amount will be added to your checkout bill.',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              secondary: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF137fec).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.receipt_long, color: Color(0xFF137fec)),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSummarySection(double price) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Service Fee',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              Text(
+                '₺${price.toStringAsFixed(2)}',
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF0d141b)),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Amount',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0d141b)),
+              ),
+              Text(
+                '₺${price.toStringAsFixed(2)}',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF137fec)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
