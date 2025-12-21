@@ -98,9 +98,10 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
 
           List<MenuItem> displayedItems = allItems.where((item) {
             if (_selectedCategory == 'All') return true;
-            // Basic matching for legacy
+            // Legacy Turkish category name support
             if (_selectedCategory == 'Starters' &&
                 (item.category == 'Appetizers' ||
+                    item.category == 'Starters' ||
                     item.category == 'Başlangıçlar')) {
               return true;
             }
@@ -435,12 +436,3 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-

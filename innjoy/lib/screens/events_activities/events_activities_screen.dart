@@ -18,8 +18,10 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
   DateTime _today = DateTime.now();
   Timer? _dayTick;
 
-  List<DateTime> get _days =>
-      List.generate(22, (i) => DateTime(_today.year, _today.month, _today.day + (i - 7)));
+  List<DateTime> get _days => List.generate(
+    22,
+    (i) => DateTime(_today.year, _today.month, _today.day + (i - 7)),
+  );
 
   String _humanDate(DateTime d) {
     return "${_monthName(d.month)} ${d.day}";
@@ -27,8 +29,18 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
 
   String _monthName(int m) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months[m - 1];
   }
@@ -37,7 +49,15 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   String _weekdayName(int weekday) {
-    const map = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday'};
+    const map = {
+      1: 'Monday',
+      2: 'Tuesday',
+      3: 'Wednesday',
+      4: 'Thursday',
+      5: 'Friday',
+      6: 'Saturday',
+      7: 'Sunday',
+    };
     return map[weekday] ?? '';
   }
 
@@ -71,10 +91,10 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
         setState(() {
           _today = now;
           _today = now;
-          // Keep selection valid or reset to today? 
+          // Keep selection valid or reset to today?
           // If the day passed, index 0 is now the new today.
           if (_selectedDayIndex != 7) {
-             _selectedDayIndex = 7; // Reset to Today if day rolls over
+            _selectedDayIndex = 7; // Reset to Today if day rolls over
           }
         });
       }
@@ -106,33 +126,35 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-             return Center(child: Text("Error: ${snapshot.error}"));
+            return Center(child: Text("Error: ${snapshot.error}"));
           }
-          
+
           final allEvents = snapshot.data ?? [];
-          
+
           // Filter: Published only
-          final publishedEvents = allEvents.where((e) => e['isPublished'] == true).toList();
+          final publishedEvents = allEvents
+              .where((e) => e['isPublished'] == true)
+              .toList();
 
           final q = _query.trim().toLowerCase();
           final searching = q.isNotEmpty;
 
           final filtered = publishedEvents.where((e) {
-             // Search filter
-             if (searching) {
-               final title = (e['title'] ?? '').toString().toLowerCase();
-               final loc = (e['location'] ?? '').toString().toLowerCase();
-               return title.contains(q) || loc.contains(q);
-             }
-             
-             // Date filter - Single Day (Only if NOT searching)
-             final targetDate = _days[_selectedDayIndex];
-             
-             if (e['date'] != null && e['date'] is Timestamp) {
-               final eDate = (e['date'] as Timestamp).toDate();
-               return _isSameDay(eDate, targetDate);
-             }
-             return false;
+            // Search filter
+            if (searching) {
+              final title = (e['title'] ?? '').toString().toLowerCase();
+              final loc = (e['location'] ?? '').toString().toLowerCase();
+              return title.contains(q) || loc.contains(q);
+            }
+
+            // Date filter - Single Day (Only if NOT searching)
+            final targetDate = _days[_selectedDayIndex];
+
+            if (e['date'] != null && e['date'] is Timestamp) {
+              final eDate = (e['date'] as Timestamp).toDate();
+              return _isSameDay(eDate, targetDate);
+            }
+            return false;
           }).toList();
 
           return ListView(
@@ -165,17 +187,17 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.event_busy_rounded, 
-                        size: 64, 
-                        color: Colors.grey[300]
+                        Icons.event_busy_rounded,
+                        size: 64,
+                        color: Colors.grey[300],
                       ),
                       const SizedBox(height: 16),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: Text(
                           searching
-                              ? 'Aradığınız kriterlere uygun etkinlik bulunamadı.'
-                              : 'Bugünlük bir etkinlik görünmüyor, diğer günlere göz atmaya ne dersin?',
+                              ? 'No events found matching your search.'
+                              : 'No events scheduled for today. Try checking other dates!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey[500],
@@ -187,11 +209,11 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
                     ],
                   ),
                 )
-              else 
+              else
                 ..._buildGroupedResults(filtered),
             ],
           );
-        }
+        },
       ),
     );
   }
@@ -212,33 +234,35 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
 
       if (lastDate == null || !_isSameDay(lastDate, date)) {
         if (lastDate != null) widgets.add(const SizedBox(height: 16));
-        widgets.add(Text(
-          _headerFor(date),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        ));
+        widgets.add(
+          Text(
+            _headerFor(date),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+        );
         widgets.add(const SizedBox(height: 12));
         lastDate = DateTime(date.year, date.month, date.day);
       }
-      widgets.add(_EventItem(
-        title: e['title'] ?? 'Unnamed Event',
-        time: e['time'] ?? '',
-        location: e['location'] ?? '',
-        imageAsset: e['imageAsset'] ?? 'assets/images/no_image.png',
-        capacity: e['capacity'] ?? 0,
-        registered: e['registered'] ?? 0,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-               builder: (_) => EventDetailsScreen(
-                 event: e,
-                 hotelName: widget.hotelName, 
-               ),
-             ),
-          );
-        },
-        date: date,
-      ));
+      widgets.add(
+        _EventItem(
+          title: e['title'] ?? 'Unnamed Event',
+          time: e['time'] ?? '',
+          location: e['location'] ?? '',
+          imageAsset: e['imageAsset'] ?? 'assets/images/no_image.png',
+          capacity: e['capacity'] ?? 0,
+          registered: e['registered'] ?? 0,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    EventDetailsScreen(event: e, hotelName: widget.hotelName),
+              ),
+            );
+          },
+          date: date,
+        ),
+      );
       if (i != items.length - 1) widgets.add(const SizedBox(height: 10));
     }
     return widgets;
@@ -293,9 +317,9 @@ class _DateScrollerState extends State<_DateScroller> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: selected 
-                  ? (_isToday(d) ? Colors.green : const Color(0xFF137FEC)) 
-                  : Colors.white,
+                color: selected
+                    ? (_isToday(d) ? Colors.green : const Color(0xFF137FEC))
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
@@ -304,19 +328,21 @@ class _DateScrollerState extends State<_DateScroller> {
                     offset: const Offset(0, 1),
                   ),
                 ],
-                border: _isToday(d) && !selected 
-                    ? Border.all(color: Colors.green, width: 2) 
+                border: _isToday(d) && !selected
+                    ? Border.all(color: Colors.green, width: 2)
                     : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Text(
+                  Text(
                     _dayLabel(d.weekday),
                     style: TextStyle(
-                      color: selected 
-                        ? Colors.white 
-                        : (_isToday(d) ? Colors.green : const Color(0xFF0D141B)),
+                      color: selected
+                          ? Colors.white
+                          : (_isToday(d)
+                                ? Colors.green
+                                : const Color(0xFF0D141B)),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -325,9 +351,11 @@ class _DateScrollerState extends State<_DateScroller> {
                   Text(
                     d.day.toString(),
                     style: TextStyle(
-                      color: selected 
-                        ? Colors.white 
-                        : (_isToday(d) ? Colors.green : const Color(0xFF0D141B)),
+                      color: selected
+                          ? Colors.white
+                          : (_isToday(d)
+                                ? Colors.green
+                                : const Color(0xFF0D141B)),
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -335,7 +363,7 @@ class _DateScrollerState extends State<_DateScroller> {
                   if (_isToday(d))
                     Container(
                       margin: const EdgeInsets.only(top: 4),
-                      width: 4, 
+                      width: 4,
                       height: 4,
                       decoration: BoxDecoration(
                         color: selected ? Colors.white : Colors.green,
@@ -365,12 +393,12 @@ class _DateScrollerState extends State<_DateScroller> {
     };
     return map[weekday] ?? '';
   }
+
   bool _isToday(DateTime d) {
     final now = DateTime.now();
     return d.year == now.year && d.month == now.month && d.day == now.day;
   }
 }
-
 
 class _EventItem extends StatelessWidget {
   final String title;
@@ -402,38 +430,45 @@ class _EventItem extends StatelessWidget {
     // Past Check Logic
     bool isPast = false;
     final now = DateTime.now();
-    
+
     // Parse time string "HH:mm"
     TimeOfDay? timeOfDay;
     if (time.isNotEmpty && time.contains(':')) {
       try {
         final parts = time.split(':');
-        timeOfDay = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+        timeOfDay = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
       } catch (_) {}
     }
 
     final checkDateTime = DateTime(
-      date.year, 
-      date.month, 
-      date.day, 
-      timeOfDay?.hour ?? 23, 
-      timeOfDay?.minute ?? 59
+      date.year,
+      date.month,
+      date.day,
+      timeOfDay?.hour ?? 23,
+      timeOfDay?.minute ?? 59,
     );
-    
+
     if (checkDateTime.isBefore(now)) {
       isPast = true;
     }
 
-    return Card( // Use Card for elevation/shape to hold InkWell correctly
+    return Card(
+      // Use Card for elevation/shape to hold InkWell correctly
       elevation: isPast ? 0 : 2,
-      color: isPast ? Colors.grey[100] : (isFull ? Colors.grey[200] : Colors.white), 
+      color: isPast
+          ? Colors.grey[100]
+          : (isFull ? Colors.grey[200] : Colors.white),
       surfaceTintColor: Colors.transparent, // No pink tint
       margin: const EdgeInsets.only(bottom: 16), // Add margin if listed
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: isPast ? BorderSide(color: Colors.grey[300]!) : BorderSide.none
+        side: isPast ? BorderSide(color: Colors.grey[300]!) : BorderSide.none,
       ),
-      child: InkWell( // Visual feedback!
+      child: InkWell(
+        // Visual feedback!
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Opacity(
@@ -456,64 +491,112 @@ class _EventItem extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    title, 
+                                    title,
                                     style: const TextStyle(
-                                      fontSize: 20, 
-                                      fontWeight: FontWeight.w900, 
-                                      color: Color(0xFF0D141B) 
-                                    )
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF0D141B),
+                                    ),
                                   ),
                                 ),
-                              if (isFull && !isPast)
+                                if (isFull && !isPast)
                                   Container(
                                     margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.red,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
-                                    child: const Text('DOLDU', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                    child: const Text(
+                                      'FULL',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 if (isPast)
-                                   Container(
+                                  Container(
                                     margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.grey[600],
                                       borderRadius: BorderRadius.circular(4),
                                     ),
-                                    child: const Text('SONA ERDİ', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                    child: const Text(
+                                      'ENDED',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                ],
-                              ),
+                              ],
+                            ),
                             const SizedBox(height: 12),
                             Row(
                               children: [
-                                Icon(Icons.schedule, size: 22, color: Colors.blueGrey[700]), 
-                                const SizedBox(width: 8),
-                                Text(time, style: TextStyle(color: Colors.blueGrey[700], fontSize: 16, fontWeight: FontWeight.w600)),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on, size: 22, color: Colors.blueGrey[700]),
-                                const SizedBox(width: 8),
-                                Text(location, style: TextStyle(color: Colors.blueGrey[700], fontSize: 16, fontWeight: FontWeight.w600)),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.people, size: 22, color: Colors.blueGrey[700]),
+                                Icon(
+                                  Icons.schedule,
+                                  size: 22,
+                                  color: Colors.blueGrey[700],
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '$registered / $capacity Kayıtlı', 
+                                  time,
                                   style: TextStyle(
-                                    color: isFull ? Colors.red : Colors.blueGrey[700], 
-                                    fontSize: 14, 
-                                    fontWeight: FontWeight.w600
-                                  )
+                                    color: Colors.blueGrey[700],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on,
+                                  size: 22,
+                                  color: Colors.blueGrey[700],
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  location,
+                                  style: TextStyle(
+                                    color: Colors.blueGrey[700],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.people,
+                                  size: 22,
+                                  color: Colors.blueGrey[700],
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '$registered / $capacity Registered',
+                                  style: TextStyle(
+                                    color: isFull
+                                        ? Colors.red
+                                        : Colors.blueGrey[700],
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ],
                             ),
@@ -523,16 +606,30 @@ class _EventItem extends StatelessWidget {
                         // Button looking widget but just visual since whole card is InkWell
                         Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9), 
+                            color: const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('View Details', style: TextStyle(color: Color(0xFF0D141B), fontWeight: FontWeight.w600, fontSize: 14)),
+                              Text(
+                                'View Details',
+                                style: TextStyle(
+                                  color: Color(0xFF0D141B),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
                               SizedBox(width: 6),
-                              Icon(Icons.arrow_forward, size: 18, color: Color(0xFF0D141B)),
+                              Icon(
+                                Icons.arrow_forward,
+                                size: 18,
+                                color: Color(0xFF0D141B),
+                              ),
                             ],
                           ),
                         ),
@@ -542,21 +639,23 @@ class _EventItem extends StatelessWidget {
                   const SizedBox(width: 16),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: (imageAsset.startsWith('http')) 
-                      ? Image.network(
-                          imageAsset,
-                          width: 112,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
-                        )
-                      : Image.asset(
-                          imageAsset, 
-                          width: 112, 
-                          height: 120, 
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
-                        ),
+                    child: (imageAsset.startsWith('http'))
+                        ? Image.network(
+                            imageAsset,
+                            width: 112,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildErrorImage(),
+                          )
+                        : Image.asset(
+                            imageAsset,
+                            width: 112,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildErrorImage(),
+                          ),
                   ),
                 ],
               ),
@@ -613,12 +712,3 @@ class _SearchBar extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-

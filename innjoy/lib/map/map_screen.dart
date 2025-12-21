@@ -156,7 +156,7 @@ class _MapScreenState extends State<MapScreen> {
           // --- 3. KONUMUMA GİT BUTONU ---
           Positioned(
             right: 20,
-            bottom: 150,
+            bottom: 80,
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               onPressed: _centerOnUser,
@@ -185,8 +185,8 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   child: Text(
                     _isLoadingLocation
-                        ? "Konum Hesaplanıyor..."
-                        : "Simülasyon Modu (GPS Kapalı)",
+                        ? "Calculating Location..."
+                        : "Simulation Mode (GPS Off)",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -195,89 +195,8 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
-
-          // --- 5. BİLGİ KARTI (Sadeleştirilmiş) ---
-          Positioned(
-            bottom: 30,
-            left: 20,
-            right: 20,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E).withValues(alpha: 0.95),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  const BoxShadow(
-                    color: Colors.black45,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.map, color: Colors.blueAccent, size: 32),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Anlık Konumunuz",
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              widget.locationName ?? "Bilinmeyen Bölge",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Eğer bir not varsa göster
-                  if (widget.noteInfo != null) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(color: Colors.white24),
-                    ),
-                    Text(
-                      widget.noteInfo!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white60,
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-

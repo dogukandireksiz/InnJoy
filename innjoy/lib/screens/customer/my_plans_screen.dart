@@ -27,7 +27,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
 
   Future<void> _loadUserHotel() async {
     if (_userId == null) return;
-    
+
     final userData = await _db.getUserData(_userId);
     if (mounted) {
       setState(() {
@@ -50,7 +50,10 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
       appBar: AppBar(
         title: const Text(
           'My Plans',
-          style: TextStyle(color: Color(0xFF101922), fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Color(0xFF101922),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -99,7 +102,11 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
             },
             child: Row(
               children: [
-                const Icon(Icons.calendar_today, size: 18, color: Color(0xFF137fec)),
+                const Icon(
+                  Icons.calendar_today,
+                  size: 18,
+                  color: Color(0xFF137fec),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   dateFormat.format(_selectedDate),
@@ -139,7 +146,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
             Icon(Icons.hotel, size: 60, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              "Otel bilgisi bulunamadı.",
+              "Hotel information not found.",
               style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
           ],
@@ -158,18 +165,21 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
         return StreamBuilder<List<Map<String, dynamic>>>(
           stream: _db.getUserEvents(_userId, hotelName: _hotelName),
           builder: (context, evtSnapshot) {
-             if (evtSnapshot.hasError) {
+            if (evtSnapshot.hasError) {
               return _buildErrorState(evtSnapshot.error);
             }
 
             return StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _db.getUserSpaAppointments(_userId, hotelName: _hotelName),
+              stream: _db.getUserSpaAppointments(
+                _userId,
+                hotelName: _hotelName,
+              ),
               builder: (context, spaSnapshot) {
                 if (spaSnapshot.hasError) {
                   return _buildErrorState(spaSnapshot.error);
                 }
 
-                if (resSnapshot.connectionState == ConnectionState.waiting && 
+                if (resSnapshot.connectionState == ConnectionState.waiting &&
                     evtSnapshot.connectionState == ConnectionState.waiting &&
                     spaSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -180,7 +190,11 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                 final spaAppointments = spaSnapshot.data ?? [];
 
                 // Filter by date
-                final dailyItems = _filterAndMerge(reservations, events, spaAppointments);
+                final dailyItems = _filterAndMerge(
+                  reservations,
+                  events,
+                  spaAppointments,
+                );
 
                 if (dailyItems.isEmpty) {
                   return _buildEmptyState();
@@ -214,17 +228,13 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
     List<Map<String, dynamic>> spaAppointments,
   ) {
     final List<Map<String, dynamic>> merged = [];
-    
+
     // Reservations (Restaurant)
     for (var r in reservations) {
       if (r['date'] != null && r['date'] is Timestamp) {
         DateTime d = (r['date'] as Timestamp).toDate();
         if (_isSameDay(d, _selectedDate)) {
-          merged.add({
-            'type': 'reservation',
-            'date': d,
-            'data': r,
-          });
+          merged.add({'type': 'reservation', 'date': d, 'data': r});
         }
       }
     }
@@ -239,11 +249,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
       }
 
       if (eventDate != null && _isSameDay(eventDate, _selectedDate)) {
-        merged.add({
-          'type': 'event',
-          'date': eventDate,
-          'data': e,
-        });
+        merged.add({'type': 'event', 'date': eventDate, 'data': e});
       }
     }
 
@@ -255,16 +261,14 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
       }
 
       if (spaDate != null && _isSameDay(spaDate, _selectedDate)) {
-        merged.add({
-          'type': 'spa',
-          'date': spaDate,
-          'data': s,
-        });
+        merged.add({'type': 'spa', 'date': spaDate, 'data': s});
       }
     }
 
     // Sort by time
-    merged.sort((a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime));
+    merged.sort(
+      (a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime),
+    );
     return merged;
   }
 
@@ -274,9 +278,11 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
 
   Widget _buildReservationCard(Map<String, dynamic> data) {
     final restaurantName = data['restaurantName'] ?? 'Restaurant';
-    final timeStr = DateFormat('HH:mm').format((data['date'] as Timestamp).toDate());
+    final timeStr = DateFormat(
+      'HH:mm',
+    ).format((data['date'] as Timestamp).toDate());
     final partySize = data['partySize'] ?? 0;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -310,18 +316,28 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                 children: [
                   Text(
                     restaurantName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
                       const SizedBox(width: 4),
                       Text(timeStr, style: TextStyle(color: Colors.grey[600])),
                       const SizedBox(width: 12),
                       Icon(Icons.people, size: 14, color: Colors.grey[600]),
                       const SizedBox(width: 4),
-                      Text("$partySize Guests", style: TextStyle(color: Colors.grey[600])),
+                      Text(
+                        "$partySize Guests",
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
                     ],
                   ),
                 ],
@@ -334,11 +350,11 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   }
 
   Widget _buildEventCard(Map<String, dynamic> data) {
-    final title = data['eventTitle'] ?? data['title'] ?? 'Etkinlik';
+    final title = data['eventTitle'] ?? data['title'] ?? 'Event';
     final location = data['eventLocation'] ?? data['location'] ?? '';
     final time = data['time'] ?? ''; // Saat bilgisi (örn: "14:00")
     final imageUrl = data['imageAsset'] ?? data['imageUrl'];
-    
+
     // Tarih bilgisini al
     DateTime? eventDate;
     if (data['date'] is Timestamp) {
@@ -346,9 +362,11 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
     } else if (data['eventDate'] is Timestamp) {
       eventDate = (data['eventDate'] as Timestamp).toDate();
     }
-    
+
     // Saat bilgisi: time alanından veya tarihten çıkar
-    String timeStr = time.isNotEmpty ? time : (eventDate != null ? DateFormat('HH:mm').format(eventDate) : '');
+    String timeStr = time.isNotEmpty
+        ? time
+        : (eventDate != null ? DateFormat('HH:mm').format(eventDate) : '');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -356,7 +374,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.purple.withValues(alpha: 0.2)),
-         boxShadow: [
+        boxShadow: [
           BoxShadow(
             color: Colors.purple.withValues(alpha: 0.05),
             blurRadius: 10,
@@ -373,20 +391,22 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
               borderRadius: BorderRadius.circular(12),
               child: imageUrl != null && imageUrl.toString().isNotEmpty
                   ? (imageUrl.toString().startsWith('http')
-                      ? Image.network(
-                          imageUrl,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildEventIconFallback(),
-                        )
-                      : Image.asset(
-                          imageUrl,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildEventIconFallback(),
-                        ))
+                        ? Image.network(
+                            imageUrl,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildEventIconFallback(),
+                          )
+                        : Image.asset(
+                            imageUrl,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildEventIconFallback(),
+                          ))
                   : _buildEventIconFallback(),
             ),
             const SizedBox(width: 12),
@@ -394,9 +414,12 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   Text(
+                  Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -410,20 +433,37 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
+                            Icon(
+                              Icons.access_time,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
                             const SizedBox(width: 4),
-                            Text(timeStr, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                            Text(
+                              timeStr,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                              ),
+                            ),
                           ],
                         ),
                       if (location.isNotEmpty)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
+                            Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               location,
-                              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
@@ -452,11 +492,11 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   }
 
   Widget _buildSpaCard(Map<String, dynamic> data) {
-    final serviceName = data['serviceName'] ?? 'Spa Randevusu';
+    final serviceName = data['serviceName'] ?? 'Spa Appointment';
     final timeSlot = data['timeSlot'] ?? '';
     final duration = data['duration'] ?? '';
     final status = data['status'] ?? 'pending';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -490,12 +530,19 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                 children: [
                   Text(
                     serviceName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
                       const SizedBox(width: 4),
                       Text(timeSlot, style: TextStyle(color: Colors.grey[600])),
                       const SizedBox(width: 12),
@@ -547,13 +594,13 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   String _getSpaStatusText(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return 'Onaylı';
+        return 'Confirmed';
       case 'pending':
-        return 'Bekliyor';
+        return 'Pending';
       case 'cancelled':
-        return 'İptal';
+        return 'Cancelled';
       case 'completed':
-        return 'Tamamlandı';
+        return 'Completed';
       default:
         return status;
     }
@@ -562,25 +609,28 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   Widget _buildErrorState(Object? error) {
     final errStr = error.toString();
     if (errStr.contains('failed-precondition')) {
-       return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.build, size: 60, color: Colors.orange),
-                const SizedBox(height: 16),
-                const Text("Setup Required", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                const SizedBox(height: 8),
-                const Text(
-                  "Missing Index. Please check your console/terminal and click the link to create it.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.build, size: 60, color: Colors.orange),
+              const SizedBox(height: 16),
+              const Text(
+                "Setup Required",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Missing Index. Please check your console/terminal and click the link to create it.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
           ),
-        );
+        ),
+      );
     }
     return Center(child: Text("Error loading plans: $errStr"));
   }
@@ -601,12 +651,3 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-

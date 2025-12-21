@@ -49,40 +49,40 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
 
   // MÜHENDİSLİK FAKÜLTESİ TÜM ACİL ÇIKIŞ KAPILARI
   final List<_EmergencyExit> _allEmergencyExits = const [
-    // Ana Giriş Kapısı (Kuzey yönü)
+    // Main Entrance (North direction)
     _EmergencyExit(
       id: 'exit_1',
-      name: 'Ana Giriş Kapısı',
+      name: 'Main Entrance',
       location: LatLng(37.16141430718726, 28.37590816078527),
-      description: 'Fakülte ana giriş kapısı - Kuzey yönü',
+      description: 'Faculty main entrance - North direction',
     ),
-    // Güney Çıkış Kapısı
+    // South Exit
     _EmergencyExit(
       id: 'exit_2',
-      name: 'Güney Çıkış Kapısı',
+      name: 'South Exit',
       location: LatLng(37.16152202185226, 28.375945340536738),
-      description: 'Fakülte güney çıkış kapısı',
+      description: 'Faculty south exit',
     ),
-    // Batı Yan Kapısı
+    // West Side Door
     _EmergencyExit(
       id: 'exit_3',
-      name: 'Batı Yan Kapısı',
+      name: 'West Side Door',
       location: LatLng(37.161113984268624, 28.37484855454888),
-      description: 'Fakülte batı yan çıkışı - Otopark yönü',
+      description: 'Faculty west side exit - Parking lot direction',
     ),
-    // Doğu Yan Kapısı (Enerji Malzemeleri Lab. tarafı)
+    // East Side Door (Energy Materials Lab. side)
     _EmergencyExit(
       id: 'exit_4',
-      name: 'Doğu Yan Kapısı',
+      name: 'East Side Door',
       location: LatLng(37.16120, 28.37680),
-      description: 'Fakülte doğu yan çıkışı - Enerji Lab. yönü',
+      description: 'Faculty east side exit - Energy Lab. direction',
     ),
-    // Acil Merdiven Çıkışı (Jeoloji Müh. tarafı)
+    // Emergency Staircase Exit (Geology Eng. side)
     _EmergencyExit(
       id: 'exit_5',
-      name: 'Acil Merdiven Çıkışı',
+      name: 'Emergency Staircase Exit',
       location: LatLng(37.16100, 28.37520),
-      description: 'Yangın merdiveni çıkışı - Jeoloji Müh. yönü',
+      description: 'Fire staircase exit - Geology Eng. direction',
     ),
   ];
 
@@ -157,7 +157,6 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Hangi konumu kullanacağız?
@@ -170,20 +169,20 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
       displayUserLocation,
       widget.selectedLocation,
     );
-    final String distanceText = "${distanceVal.toInt()} metre";
+    final String distanceText = "${distanceVal.toInt()} meters";
 
     // Dinamik Yönerge Rengi ve Metni
     String instructionText;
     Color instructionColor;
 
     if (distanceVal < 10) {
-      instructionText = "GÜVENDESİNİZ! NOKTAYA ULAŞTINIZ.";
+      instructionText = "YOU ARE SAFE! DESTINATION REACHED.";
       instructionColor = Colors.greenAccent;
     } else if (distanceVal < 50) {
-      instructionText = "Çok az kaldı, çıkışa yönelin.";
+      instructionText = "Almost there, head to the exit.";
       instructionColor = Colors.amber;
     } else {
-      instructionText = "Kırmızı rotayı takip edin ve hızla ilerleyin.";
+      instructionText = "Follow the red route and move quickly.";
       instructionColor = Colors.white70;
     }
 
@@ -255,7 +254,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              isNearest ? 'EN YAKIN' : exit.name.split(' ')[0],
+                              isNearest ? 'NEAREST' : exit.name.split(' ')[0],
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 8,
@@ -289,7 +288,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
           // --- 3. HARİTAYI ORTALA ---
           Positioned(
             right: 20,
-            bottom: 220,
+            bottom: 240,
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               onPressed: _fitBounds,
@@ -335,7 +334,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.locationName ?? "Acil Çıkış Noktası",
+                              widget.locationName ?? "Emergency Exit Point",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -343,7 +342,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                               ),
                             ),
                             Text(
-                              "Mesafe: $distanceText", // HESAPLANAN MESAFE BURADA
+                              "Distance: $distanceText", // CALCULATED DISTANCE HERE
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -405,14 +404,3 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -180,7 +180,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Tercihler kaydedildi ✅"),
+                                content: Text("Preferences saved ✅"),
                               ),
                             );
                             Navigator.pop(context);
@@ -194,7 +194,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Kaydet'),
+                  child: const Text('Save'),
                 ),
               ),
             ),
@@ -372,12 +372,3 @@ class _Toggle extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-

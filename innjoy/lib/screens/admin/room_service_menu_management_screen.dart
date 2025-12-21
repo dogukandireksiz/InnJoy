@@ -451,7 +451,7 @@ class _RoomServiceMenuManagementScreenState
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Düzenle',
+                                    'Edit',
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
@@ -514,12 +514,3 @@ class _RoomServiceMenuManagementScreenState
     );
   }
 }
-
-
-
-
-
-
-
-
-

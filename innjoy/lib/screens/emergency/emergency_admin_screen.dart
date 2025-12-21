@@ -10,7 +10,7 @@ class EmergencyAdminScreen extends StatefulWidget {
 }
 
 class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
-  String _activeFilter = 'Tümü';
+  String _activeFilter = 'All';
 
   // Firebase referansı
   final CollectionReference _emergenciesRef = FirebaseFirestore.instance
@@ -18,11 +18,11 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
 
   Color _statusColor(String status) {
     switch (status) {
-      case 'İşleniyor':
+      case 'Processing':
         return const Color(0xFFFACC15); // amber
-      case 'Bekliyor':
+      case 'Pending':
         return const Color(0xFF94A3B8); // slate
-      case 'Çözüldü':
+      case 'Resolved':
         return const Color(0xFF22C55E); // green
       default:
         return Colors.grey;
@@ -31,9 +31,9 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
 
   IconData _categoryIcon(String category) {
     switch (category) {
-      case 'Yangın':
+      case 'Fire':
         return Icons.local_fire_department;
-      case 'Deprem':
+      case 'Earthquake':
         return Icons.waves;
       default:
         return Icons.warning;
@@ -43,7 +43,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
   // --- YENİ EKLENEN FONKSİYON: DURUMU GÜNCELLE ---
   Future<void> _markAsSolved(String docId, String currentStatus) async {
     // Eğer zaten çözüldüyse işlem yapma (veya isteğe göre geri al özelliği eklenebilir)
-    if (currentStatus == 'Çözüldü') return;
+    if (currentStatus == 'Resolved') return;
 
     try {
       // Kullanıcıya emin misin diye soralım (Opsiyonel, istemezsen direkt update kısmını kullan)
@@ -52,22 +52,22 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
         builder: (context) => AlertDialog(
           backgroundColor: const Color(0xFF1E1E1E),
           title: const Text(
-            "Durum Güncelleme",
+            "Status Update",
             style: TextStyle(color: Colors.white),
           ),
           content: const Text(
-            "Bu acil durumu 'Çözüldü' olarak işaretlemek istiyor musunuz?",
+            "Do you want to mark this emergency as 'Resolved'?",
             style: TextStyle(color: Colors.white70),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("İptal", style: TextStyle(color: Colors.grey)),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
               child: const Text(
-                "Evet, Çözüldü",
+                "Yes, Resolved",
                 style: TextStyle(color: Color(0xFF22C55E)),
               ),
             ),
@@ -82,7 +82,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Durum güncellendi!"),
+              content: Text("Status updated!"),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 1),
             ),
@@ -90,10 +90,10 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
         }
       }
     } catch (e) {
-      Logger.debug("Güncelleme hatası: $e");
+      Logger.debug("Update error: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Hata: $e"), backgroundColor: Colors.red),
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
         );
       }
     }
@@ -105,10 +105,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Acil Durumlar',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Emergencies', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF121212),
         elevation: 0,
@@ -128,7 +125,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Hata: ${snapshot.error}',
+                'Error: ${snapshot.error}',
                 style: const TextStyle(color: Colors.white),
               ),
             );
@@ -137,7 +134,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
-                'Kayıt bulunamadı (Liste Boş)',
+                'No records found (Empty List)',
                 style: TextStyle(color: Colors.white70),
               ),
             );
@@ -148,22 +145,22 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
               return _EmergencyItem.fromFirestore(doc);
             } catch (e) {
               return _EmergencyItem(
-                id: doc.id, // ID eklendi
-                title: 'HATA',
+                id: doc.id,
+                title: 'ERROR',
                 place: '-',
                 person: '-',
                 timestamp: Timestamp.now(),
-                category: 'Diğer',
-                status: 'Bekliyor',
+                category: 'Other',
+                status: 'Pending',
               );
             }
           }).toList();
 
           final activeCount = allItems
-              .where((e) => e.status == 'İşleniyor' || e.status == 'Bekliyor')
+              .where((e) => e.status == 'Processing' || e.status == 'Pending')
               .length;
 
-          final visibleItems = _activeFilter == 'Tümü'
+          final visibleItems = _activeFilter == 'All'
               ? allItems
               : allItems.where((e) => e.category == _activeFilter).toList();
 
@@ -179,7 +176,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
                           Text(
-                            'Acil Durumlar',
+                            'Emergencies',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -188,7 +185,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                           ),
                           SizedBox(height: 6),
                           Text(
-                            'Otel genelindeki acil durumları yönetin',
+                            'Manage hotel-wide emergencies',
                             style: TextStyle(color: Colors.white70),
                           ),
                         ],
@@ -215,7 +212,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '$activeCount Aktif',
+                            '$activeCount Active',
                             style: const TextStyle(
                               color: Color(0xFFFACC15),
                               fontWeight: FontWeight.w700,
@@ -234,24 +231,24 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                 child: Row(
                   children: [
                     _FilterChip(
-                      label: 'Tümü',
-                      selected: _activeFilter == 'Tümü',
-                      onTap: () => setState(() => _activeFilter = 'Tümü'),
+                      label: 'All',
+                      selected: _activeFilter == 'All',
+                      onTap: () => setState(() => _activeFilter = 'All'),
                     ),
                     _FilterChip(
-                      label: 'Yangın',
-                      selected: _activeFilter == 'Yangın',
-                      onTap: () => setState(() => _activeFilter = 'Yangın'),
+                      label: 'Fire',
+                      selected: _activeFilter == 'Fire',
+                      onTap: () => setState(() => _activeFilter = 'Fire'),
                     ),
                     _FilterChip(
-                      label: 'Deprem',
-                      selected: _activeFilter == 'Deprem',
-                      onTap: () => setState(() => _activeFilter = 'Deprem'),
+                      label: 'Earthquake',
+                      selected: _activeFilter == 'Earthquake',
+                      onTap: () => setState(() => _activeFilter = 'Earthquake'),
                     ),
                     _FilterChip(
-                      label: 'Diğer',
-                      selected: _activeFilter == 'Diğer',
-                      onTap: () => setState(() => _activeFilter = 'Diğer'),
+                      label: 'Other',
+                      selected: _activeFilter == 'Other',
+                      onTap: () => setState(() => _activeFilter = 'Other'),
                     ),
                   ],
                 ),
@@ -261,7 +258,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                 child: visibleItems.isEmpty
                     ? const Center(
                         child: Text(
-                          "Kayıt bulunamadı",
+                          "No records found",
                           style: TextStyle(color: Colors.white38),
                         ),
                       )
@@ -358,7 +355,7 @@ class _EmergencyCard extends StatelessWidget {
         color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: status == 'İşleniyor'
+          color: status == 'Processing'
               ? const Color(0xFFFACC15).withValues(alpha: 0.4)
               : Colors.white10,
         ),
@@ -424,7 +421,7 @@ class _EmergencyCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$minutesAgo dakika önce',
+                  '$minutesAgo minutes ago',
                   style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
               ],
@@ -460,17 +457,17 @@ class _EmergencyItem {
     final data = doc.data() as Map<String, dynamic>;
 
     String rawStatus = data['status'] ?? '';
-    String uiStatus = 'Bekliyor';
+    String uiStatus = 'Pending';
     if (rawStatus == 'active') {
-      uiStatus = 'İşleniyor';
+      uiStatus = 'Processing';
     } else if (rawStatus == 'solved' || rawStatus == 'closed') {
-      uiStatus = 'Çözüldü';
+      uiStatus = 'Resolved';
     }
 
-    String typeData = data['type'] ?? 'Diğer';
+    String typeData = data['type'] ?? 'Other';
     String categoryData = typeData;
-    if (typeData.contains('Diğer')) {
-      categoryData = 'Diğer';
+    if (typeData.contains('Other')) {
+      categoryData = 'Other';
     }
 
     String locationKey = data['location_context'] ?? '';
@@ -478,27 +475,27 @@ class _EmergencyItem {
     String placeText;
     switch (locationKey) {
       case 'my_room':
-        placeText = 'Oda $roomNum';
+        placeText = 'Room $roomNum';
         break;
       case 'restaurant':
-        placeText = 'Restoran';
+        placeText = 'Restaurant';
         break;
       case 'fitness':
-        placeText = 'Spor Salonu';
+        placeText = 'Fitness Center';
         break;
       case 'spa':
-        placeText = 'Spa Merkezi';
+        placeText = 'Spa Center';
         break;
       case 'reception':
-        placeText = 'Resepsiyon';
+        placeText = 'Reception';
         break;
       default:
         placeText = locationKey;
     }
 
     // ignore: unused_local_variable
-    String uid = data['user_uid'] ?? 'Anonim';
-    String personText = 'Misafir - Oda $roomNum';
+    String uid = data['user_uid'] ?? 'Anonymous';
+    String personText = 'Guest - Room $roomNum';
 
     return _EmergencyItem(
       id: doc.id, // Doküman ID'sini alıyoruz
@@ -517,14 +514,3 @@ class _EmergencyItem {
     return now.difference(date).inMinutes;
   }
 }
-
-
-
-
-
-
-
-
-
-
-

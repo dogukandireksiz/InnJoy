@@ -624,7 +624,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(width: 12),
                             itemBuilder: (context, index) {
                               final e = events[index];
-                              final title = e['title'] ?? 'Adsız Etkinlik';
+                              final title = e['title'] ?? 'Unnamed Event';
                               final time = e['time'] ?? '';
                               final location =
                                   e['location'] ?? ''; // Extract location
@@ -957,10 +957,7 @@ class _HotelCardState extends State<_HotelCard> {
                 const SizedBox(height: 8),
                 Text(
                   'Room ${widget.roomNumber ?? "N/A"}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 20),
                 // QR Code
@@ -993,10 +990,7 @@ class _HotelCardState extends State<_HotelCard> {
                 Text(
                   'Show this QR code for room access',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[500],
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey[500]),
                 ),
                 const SizedBox(height: 20),
                 // Close Button
@@ -1602,14 +1596,3 @@ class _BottomBarItem extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-

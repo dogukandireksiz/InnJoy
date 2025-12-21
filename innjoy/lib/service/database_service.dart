@@ -7,14 +7,14 @@ import 'dart:math';
 import 'logger_service.dart';
 
 /// DatabaseService - Singleton pattern ile uygulanan veritabanÄ± servisi.
-/// Her `DatabaseService()` Ã§aÄŸrÄ±sÄ± aynÄ± instance'Ä± dÃ¶ndÃ¼rÃ¼r, 
+/// Her `DatabaseService()` Ã§aÄŸrÄ±sÄ± aynÄ± instance'Ä± dÃ¶ndÃ¼rÃ¼r,
 /// bÃ¶ylece gereksiz nesne oluÅŸumu ve memory leak Ã¶nlenir.
 class DatabaseService {
   // Singleton instance
   static final DatabaseService _instance = DatabaseService._internal();
-  
+
   factory DatabaseService() => _instance;
-  
+
   DatabaseService._internal();
 
   // Firebase instances
@@ -139,7 +139,10 @@ class DatabaseService {
 
   // Create or Update Hotel Document (Fix for missing docs)
   Future<void> createHotel(String hotelName, Map<String, dynamic> data) async {
-    await _db.collection('hotels').doc(hotelName).set(data, SetOptions(merge: true));
+    await _db
+        .collection('hotels')
+        .doc(hotelName)
+        .set(data, SetOptions(merge: true));
   }
 
   // RESTORE: Recover parent doc from 'hotel information' subcollection
@@ -155,7 +158,10 @@ class DatabaseService {
       if (snapshot.docs.isNotEmpty) {
         final data = snapshot.docs.first.data();
         // Veriyi parent dokÃ¼mana yaz
-        await _db.collection('hotels').doc(hotelName).set(data, SetOptions(merge: true));
+        await _db
+            .collection('hotels')
+            .doc(hotelName)
+            .set(data, SetOptions(merge: true));
         return true;
       }
     } catch (e) {
@@ -177,12 +183,14 @@ class DatabaseService {
         .asyncMap((snapshot) async {
           Logger.debug('DEBUG: Got ${snapshot.docs.length} restaurant docs');
           List<Map<String, dynamic>> restaurants = [];
-          
+
           for (var doc in snapshot.docs) {
             final originalData = doc.data();
-            Logger.debug('DEBUG: Restaurant doc ${doc.id}, data empty: ${originalData.isEmpty}');
+            Logger.debug(
+              'DEBUG: Restaurant doc ${doc.id}, data empty: ${originalData.isEmpty}',
+            );
             Map<String, dynamic> data;
-            
+
             // EÄŸer belge boÅŸsa, settings/general'dan veriyi Ã§ek
             if (originalData.isEmpty) {
               Logger.debug('DEBUG: Fetching settings/general for ${doc.id}');
@@ -191,8 +199,10 @@ class DatabaseService {
                     .collection('settings')
                     .doc('general')
                     .get();
-                
-                Logger.debug('DEBUG: Settings doc exists: ${settingsDoc.exists}');
+
+                Logger.debug(
+                  'DEBUG: Settings doc exists: ${settingsDoc.exists}',
+                );
                 if (settingsDoc.exists && settingsDoc.data() != null) {
                   data = {...settingsDoc.data()!, 'id': doc.id};
                   Logger.debug('DEBUG: Got settings data: $data');
@@ -209,10 +219,10 @@ class DatabaseService {
               data = {...originalData, 'id': doc.id};
               Logger.debug('DEBUG: Using original data: $data');
             }
-            
+
             restaurants.add(data);
           }
-          
+
           Logger.debug('DEBUG: Returning ${restaurants.length} restaurants');
           return restaurants;
         });
@@ -356,12 +366,13 @@ class DatabaseService {
         .doc('Aurora Restaurant')
         .collection('settings')
         .doc('general');
-        
+
     final restSnap = await restRef.get();
     if (!restSnap.exists) {
       await restRef.set({
         'name': 'Aurora Restaurant',
-        'description': 'Fine dining with a panoramic city view, featuring a modern European menu.',
+        'description':
+            'Fine dining with a panoramic city view, featuring a modern European menu.',
         'imageUrl': 'assets/images/rest.png',
         'tableCount': 20,
       });
@@ -373,12 +384,13 @@ class DatabaseService {
         .doc(hotelName)
         .collection('spa_wellness')
         .doc('information');
-        
+
     final spaSnap = await spaRef.get();
     if (!spaSnap.exists) {
       await spaRef.set({
         'title': 'Serenity Spa',
-        'description': 'Indulge in our signature treatments and find your inner peace.',
+        'description':
+            'Indulge in our signature treatments and find your inner peace.',
         'imageUrl': 'assets/images/spa_service.png',
       });
     }
@@ -389,12 +401,13 @@ class DatabaseService {
         .doc(hotelName)
         .collection('fitness')
         .doc('information');
-        
+
     final fitnessSnap = await fitnessRef.get();
     if (!fitnessSnap.exists) {
       await fitnessRef.set({
         'title': '24/7 Fitness Center',
-        'description': 'Stay fit during your stay with our state-of-the-art fitness center. Fully equipped with modern cardio and strength training equipment, our gym is available to all hotel guests around the clock.',
+        'description':
+            'Stay fit during your stay with our state-of-the-art fitness center. Fully equipped with modern cardio and strength training equipment, our gym is available to all hotel guests around the clock.',
         'imageUrl': 'assets/images/fitness.png',
         'operatingHours': {
           'schedule': 'Monday - Sunday',
@@ -420,7 +433,8 @@ class DatabaseService {
           'floor': 'Ground Floor',
           'description': 'Next to the Pool Area',
         },
-        'accessInfo': 'Use your room key to access the fitness center at any time.',
+        'accessInfo':
+            'Use your room key to access the fitness center at any time.',
       });
     }
   }
@@ -475,22 +489,30 @@ class DatabaseService {
 
       // 2. Add to User's Reservation Expenses (For Spending Tracker)
       try {
-        Logger.debug("DEBUG placeRoomServiceOrder: Starting balance update for user ${user.uid}");
-        Logger.debug("DEBUG placeRoomServiceOrder: hotelName = $hotelName, roomNumber = $roomNumber, totalPrice = $totalPrice");
-        
+        Logger.debug(
+          "DEBUG placeRoomServiceOrder: Starting balance update for user ${user.uid}",
+        );
+        Logger.debug(
+          "DEBUG placeRoomServiceOrder: hotelName = $hotelName, roomNumber = $roomNumber, totalPrice = $totalPrice",
+        );
+
         // A. Check if user is admin (skip balance update if so)
         final userDoc = await _db.collection('users').doc(user.uid).get();
         final role = userDoc.data()?['role'];
         Logger.debug("DEBUG placeRoomServiceOrder: User role = $role");
 
         if (role == 'admin') {
-          Logger.debug("DEBUG placeRoomServiceOrder: User is admin, skipping balance update");
+          Logger.debug(
+            "DEBUG placeRoomServiceOrder: User is admin, skipping balance update",
+          );
           return;
         }
 
         // B. Find Active Reservation
         // Method 1: Try by usedBy field
-        Logger.debug("DEBUG placeRoomServiceOrder: Searching for reservation with usedBy=${user.uid}, status=used");
+        Logger.debug(
+          "DEBUG placeRoomServiceOrder: Searching for reservation with usedBy=${user.uid}, status=used",
+        );
         var query = await _db
             .collection('hotels')
             .doc(hotelName)
@@ -500,41 +522,54 @@ class DatabaseService {
             .limit(1)
             .get();
 
-        Logger.debug("DEBUG placeRoomServiceOrder: usedBy query returned ${query.docs.length} documents");
+        Logger.debug(
+          "DEBUG placeRoomServiceOrder: usedBy query returned ${query.docs.length} documents",
+        );
 
         DocumentReference? reservationRef;
 
         if (query.docs.isNotEmpty) {
           reservationRef = query.docs.first.reference;
-          Logger.debug("DEBUG placeRoomServiceOrder: Found reservation by usedBy: ${reservationRef.path}");
+          Logger.debug(
+            "DEBUG placeRoomServiceOrder: Found reservation by usedBy: ${reservationRef.path}",
+          );
         } else {
           // Method 2: Fallback - Try by roomNumber (doc ID)
-          Logger.debug("DEBUG placeRoomServiceOrder: Fallback - trying roomNumber as doc ID: $roomNumber");
+          Logger.debug(
+            "DEBUG placeRoomServiceOrder: Fallback - trying roomNumber as doc ID: $roomNumber",
+          );
           final roomDoc = await _db
               .collection('hotels')
               .doc(hotelName)
               .collection('reservations')
               .doc(roomNumber)
               .get();
-          
+
           if (roomDoc.exists) {
             final roomData = roomDoc.data();
             // Verify this reservation belongs to current user or is status='used'
             if (roomData != null && roomData['status'] == 'used') {
               reservationRef = roomDoc.reference;
-              Logger.debug("DEBUG placeRoomServiceOrder: Found reservation by roomNumber: ${reservationRef.path}");
+              Logger.debug(
+                "DEBUG placeRoomServiceOrder: Found reservation by roomNumber: ${reservationRef.path}",
+              );
             } else {
-              Logger.debug("DEBUG placeRoomServiceOrder: Room doc exists but status is not 'used': ${roomData?['status']}");
+              Logger.debug(
+                "DEBUG placeRoomServiceOrder: Room doc exists but status is not 'used': ${roomData?['status']}",
+              );
             }
           } else {
-            Logger.debug("DEBUG placeRoomServiceOrder: No reservation found by roomNumber either");
+            Logger.debug(
+              "DEBUG placeRoomServiceOrder: No reservation found by roomNumber either",
+            );
           }
         }
 
         if (reservationRef != null) {
           final expenseItem = {
             'title': 'Room Service',
-            'date': Timestamp.now(), // Use Timestamp.now() instead of FieldValue.serverTimestamp() for arrayUnion
+            'date':
+                Timestamp.now(), // Use Timestamp.now() instead of FieldValue.serverTimestamp() for arrayUnion
             'amount': totalPrice,
             'category': 'room_service',
             'items': items.map((e) => e['name']).join(', '),
@@ -546,7 +581,9 @@ class DatabaseService {
           });
           Logger.debug("DEBUG placeRoomServiceOrder: Balance update SUCCESS!");
         } else {
-          Logger.debug("DEBUG placeRoomServiceOrder: NO RESERVATION FOUND - balance not updated");
+          Logger.debug(
+            "DEBUG placeRoomServiceOrder: NO RESERVATION FOUND - balance not updated",
+          );
         }
       } catch (e) {
         Logger.error("Error updating balance: $e");
@@ -562,19 +599,25 @@ class DatabaseService {
     if (user == null) return Stream.value(null);
 
     // First get user's roomNumber, then listen to that reservation
-    return _db.collection('users').doc(user.uid).snapshots().asyncExpand((userSnapshot) {
+    return _db.collection('users').doc(user.uid).snapshots().asyncExpand((
+      userSnapshot,
+    ) {
       final userData = userSnapshot.data();
       final roomNumber = userData?['roomNumber'];
       final userHotelName = userData?['hotelName'];
-      
+
       // User must have roomNumber and be in the correct hotel
       if (roomNumber == null || userHotelName != hotelName) {
-        Logger.debug("DEBUG getMySpending: No roomNumber ($roomNumber) or hotel mismatch ($userHotelName vs $hotelName)");
+        Logger.debug(
+          "DEBUG getMySpending: No roomNumber ($roomNumber) or hotel mismatch ($userHotelName vs $hotelName)",
+        );
         return Stream.value(null);
       }
-      
-      Logger.debug("DEBUG getMySpending: Listening to reservation for room $roomNumber");
-      
+
+      Logger.debug(
+        "DEBUG getMySpending: Listening to reservation for room $roomNumber",
+      );
+
       // Listen to the reservation document directly by roomNumber
       return _db
           .collection('hotels')
@@ -585,10 +628,14 @@ class DatabaseService {
           .map((snapshot) {
             if (snapshot.exists) {
               final data = snapshot.data();
-              Logger.debug("DEBUG getMySpending: Got reservation data, currentBalance = ${data?['currentBalance']}");
+              Logger.debug(
+                "DEBUG getMySpending: Got reservation data, currentBalance = ${data?['currentBalance']}",
+              );
               return data;
             }
-            Logger.debug("DEBUG getMySpending: Reservation document doesn't exist");
+            Logger.debug(
+              "DEBUG getMySpending: Reservation document doesn't exist",
+            );
             return null;
           });
     });
@@ -604,31 +651,31 @@ class DatabaseService {
   Future<void> requestHousekeeping(String requestType, String note) async {
     User? user = _auth.currentUser;
     if (user == null) return;
-    
+
     // Get user data to fetch hotel name, room number, and guest name
     final userData = await getUserData(user.uid);
     if (userData == null) return;
-    
+
     final hotelName = userData['hotelName'];
     final roomNumber = userData['roomNumber'];
     final guestName = userData['name_username'] ?? 'Guest';
-    
+
     if (hotelName == null || roomNumber == null) return;
-    
+
     await _db
         .collection('hotels')
         .doc(hotelName)
         .collection('housekeeping_requests')
         .add({
-      'userId': user.uid,
-      'roomNumber': roomNumber,
-      'guestName': guestName,
-      'hotelName': hotelName,
-      'requestType': requestType, // 'Housekeeping'
-      'details': note, // Full request details
-      'status': 'Active', // Active or Completed
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+          'userId': user.uid,
+          'roomNumber': roomNumber,
+          'guestName': guestName,
+          'hotelName': hotelName,
+          'requestType': requestType, // 'Housekeeping'
+          'details': note, // Full request details
+          'status': 'Active', // Active or Completed
+          'timestamp': FieldValue.serverTimestamp(),
+        });
   }
 
   // NOTE: Legacy getHousekeepingHistory() method removed.
@@ -636,17 +683,22 @@ class DatabaseService {
   // getMyHousekeepingRequests(hotelName) for customer access.
 
   // --- OTEL BAZLI HOUSEKEEPING Ä°STEKLERÄ°NÄ° GETÄ°R (ADMÄ°N Ä°Ã‡Ä°N) ---
-  Stream<List<Map<String, dynamic>>> getHotelHousekeepingRequests(String hotelName) {
+  Stream<List<Map<String, dynamic>>> getHotelHousekeepingRequests(
+    String hotelName,
+  ) {
     return _db
         .collection('hotels')
         .doc(hotelName)
         .collection('housekeeping_requests')
-        .where('status', isNotEqualTo: 'archived')  // ArÅŸivlenmiÅŸleri gÃ¶sterme
+        .where(
+          'status',
+          isNotEqualTo: 'archived',
+        ) // ArÅŸivlenmiÅŸleri gÃ¶sterme
         .snapshots()
         .map((snapshot) {
           final requests = snapshot.docs.map((doc) {
             final data = doc.data();
-            data['id'] = doc.id;  // Document ID'yi ekle
+            data['id'] = doc.id; // Document ID'yi ekle
             return data;
           }).toList();
           // Timestamp'e gÃ¶re sÄ±rala (descending)
@@ -690,8 +742,20 @@ class DatabaseService {
 
   // Helper: Etkinlik adÄ±nÄ± sanitize et (klasÃ¶r adÄ± iÃ§in)
   String _sanitizeEventName(String name) {
-    final turkishChars = {'Ä±': 'i', 'ÄŸ': 'g', 'Ã¼': 'u', 'ÅŸ': 's', 'Ã¶': 'o', 'Ã§': 'c',
-                          'Ä°': 'I', 'Ä': 'G', 'Ãœ': 'U', 'Å': 'S', 'Ã–': 'O', 'Ã‡': 'C'};
+    final turkishChars = {
+      'Ä±': 'i',
+      'ÄŸ': 'g',
+      'Ã¼': 'u',
+      'ÅŸ': 's',
+      'Ã¶': 'o',
+      'Ã§': 'c',
+      'Ä°': 'I',
+      'Ä': 'G',
+      'Ãœ': 'U',
+      'Å': 'S',
+      'Ã–': 'O',
+      'Ã‡': 'C',
+    };
     String sanitized = name;
     turkishChars.forEach((key, value) {
       sanitized = sanitized.replaceAll(key, value);
@@ -713,20 +777,20 @@ class DatabaseService {
         .snapshots()
         .asyncMap((snapshot) async {
           List<Map<String, dynamic>> events = [];
-          
+
           for (var doc in snapshot.docs) {
             final detailsDoc = await doc.reference
                 .collection('hotel_information')
                 .doc('details')
                 .get();
-            
+
             if (detailsDoc.exists && detailsDoc.data() != null) {
               var data = detailsDoc.data()!;
               data['id'] = doc.id;
               events.add(data);
             }
           }
-          
+
           // Tarihe gÃ¶re sÄ±rala
           events.sort((a, b) {
             final aDate = a['date'];
@@ -737,7 +801,7 @@ class DatabaseService {
             }
             return 0;
           });
-          
+
           return events;
         });
   }
@@ -749,13 +813,13 @@ class DatabaseService {
   ) async {
     final eventTitle = eventData['title'] ?? 'event';
     final eventFolderId = _sanitizeEventName(eventTitle);
-    
+
     final eventRef = _db
         .collection('hotels')
         .doc(hotelName)
         .collection('events')
         .doc(eventFolderId);
-    
+
     // Ana event dokÃ¼manÄ± - SORGULAMA Ä°Ã‡Ä°N GEREKLÄ° ALANLAR BURAYA
     await eventRef.set({
       'createdAt': FieldValue.serverTimestamp(),
@@ -764,16 +828,13 @@ class DatabaseService {
       'date': eventData['date'],
       'isPublished': eventData['isPublished'] ?? true,
     });
-    
+
     // hotel_information/details - etkinlik bilgileri
-    await eventRef
-        .collection('hotel_information')
-        .doc('details')
-        .set({
-          ...eventData,
-          'registered': eventData['registered'] ?? 0,
-        });
-    
+    await eventRef.collection('hotel_information').doc('details').set({
+      ...eventData,
+      'registered': eventData['registered'] ?? 0,
+    });
+
     return eventFolderId;
   }
 
@@ -794,7 +855,8 @@ class DatabaseService {
       if (eventData.containsKey('title')) 'eventName': eventData['title'],
       if (eventData.containsKey('category')) 'category': eventData['category'],
       if (eventData.containsKey('date')) 'date': eventData['date'],
-      if (eventData.containsKey('isPublished')) 'isPublished': eventData['isPublished'],
+      if (eventData.containsKey('isPublished'))
+        'isPublished': eventData['isPublished'],
     });
 
     // DetaylarÄ± gÃ¼ncelle
@@ -827,19 +889,19 @@ class DatabaseService {
         .doc(hotelName)
         .collection('events')
         .doc(eventId);
-    
+
     // hotel_information koleksiyonunu sil
     final hotelInfoDocs = await eventRef.collection('hotel_information').get();
     for (var doc in hotelInfoDocs.docs) {
       await doc.reference.delete();
     }
-    
+
     // registrants koleksiyonunu sil
     final registrantsDocs = await eventRef.collection('registrants').get();
     for (var doc in registrantsDocs.docs) {
       await doc.reference.delete();
     }
-    
+
     // Ana dokÃ¼manÄ± sil
     await eventRef.delete();
   }
@@ -858,7 +920,7 @@ class DatabaseService {
   ) async {
     // 6 Haneli Rastgele PNR Ãœret (check-in kodu olarak)
     String pnr = _generateRandomPnr();
-    
+
     // QR Kod verisi oluÅŸtur (benzersiz tanÄ±mlayÄ±cÄ±)
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final qrCodeData = 'INNJOY:$hotelName:$roomNumber:$pnr:$timestamp';
@@ -1000,10 +1062,10 @@ class DatabaseService {
       if (doc.exists) {
         final data = doc.data();
         final userId = data?['usedBy'];
-        
+
         // Housekeeping isteklerini arÅŸivle
         await archiveHousekeepingRequestsForRoom(hotelName, roomNumber);
-        
+
         if (userId != null) {
           // KullanÄ±cÄ±yÄ± otelden Ã§Ä±kar
           await _db.collection('users').doc(userId).update({
@@ -1194,7 +1256,10 @@ class DatabaseService {
   }
 
   // --- KULLANICIYA AÄ°T TÃœM REZERVASYONLARI GETÄ°R (Otel BazlÄ± - Index gerektirmez) ---
-  Stream<List<Map<String, dynamic>>> getUserReservations(String userId, {String? hotelName}) {
+  Stream<List<Map<String, dynamic>>> getUserReservations(
+    String userId, {
+    String? hotelName,
+  }) {
     if (hotelName == null || hotelName.isEmpty) {
       return Stream.value([]);
     }
@@ -1214,19 +1279,22 @@ class DatabaseService {
 
   // --- KULLANICIYA AÄ°T TÃœM ETKÄ°NLÄ°K KAYITLARINI GETÄ°R (Otel BazlÄ±) ---
   // --- KULLANICIYA AÄ°T TÃœM ETKÄ°NLÄ°K KAYITLARINI GETÄ°R (Otel BazlÄ±) ---
-  Stream<List<Map<String, dynamic>>> getUserEvents(String userId, {String? hotelName}) async* {
+  Stream<List<Map<String, dynamic>>> getUserEvents(
+    String userId, {
+    String? hotelName,
+  }) async* {
     if (hotelName == null || hotelName.isEmpty) {
       yield [];
       return;
     }
-    
+
     // TÃ¼m etkinliklerin ID'lerini al
     final eventsSnapshot = await _db
         .collection('hotels')
         .doc(hotelName)
         .collection('events')
         .get();
-    
+
     if (eventsSnapshot.docs.isEmpty) {
       yield [];
       return;
@@ -1234,18 +1302,18 @@ class DatabaseService {
 
     // Her etkinliÄŸin registrants'Ä±na bak ve kullanÄ±cÄ±yÄ± ara
     List<Map<String, dynamic>> allRegistrations = [];
-    
+
     for (var eventDoc in eventsSnapshot.docs) {
       final registrantDoc = await eventDoc.reference
           .collection('registrants')
           .doc(userId)
           .get();
-      
+
       if (registrantDoc.exists && registrantDoc.data() != null) {
         // Event detaylarÄ±nÄ± (resim, lokasyon, saat) ve kayÄ±t detaylarÄ±nÄ± (tarih) birleÅŸtir
         final eventData = eventDoc.data();
         final registrationData = registrantDoc.data()!;
-        
+
         // Ã‡akÄ±ÅŸmalarÄ± Ã¶nlemek ve veriyi zenginleÅŸtirmek iÃ§in birleÅŸtirme
         final mergedData = <String, dynamic>{
           ...eventData, // Event'ten gelen title, location, time, imageAsset
@@ -1254,22 +1322,25 @@ class DatabaseService {
           // Tarih karmaÅŸasÄ±nÄ± Ã¶nlemek iÃ§in:
           // EÄŸer registrationData'da 'date' yoksa veya eventData'daki 'date' (gerÃ§ek etkinlik tarihi) gerekiyorsa
           // Genellikle takvimde etkinliÄŸin olduÄŸu gÃ¼n gÃ¶sterilmeli
-          'eventDate': eventData['date'], 
+          'eventDate': eventData['date'],
         };
-        
+
         allRegistrations.add(mergedData);
       }
     }
-    
+
     yield allRegistrations;
   }
 
   // --- KULLANICIYA AÄ°T TÃœM SPA RANDEVULARINI GETÄ°R (Otel BazlÄ±) ---
-  Stream<List<Map<String, dynamic>>> getUserSpaAppointments(String userId, {String? hotelName}) {
+  Stream<List<Map<String, dynamic>>> getUserSpaAppointments(
+    String userId, {
+    String? hotelName,
+  }) {
     if (hotelName == null || hotelName.isEmpty) {
       return Stream.value([]);
     }
-    
+
     return _db
         .collection('hotels')
         .doc(hotelName)
@@ -1317,8 +1388,12 @@ class DatabaseService {
         .doc(eventId);
 
     try {
-      final hotelInfoRef = eventRef.collection('hotel_information').doc('details');
-      final registrantsRef = eventRef.collection('registrants').doc(userInfo['userId']);
+      final hotelInfoRef = eventRef
+          .collection('hotel_information')
+          .doc('details');
+      final registrantsRef = eventRef
+          .collection('registrants')
+          .doc(userInfo['userId']);
 
       return await _db.runTransaction((transaction) async {
         // Etkinlik bilgilerini al
@@ -1359,7 +1434,8 @@ class DatabaseService {
           'userEmail': userInfo['email'] ?? '',
           'roomNumber': userInfo['odaNo'] ?? userInfo['roomNumber'] ?? '',
           'eventId': eventId,
-          'eventTitle': eventDetails['eventTitle'] ?? eventDetails['title'] ?? '',
+          'eventTitle':
+              eventDetails['eventTitle'] ?? eventDetails['title'] ?? '',
           'eventDate': eventDetails['eventDate'] ?? eventDetails['date'],
           'hotelName': hotelName,
           'timestamp': FieldValue.serverTimestamp(),
@@ -1417,7 +1493,7 @@ class DatabaseService {
     // 2. Aktif Rezervasyonu Bul ve Ãœcreti YansÄ±t (SADECE ODA HESABI Ä°SE)
     if (paymentMethod == 'room_charge' && price > 0) {
       final roomNumber = userData['roomNumber'];
-      
+
       // Method 1: Try by usedBy field
       var reservationQuery = await _db
           .collection('hotels')
@@ -1440,7 +1516,7 @@ class DatabaseService {
             .collection('reservations')
             .doc(roomNumber)
             .get();
-        
+
         if (roomDoc.exists && roomDoc.data()?['status'] == 'used') {
           reservationRef = roomDoc.reference;
         }
@@ -1449,7 +1525,8 @@ class DatabaseService {
       if (reservationRef != null) {
         final expenseItem = {
           'title': serviceName,
-          'date': Timestamp.now(), // Use Timestamp.now() instead of FieldValue.serverTimestamp() for arrayUnion
+          'date':
+              Timestamp.now(), // Use Timestamp.now() instead of FieldValue.serverTimestamp() for arrayUnion
           'amount': price,
           'category': 'spa_wellness',
           'items': 'Spa Appointment - $duration',
@@ -1461,7 +1538,9 @@ class DatabaseService {
         });
       } else {
         // EÄŸer aktif rezervasyon yoksa
-        throw Exception("No active hotel reservation found, cannot charge to room.");
+        throw Exception(
+          "No active hotel reservation found, cannot charge to room.",
+        );
       }
     }
 
@@ -1485,7 +1564,9 @@ class DatabaseService {
           'hotelName': hotelName,
           'createdAt': FieldValue.serverTimestamp(),
           'status': 'pending', // pending, confirmed, completed, cancelled
-          'paymentStatus': paymentMethod == 'room_charge' ? 'charged_to_room' : 'pay_at_spa',
+          'paymentStatus': paymentMethod == 'room_charge'
+              ? 'charged_to_room'
+              : 'pay_at_spa',
           'paymentMethod': paymentMethod,
         });
   }
@@ -1502,12 +1583,20 @@ class DatabaseService {
         .collection('spa_wellness')
         .doc('reservations')
         .collection('appointments')
-        .where('appointmentDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where(
+          'appointmentDate',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
+        )
         .where('appointmentDate', isLessThan: Timestamp.fromDate(endOfDay))
-        .where('status', isNotEqualTo: 'cancelled') // Ä°ptal edilenler uygun sayÄ±lÄ±r
+        .where(
+          'status',
+          isNotEqualTo: 'cancelled',
+        ) // Ä°ptal edilenler uygun sayÄ±lÄ±r
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) => doc.data()['timeSlot'] as String).toList();
+          return snapshot.docs
+              .map((doc) => doc.data()['timeSlot'] as String)
+              .toList();
         });
   }
 
@@ -1679,7 +1768,9 @@ class DatabaseService {
   }
 
   // Get current user's housekeeping requests
-  Stream<List<Map<String, dynamic>>> getMyHousekeepingRequests(String hotelName) {
+  Stream<List<Map<String, dynamic>>> getMyHousekeepingRequests(
+    String hotelName,
+  ) {
     User? user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
@@ -1712,7 +1803,7 @@ class DatabaseService {
   /// Get current user's room number for emergency situations
   Future<String> getUserRoomNumber() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return "Bilinmiyor";
+    if (user == null) return "Unknown";
 
     try {
       final doc = await FirebaseFirestore.instance
@@ -1721,12 +1812,12 @@ class DatabaseService {
           .get();
 
       if (doc.exists) {
-        return doc.data()?['roomNumber'] ?? "Bilinmiyor";
+        return doc.data()?['roomNumber'] ?? "Unknown";
       }
     } catch (e) {
       Logger.debug("getUserRoomNumber Error: $e");
     }
-    return "Bilinmiyor";
+    return "Unknown";
   }
 
   /// Send emergency alert to Firestore
@@ -1745,7 +1836,7 @@ class DatabaseService {
         'location_context': locationContext,
       });
     } catch (e) {
-      throw Exception("Bildirim gÃ¶nderilemedi: $e");
+      throw Exception("Failed to send notification: $e");
     }
   }
 
@@ -1807,14 +1898,3 @@ class DatabaseService {
         .snapshots();
   }
 }
-
-
-
-
-
-
-
-
-
-
-

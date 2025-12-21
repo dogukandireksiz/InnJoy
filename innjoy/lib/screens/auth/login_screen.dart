@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       setState(() {
         errorMessage = "Login Error: $e";
-        CustomSnackBar.show(context, message: "Giriş hatası: $e");
+        CustomSnackBar.show(context, message: "Login error: $e");
       });
     }
   }

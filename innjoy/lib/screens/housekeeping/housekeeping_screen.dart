@@ -16,18 +16,18 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
   bool _doNotDisturb = false;
   int _selectedTimeType = 0; // 0: Hemen Temizle, 1: Belirli Saat Aralığında
   String _selectedTimeRange = '14:00 - 16:00';
-  
+
   // Malzeme talepleri
   int _extraTowelCount = 0;
   int _pillowCount = 0;
   int _blanketCount = 0;
-  
+
   final TextEditingController _notesController = TextEditingController();
-  
+
   //--- MANTIK DEĞİŞKENLERİ ---
   bool _requestSent = false; // UI durumu için
-  bool _isLoading = false;   // Yükleniyor durumu için
-  
+  bool _isLoading = false; // Yükleniyor durumu için
+
   // User and hotel context
   String? _hotelName;
   String? _roomNumber;
@@ -52,13 +52,13 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     if (user != null) {
       try {
         Logger.debug('🔍 Loading user data for UID: ${user.uid}');
-        
+
         // Fetch user data directly from Firestore
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .get();
-        
+
         if (userDoc.exists && mounted) {
           final userData = userDoc.data();
           if (userData != null) {
@@ -67,7 +67,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               _roomNumber = userData['roomNumber'];
               _doNotDisturb = userData['doNotDisturb'] ?? false;
             });
-            Logger.debug('✅ User context loaded: Hotel=$_hotelName, Room=$_roomNumber, DND=$_doNotDisturb');
+            Logger.debug(
+              '✅ User context loaded: Hotel=$_hotelName, Room=$_roomNumber, DND=$_doNotDisturb',
+            );
           } else {
             Logger.debug('❌ User document exists but data is null');
           }
@@ -93,7 +95,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
 
   Future<void> _updateDoNotDisturb(bool? value) async {
     if (value == null) return;
-    
+
     // Check if user data is loaded (only for customers)
     if (_hotelName == null) {
       if (mounted) {
@@ -107,7 +109,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
       }
       return;
     }
-    
+
     // For customers, roomNumber is required
     // For admins, roomNumber is optional (they might be testing)
     final user = FirebaseAuth.instance.currentUser;
@@ -117,9 +119,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
           .collection('users')
           .doc(user.uid)
           .get();
-      
+
       final role = userDoc.data()?['role'];
-      
+
       // If customer and no roomNumber, show error
       if (role != 'admin') {
         if (mounted) {
@@ -134,12 +136,14 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         return;
       }
     }
-    
+
     setState(() => _doNotDisturb = value);
-    
+
     try {
-      Logger.debug('🔄 Updating DND to: $value for Hotel=$_hotelName, Room=$_roomNumber');
-      
+      Logger.debug(
+        '🔄 Updating DND to: $value for Hotel=$_hotelName, Room=$_roomNumber',
+      );
+
       // Update room's doNotDisturb status in Firebase (if roomNumber exists)
       if (_roomNumber != null) {
         await FirebaseFirestore.instance
@@ -149,7 +153,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
             .doc(_roomNumber)
             .set({'doNotDisturb': value}, SetOptions(merge: true));
       }
-      
+
       // Also update user document
       if (user != null) {
         await FirebaseFirestore.instance
@@ -157,13 +161,15 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
             .doc(user.uid)
             .update({'doNotDisturb': value});
       }
-      
+
       Logger.debug('✅ DND updated successfully');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(value ? 'Do Not Disturb enabled' : 'Do Not Disturb disabled'),
+            content: Text(
+              value ? 'Do Not Disturb enabled' : 'Do Not Disturb disabled',
+            ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 1),
           ),
@@ -173,7 +179,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
       Logger.debug('❌ Error updating DND: $e');
       // Revert state on error
       setState(() => _doNotDisturb = !value);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -198,19 +204,22 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
 
     // 1. Verileri Hazırla: Tasarımdaki tüm seçimleri birleştiriyoruz
     StringBuffer detailsBuffer = StringBuffer();
-    detailsBuffer.writeln("Zamanlama: ${_selectedTimeType == 0 ? 'Hemen' : _selectedTimeRange}");
-    
+    detailsBuffer.writeln(
+      "Timing: ${_selectedTimeType == 0 ? 'Now' : _selectedTimeRange}",
+    );
+
     if (_doNotDisturb) {
-      detailsBuffer.writeln("DURUM: RAHATSIZ ETMEYİN");
+      detailsBuffer.writeln("STATUS: DO NOT DISTURB");
     }
 
-    if (_extraTowelCount > 0) detailsBuffer.writeln("Ekstra Havlu: $_extraTowelCount");
-    if (_pillowCount > 0) detailsBuffer.writeln("Yastık: $_pillowCount");
-    if (_blanketCount > 0) detailsBuffer.writeln("Battaniye: $_blanketCount");
-    
-    // Kullanıcı notunu da ekle
+    if (_extraTowelCount > 0)
+      detailsBuffer.writeln("Extra Towels: $_extraTowelCount");
+    if (_pillowCount > 0) detailsBuffer.writeln("Pillows: $_pillowCount");
+    if (_blanketCount > 0) detailsBuffer.writeln("Blankets: $_blanketCount");
+
+    // Add user note
     if (_notesController.text.isNotEmpty) {
-      detailsBuffer.writeln("\nKullanıcı Notu: ${_notesController.text}");
+      detailsBuffer.writeln("\nUser Note: ${_notesController.text}");
     }
 
     try {
@@ -229,14 +238,19 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Your request has been successfully submitted."), backgroundColor: Colors.green),
+        const SnackBar(
+          content: Text("Your request has been successfully submitted."),
+          backgroundColor: Colors.green,
+        ),
       );
-
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error occurred: $e"), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Error occurred: $e"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -255,7 +269,11 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         ),
         title: const Text(
           'Housekeeping Request',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -309,21 +327,18 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Show cleaning options only if DND is OFF
             if (!_doNotDisturb) ...[
               // Cleaning Request
               const Text(
                 'Cleaning Request',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
-              
+
               // Zaman Seçimi Chips
               Row(
                 children: [
@@ -340,12 +355,15 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                   ),
                 ],
               ),
-              
+
               // Saat Seçimi (sadece Belirli Saat Aralığında seçiliyse)
               if (_selectedTimeType == 1) ...[
                 const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -356,10 +374,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     children: [
                       const Text(
                         'Select Time',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 15,
-                        ),
+                        style: TextStyle(color: Colors.black54, fontSize: 15),
                       ),
                       GestureDetector(
                         onTap: () => _showTimeRangePicker(),
@@ -373,7 +388,10 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
+                            Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Colors.grey[600],
+                            ),
                           ],
                         ),
                       ),
@@ -382,7 +400,6 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ),
               ],
             ], // Close cleaning request if block
-            
             // Show info message when DND is active
             if (_doNotDisturb) ...[
               Container(
@@ -394,7 +411,11 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.orange[700], size: 24),
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.orange[700],
+                      size: 24,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -410,72 +431,66 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 24),
-            
+
             // Material and Extra Requests (only if DND is OFF)
             if (!_doNotDisturb) ...[
               const Text(
                 'Material and Extra Requests',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-            const SizedBox(height: 12),
-            
-            _MaterialRequestItem(
-              icon: Icons.local_laundry_service,
-              label: 'Extra Towels',
-              count: _extraTowelCount,
-              onDecrement: () {
-                if (_extraTowelCount > 0) {
-                  setState(() => _extraTowelCount--);
-                }
-              },
-              onIncrement: () => setState(() => _extraTowelCount++),
-            ),
-            const SizedBox(height: 12),
-            
-            _MaterialRequestItem(
-              icon: Icons.king_bed,
-              label: 'Pillows',
-              count: _pillowCount,
-              onDecrement: () {
-                if (_pillowCount > 0) {
-                  setState(() => _pillowCount--);
-                }
-              },
-              onIncrement: () => setState(() => _pillowCount++),
-            ),
-            const SizedBox(height: 12),
-            
-            _MaterialRequestItem(
-              icon: Icons.airline_seat_individual_suite,
-              label: 'Blankets',
-              count: _blanketCount,
-              onDecrement: () {
-                if (_blanketCount > 0) {
-                  setState(() => _blanketCount--);
-                }
-              },
-              onIncrement: () => setState(() => _blanketCount++),
-            ),
+              const SizedBox(height: 12),
+
+              _MaterialRequestItem(
+                icon: Icons.local_laundry_service,
+                label: 'Extra Towels',
+                count: _extraTowelCount,
+                onDecrement: () {
+                  if (_extraTowelCount > 0) {
+                    setState(() => _extraTowelCount--);
+                  }
+                },
+                onIncrement: () => setState(() => _extraTowelCount++),
+              ),
+              const SizedBox(height: 12),
+
+              _MaterialRequestItem(
+                icon: Icons.king_bed,
+                label: 'Pillows',
+                count: _pillowCount,
+                onDecrement: () {
+                  if (_pillowCount > 0) {
+                    setState(() => _pillowCount--);
+                  }
+                },
+                onIncrement: () => setState(() => _pillowCount++),
+              ),
+              const SizedBox(height: 12),
+
+              _MaterialRequestItem(
+                icon: Icons.airline_seat_individual_suite,
+                label: 'Blankets',
+                count: _blanketCount,
+                onDecrement: () {
+                  if (_blanketCount > 0) {
+                    setState(() => _blanketCount--);
+                  }
+                },
+                onIncrement: () => setState(() => _blanketCount++),
+              ),
             ], // Close material requests if block
-            
+
             const SizedBox(height: 24),
-            
+
             // Special Requests and Complaints (only if DND is OFF)
             if (!_doNotDisturb) ...[
               const Text(
                 'Special Requests and Complaints',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
-              
+
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -486,7 +501,8 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                   controller: _notesController,
                   maxLines: 4,
                   decoration: InputDecoration(
-                    hintText: 'Please write your special requests or notes here...',
+                    hintText:
+                        'Please write your special requests or notes here...',
                     hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
@@ -494,27 +510,26 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ),
               ),
             ], // Close special requests if block
-            
+
             const SizedBox(height: 24),
-            
+
             // Request Tracking (only if DND is OFF)
             if (!_doNotDisturb) ...[
               const Text(
                 'Request Tracking',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
-              
+
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: _requestSent ? const Color(0xFFE8F5E9) : Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _requestSent ? const Color(0xFF4CAF50) : Colors.grey[300]!,
+                    color: _requestSent
+                        ? const Color(0xFF4CAF50)
+                        : Colors.grey[300]!,
                   ),
                 ),
                 child: Row(
@@ -523,7 +538,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: _requestSent ? const Color(0xFF4CAF50) : Colors.grey[200],
+                        color: _requestSent
+                            ? const Color(0xFF4CAF50)
+                            : Colors.grey[200],
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(
@@ -542,7 +559,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 15,
-                              color: _requestSent ? const Color(0xFF2E7D32) : Colors.black87,
+                              color: _requestSent
+                                  ? const Color(0xFF2E7D32)
+                                  : Colors.black87,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -551,7 +570,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                                 ? 'Our team will attend to it as soon as possible.'
                                 : 'Click the button below to send your request.',
                             style: TextStyle(
-                              color: _requestSent ? const Color(0xFF388E3C) : Colors.grey[600],
+                              color: _requestSent
+                                  ? const Color(0xFF388E3C)
+                                  : Colors.grey[600],
                               fontSize: 13,
                             ),
                           ),
@@ -562,7 +583,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ),
               ),
             ], // Close request tracking if block
-            
+
             const SizedBox(height: 100),
           ],
         ),
@@ -587,21 +608,27 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               backgroundColor: const Color(0xFF1677FF),
               disabledBackgroundColor: Colors.grey[300],
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: _isLoading 
-              ? const SizedBox(
-                  height: 20, width: 20, 
-                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                )
-              : Text(
-                  _requestSent ? 'Request Sent' : 'Send Request',
-                  style: TextStyle(
-                    color: _requestSent ? Colors.grey[600] : Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    _requestSent ? 'Request Sent' : 'Send Request',
+                    style: TextStyle(
+                      color: _requestSent ? Colors.grey[600] : Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
           ),
         ),
       ),
@@ -622,10 +649,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
           children: [
             const Text(
               'Select Time Range',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
             ...List.generate(_timeRanges.length, (index) {
@@ -641,8 +665,12 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 title: Text(
                   range,
                   style: TextStyle(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? const Color(0xFF1677FF) : Colors.black87,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: isSelected
+                        ? const Color(0xFF1677FF)
+                        : Colors.black87,
                   ),
                 ),
                 trailing: isSelected
@@ -742,10 +770,7 @@ class _MaterialRequestItem extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 15,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
             ),
           ),
           // Counter
@@ -760,7 +785,11 @@ class _MaterialRequestItem extends StatelessWidget {
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.remove, size: 18, color: Colors.black54),
+                  child: const Icon(
+                    Icons.remove,
+                    size: 18,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
               SizedBox(
@@ -793,12 +822,3 @@ class _MaterialRequestItem extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-

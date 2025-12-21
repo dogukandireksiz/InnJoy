@@ -9,11 +9,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'service/database_service.dart';
+import 'service/notification_service.dart';
 import 'dart:async';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService().initialize(); // Zamanlanmış bildirimler için
   runApp(const InnJoyHotelApp());
 }
 
@@ -113,7 +115,9 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
   void _listenForInterestEvents() {
     final user = FirebaseAuth.instance.currentUser;
-    Logger.debug("🔔 DEBUG: _listenForInterestEvents başladı, user: ${user?.uid}");
+    Logger.debug(
+      "🔔 DEBUG: _listenForInterestEvents başladı, user: ${user?.uid}",
+    );
 
     if (user == null) {
       Logger.debug("❌ DEBUG: User null, bildirim dinleyicisi başlatılamadı!");
@@ -148,7 +152,9 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
             // Eğer ilgi alanı veya otel yoksa çık
             if (interests.isEmpty) {
-              Logger.debug("⚠️ DEBUG: İlgi alanları boş, dinleyici başlatılmadı!");
+              Logger.debug(
+                "⚠️ DEBUG: İlgi alanları boş, dinleyici başlatılmadı!",
+              );
               return;
             }
 
@@ -287,7 +293,9 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
         _notifiedEventIds.add(eventId);
         _showEventNotification(data);
       } else {
-        Logger.debug("⏭️ DEBUG: createdAt appStart'tan önce, bildirim gönderilmedi");
+        Logger.debug(
+          "⏭️ DEBUG: createdAt appStart'tan önce, bildirim gönderilmedi",
+        );
       }
     } catch (e) {
       Logger.debug('❌ DEBUG: Etkinlik detay hatası: $e');
@@ -296,9 +304,9 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
   // Etkinlik Bildirimi Göster
   Future<void> _showEventNotification(Map<String, dynamic> data) async {
-    final title = data['title'] ?? 'Yeni Etkinlik';
+    final title = data['title'] ?? 'New Event';
     final time = data['time'] ?? '';
-    final location = data['location'] ?? 'Otel';
+    final location = data['location'] ?? 'Hotel';
     final category = data['category'] ?? '';
 
     // Benzersiz bildirim ID'si
@@ -308,8 +316,8 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'event_notification_channel',
-          'Etkinlik Bildirimleri',
-          channelDescription: 'Yeni etkinlik bildirimleri',
+          'Event Notifications',
+          channelDescription: 'New event notifications',
           importance: Importance.high,
           priority: Priority.defaultPriority,
           color: Colors.blue,
@@ -333,7 +341,7 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
     await _notificationsPlugin.show(
       notificationId,
-      "🎉 Yeni Etkinlik: $title",
+      "🎉 New Event: $title",
       "📍 $location • ⏰ $time${category.isNotEmpty ? ' • $category' : ''}",
       details,
     );
@@ -341,27 +349,27 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
   // 3. Bildirimi Göster (ALARM SESLİ VE YÜKSEK ÖNCELİKLİ)
   Future<void> _showEmergencyNotification(Map<String, dynamic> data) async {
-    String type = data['type'] ?? 'Acil Durum';
-    String room = data['room_number'] ?? 'Bilinmiyor';
-    String location = data['location_context'] ?? 'Otel Alanı';
+    String type = data['type'] ?? 'Emergency';
+    String room = data['room_number'] ?? 'Unknown';
+    String location = data['location_context'] ?? 'Hotel Area';
 
-    // Konum çevirisi (İngilizce key -> Türkçe)
+    // Location translation (English key -> English display)
     String locationText;
     switch (location) {
       case 'my_room':
-        locationText = 'Oda $room';
+        locationText = 'Room $room';
         break;
       case 'restaurant':
-        locationText = 'Restoran';
+        locationText = 'Restaurant';
         break;
       case 'fitness':
-        locationText = 'Spor Salonu';
+        locationText = 'Fitness Center';
         break;
       case 'spa':
-        locationText = 'Spa Merkezi';
+        locationText = 'Spa Center';
         break;
       case 'reception':
-        locationText = 'Resepsiyon';
+        locationText = 'Reception';
         break;
       default:
         locationText = location;
@@ -374,8 +382,8 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'emergency_alarm_channel', // Yeni kanal adı
-          'Acil Durum Alarmları',
-          channelDescription: 'Yüksek öncelikli acil durum alarm bildirimleri',
+          'Emergency Alarms',
+          channelDescription: 'High priority emergency alarm notifications',
           importance: Importance.max,
           priority: Priority.high,
           color: Colors.red,
@@ -406,8 +414,8 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
     await _notificationsPlugin.show(
       notificationId, // Benzersiz ID
-      "🚨 ACİL DURUM: $type",
-      "📍 Konum: $locationText",
+      "🚨 EMERGENCY: $type",
+      "📍 Location: $locationText",
       details,
     );
   }
@@ -426,13 +434,3 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-

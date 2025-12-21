@@ -46,40 +46,40 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   // MÜHENDİSLİK FAKÜLTESİ ACİL ÇIKIŞ KAPILARI
   final List<EmergencyExit> _emergencyExits = const [
-    // Ana Giriş Kapısı (Kuzey - Ay Işığı Meydanı yönü)
+    // Main Entrance (North - Moonlight Square direction)
     EmergencyExit(
       id: 'exit_1',
-      name: 'Ana Giriş Kapısı',
+      name: 'Main Entrance',
       location: LatLng(37.16141430718726, 28.37590816078527),
-      description: 'Fakülte ana giriş kapısı - Kuzey yönü (Ay Işığı Meydanı)',
+      description: 'Faculty main entrance - North direction (Moonlight Square)',
     ),
-    // Güney Çıkış Kapısı
+    // South Exit
     EmergencyExit(
       id: 'exit_2',
-      name: 'Güney Çıkış Kapısı',
+      name: 'South Exit',
       location: LatLng(37.16152202185226, 28.375945340536738),
-      description: 'Fakülte güney çıkış kapısı',
+      description: 'Faculty south exit',
     ),
-    // Batı Yan Kapısı
+    // West Side Door
     EmergencyExit(
       id: 'exit_3',
-      name: 'Batı Yan Kapısı',
+      name: 'West Side Door',
       location: LatLng(37.161113984268624, 28.37484855454888),
-      description: 'Fakülte batı yan çıkışı - Otopark yönü',
+      description: 'Faculty west side exit - Parking lot direction',
     ),
-    // Doğu Yan Kapısı (Enerji Malzemeleri Lab. tarafı)
+    // East Side Door (Energy Materials Lab. side)
     EmergencyExit(
       id: 'exit_4',
-      name: 'Doğu Yan Kapısı',
+      name: 'East Side Door',
       location: LatLng(37.16120, 28.37680),
-      description: 'Fakülte doğu yan çıkışı - Enerji Lab. yönü',
+      description: 'Faculty east side exit - Energy Lab. direction',
     ),
-    // Acil Merdiven Çıkışı (Jeoloji Müh. tarafı)
+    // Emergency Staircase Exit (Geology Eng. side)
     EmergencyExit(
       id: 'exit_5',
-      name: 'Acil Merdiven Çıkışı',
+      name: 'Emergency Staircase Exit',
       location: LatLng(37.16100, 28.37520),
-      description: 'Yangın merdiveni çıkışı - Jeoloji Müh. yönü',
+      description: 'Fire staircase exit - Geology Eng. direction',
     ),
   ];
 
@@ -95,11 +95,11 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   // Dropdown Seçenekleri
   final Map<String, String> locationOptions = {
-    'my_room': 'Odam',
-    'restaurant': 'Restoran',
-    'fitness': 'Spor Salonu',
-    'spa': 'Spa Merkezi',
-    'reception': 'Resepsiyon',
+    'my_room': 'My Room',
+    'restaurant': 'Restaurant',
+    'fitness': 'Fitness Center',
+    'spa': 'Spa Center',
+    'reception': 'Reception',
   };
 
   @override
@@ -245,12 +245,12 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   // --- 3. ACİL DURUM BİLDİRİMİ ---
   Future<void> _handleSendAlert(String emergencyType) async {
-    String roomToSend = userActualRoomNumber ?? "Bilinmiyor";
+    String roomToSend = userActualRoomNumber ?? "Unknown";
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          "$emergencyType bildirimi gönderiliyor...",
+          "Sending $emergencyType alert...",
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
@@ -269,7 +269,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "YARDIM ÇAĞRISI GÖNDERİLDİ! ($emergencyType)",
+              "HELP REQUEST SENT! ($emergencyType)",
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -283,7 +283,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Hata: $e"), backgroundColor: Colors.red),
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
         );
       }
     }
@@ -300,9 +300,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   String getDropdownText(String key) {
     if (key == 'my_room') {
-      return "Konum: Odam (${userActualRoomNumber ?? '...'})";
+      return "Location: My Room (${userActualRoomNumber ?? '...'})";
     }
-    return "Konum: ${locationOptions[key]}";
+    return "Location: ${locationOptions[key]}";
   }
 
   @override
@@ -328,7 +328,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          "Acil Durum",
+          "Emergency",
           style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
         ),
         actions: [
@@ -375,24 +375,24 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 children: [
                   _buildTopButton(
                     Icons.local_fire_department,
-                    "Yangın",
+                    "Fire",
                     Colors.redAccent,
                     containerColor,
-                    () => _handleSendAlert("Yangın"),
+                    () => _handleSendAlert("Fire"),
                   ),
                   _buildTopButton(
                     Icons.broken_image_outlined,
-                    "Deprem",
+                    "Earthquake",
                     Colors.redAccent,
                     containerColor,
-                    () => _handleSendAlert("Deprem"),
+                    () => _handleSendAlert("Earthquake"),
                   ),
                   _buildTopButton(
                     Icons.warning_amber_rounded,
-                    "Diğer Acil\nDurumlar",
+                    "Other\nEmergencies",
                     Colors.redAccent,
                     containerColor,
-                    () => _handleSendAlert("Diğer Acil Durum"),
+                    () => _handleSendAlert("Other Emergency"),
                   ),
                 ],
               ),
@@ -414,7 +414,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                         !snapshot.hasData ||
                         !snapshot.data!.exists) {
                       return _buildErrorState(
-                        "Oda $documentIdToQuery için veri bulunamadı.",
+                        "No data found for room $documentIdToQuery.",
                         secondaryTextColor,
                       );
                     }
@@ -439,8 +439,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                     // Mesafe hesaplama
                     final String distanceText = _nearestExitDistance != null
-                        ? "${_nearestExitDistance!.toInt()} metre"
-                        : "Hesaplanıyor...";
+                        ? "${_nearestExitDistance!.toInt()} meters"
+                        : "Calculating...";
 
                     return Column(
                       children: [
@@ -535,7 +535,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                                             ),
                                                       ),
                                                       child: const Text(
-                                                        'EN YAKIN',
+                                                        'NEAREST',
                                                         style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 8,
@@ -568,7 +568,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                                   userLocation: _userLocation,
                                                   locationName:
                                                       _nearestExit?.name ??
-                                                      "En Yakın Çıkış",
+                                                      "Nearest Exit",
                                                   noteInfo:
                                                       _nearestExit?.description,
                                                 ),
@@ -582,7 +582,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                           vertical: 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withValues(alpha: 0.7),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.7,
+                                          ),
                                           borderRadius: BorderRadius.circular(
                                             20,
                                           ),
@@ -597,7 +599,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                             ),
                                             SizedBox(width: 4),
                                             Text(
-                                              "Büyüt",
+                                              "Expand",
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 12,
@@ -637,7 +639,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      _nearestExit?.name ?? "En Yakın Çıkış",
+                                      _nearestExit?.name ?? "Nearest Exit",
                                       style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
@@ -670,14 +672,14 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                               _buildInstructionItem(
                                 Icons.info_outline,
                                 _nearestExit?.description ??
-                                    "En yakın acil çıkış kapısı hesaplanıyor...",
+                                    "Calculating nearest emergency exit...",
                                 secondaryTextColor,
                                 iconBgColor,
                               ),
                               const SizedBox(height: 12),
                               _buildInstructionItem(
                                 Icons.warning_amber_rounded,
-                                "Kırmızı rotayı takip ederek en yakın çıkışa ilerleyin!",
+                                "Follow the red route to reach the nearest exit!",
                                 secondaryTextColor,
                                 iconBgColor,
                               ),
@@ -776,14 +778,3 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
