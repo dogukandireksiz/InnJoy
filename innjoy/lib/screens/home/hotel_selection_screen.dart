@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 
 import 'home_screen.dart';
 
@@ -34,13 +34,13 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
   }
 
   void _onHotelSelected(String hotelName, {String? hotelId}) {
-    // Eğer kullanıcı zaten bu otele kayıtlıysa direkt ana ekrana git
+    // Eğer kullanıcı zaten bu otele kayıtlıysa direkt ana ekrana git
     if (_currentHotelName != null && _currentHotelName == hotelName) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => HomeScreen(userName: 'Guest')),
       );
     } else {
-      // Değilse PNR sor
+      // Değilse PNR sor
       // Use hotelId if available (for database lookups), otherwise fall back to hotelName
       _showPnrDialog(context, hotelName, hotelId: hotelId);
     }
@@ -347,7 +347,7 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
                     const Center(child: CircularProgressIndicator()),
               );
 
-              // PNR Doğrulama
+              // PNR Doğrulama
               bool isValid = await DatabaseService().verifyAndRedeemPnr(
                 pnrController.text.trim().toUpperCase(),
                 hotelId ?? hotelName, // Use ID if available, otherwise name

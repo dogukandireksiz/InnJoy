@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import '../../../../service/database_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/database_service.dart';
 
 class SpaFormScreen extends StatefulWidget {
   final String hotelName;
@@ -366,11 +366,11 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildTextField(
-                    "Price (₺)",
+                    "Price (?)",
                     _priceController,
                     isNumber: true,
                     customPrefix: const Text(
-                      '₺',
+                      '?',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

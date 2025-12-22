@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class LegalDocumentScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class LegalDocumentScreen extends StatefulWidget {
 }
 
 class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
-  bool isTurkish = true; // Varsayılan dil Türkçe
+  bool isTurkish = true; // Varsayılan dil TürkÇe
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
         title: Text(
           isTurkish ? widget.titleTr : widget.titleEn, 
           style: const TextStyle(
-            fontSize: 16, // Uzun başlıklar için biraz küçülttük
+            fontSize: 16, // Uzun başlıklar iÇin biraz küÇülttük
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -42,7 +42,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          // Dil Değiştirme Butonu
+          // Dil Değiştirme Butonu
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: TextButton(
@@ -84,7 +84,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
             ),
           ),
 
-          // 3. İçerik Kartı
+          // 3. İÇerik Kartı
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16.0),

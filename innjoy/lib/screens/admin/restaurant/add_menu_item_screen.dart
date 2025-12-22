@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../model/menu_item_model.dart';
-import '../../service/database_service.dart';
+import '../../../models/menu_item_model.dart';
+import '../../../services/database_service.dart';
 
 class AddMenuItemScreen extends StatefulWidget {
   final String hotelName;
@@ -275,7 +275,7 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                     const SizedBox(height: 16),
                     _buildSectionTitle('Category'),
                     DropdownButtonFormField<String>(
-                      value: _selectedCategory,
+                      initialValue: _selectedCategory,
                       isExpanded: true,
                       borderRadius: BorderRadius.circular(12), // Rounded popup
                       dropdownColor: Colors.white,
@@ -317,7 +317,7 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                         _buildTextField(
                           controller: _priceController,
                           hint: '0.00',
-                          suffixText: '₺',
+                          suffixText: '?',
                           keyboardType: TextInputType.number,
                         ),
                       ],

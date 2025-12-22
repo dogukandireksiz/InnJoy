@@ -1,10 +1,10 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
-// Acil Çıkış Kapısı Modeli
+// Acil ��k�� Kap�s� Modeli
 class _EmergencyExit {
   final String id;
   final String name;
@@ -20,10 +20,10 @@ class _EmergencyExit {
 }
 
 class FullScreenMapPage extends StatefulWidget {
-  final LatLng selectedLocation; // Hedef (En Yakın Çıkış Kapısı)
-  final LatLng? userLocation; // Kullanıcının o anki konumu
+  final LatLng selectedLocation; // Hedef (En Yak�n ��k�� Kap�s�)
+  final LatLng? userLocation; // Kullan�c�n�n o anki konumu
 
-  // İsim bilgisini dışarıdan alabiliriz ama mesafeyi artık kendimiz hesaplayacağız
+  // �sim bilgisini d��ar�dan alabiliriz ama mesafeyi art�k kendimiz hesaplayaca��z
   final String? locationName;
   final String? noteInfo;
 
@@ -41,13 +41,13 @@ class FullScreenMapPage extends StatefulWidget {
 
 class _FullScreenMapPageState extends State<FullScreenMapPage> {
   final MapController _mapController = MapController();
-  final Distance _distanceCalculator = const Distance(); // Mesafe ölçer
+  final Distance _distanceCalculator = const Distance(); // Mesafe �l�er
   LatLng? _foundLocation;
 
-  // YEDEK KONUM - MUĞLA SITKI KOÇMAN ÜNİV. MÜHENDİSLİK FAKÜLTESİ
+  // YEDEK KONUM - MU�LA SITKI KO�MAN �N�V. M�HEND�SL�K FAK�LTES�
   final LatLng _backupLocation = const LatLng(37.1614, 28.3758);
 
-  // MÜHENDİSLİK FAKÜLTESİ TÜM ACİL ÇIKIŞ KAPILARI
+  // M�HEND�SL�K FAK�LTES� T�M AC�L �IKI� KAPILARI
   final List<_EmergencyExit> _allEmergencyExits = const [
     // Main Entrance (North direction)
     _EmergencyExit(
@@ -89,9 +89,9 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
   @override
   void initState() {
     super.initState();
-    // Harita render problemini önlemek için gecikme eklendi
+    // Harita render problemini �nlemek i�in gecikme eklendi
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Haritanın tam olarak render edilmesini bekle
+      // Haritan�n tam olarak render edilmesini bekle
       await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
 
@@ -146,7 +146,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
           padding: const EdgeInsets.all(80),
         ),
       );
-      // Haritayı yeniden render etmesi için küçük bir animasyon tetikle
+      // Haritay� yeniden render etmesi i�in k���k bir animasyon tetikle
       Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) {
           setState(() {}); // Yeniden build tetikle
@@ -159,11 +159,11 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Hangi konumu kullanacağız?
+    // Hangi konumu kullanaca��z?
     final LatLng displayUserLocation =
         _foundLocation ?? widget.userLocation ?? _backupLocation;
 
-    // Mesafeyi ve Yönergeyi Hesapla
+    // Mesafeyi ve Y�nergeyi Hesapla
     final double distanceVal = _distanceCalculator.as(
       LengthUnit.Meter,
       displayUserLocation,
@@ -171,7 +171,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
     );
     final String distanceText = "${distanceVal.toInt()} meters";
 
-    // Dinamik Yönerge Rengi ve Metni
+    // Dinamik Y�nerge Rengi ve Metni
     String instructionText;
     Color instructionColor;
 
@@ -189,7 +189,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // --- 1. HARİTA ---
+          // --- 1. HAR�TA ---
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -210,10 +210,10 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                   ),
                 ],
               ),
-              // TÜM ÇIKIŞ KAPILARI İŞARETÇİLERİ
+              // T�M �IKI� KAPILARI ��ARET��LER�
               MarkerLayer(
                 markers: [
-                  // Kullanıcı konumu (Mavi)
+                  // Kullan�c� konumu (Mavi)
                   Marker(
                     point: displayUserLocation,
                     width: 60,
@@ -224,9 +224,9 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                       size: 55,
                     ),
                   ),
-                  // Tüm acil çıkış kapıları
+                  // T�m acil ��k�� kap�lar�
                   ..._allEmergencyExits.map((exit) {
-                    // Bu çıkış en yakın seçili çıkış mı?
+                    // Bu ��k�� en yak�n se�ili ��k�� m�?
                     final bool isNearest =
                         exit.location.latitude ==
                             widget.selectedLocation.latitude &&
@@ -271,7 +271,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
             ],
           ),
 
-          // --- 2. GERİ DÖN BUTONU ---
+          // --- 2. GER� D�N BUTONU ---
           Positioned(
             top: 50,
             left: 20,
@@ -285,7 +285,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
             ),
           ),
 
-          // --- 3. HARİTAYI ORTALA ---
+          // --- 3. HAR�TAYI ORTALA ---
           Positioned(
             right: 20,
             bottom: 240,
@@ -299,7 +299,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
             ),
           ),
 
-          // --- 5. BİLGİ VE YÖNERGE KARTI (DİNAMİK) ---
+          // --- 5. B�LG� VE Y�NERGE KARTI (D�NAM�K) ---
           Positioned(
             bottom: 30,
             left: 20,
@@ -320,7 +320,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Konum Adı ve Mesafe
+                  // Konum Ad� ve Mesafe
                   Row(
                     children: [
                       const Icon(
@@ -359,7 +359,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                     child: Divider(color: Colors.white24),
                   ),
 
-                  // DİNAMİK YÖNERGE METNİ
+                  // D�NAM�K Y�NERGE METN�
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(10),
@@ -371,7 +371,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                       ),
                     ),
                     child: Text(
-                      instructionText, // HESAPLANAN YÖNERGE BURADA
+                      instructionText, // HESAPLANAN Y�NERGE BURADA
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: instructionColor,

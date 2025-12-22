@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'custom_top_navigation_bar.dart';
+import '../common/custom_top_navigation_bar.dart';
 
 /// Admin ve Guest ekranlarında kullanılan toggle + logout bar widget'ı.
 /// Her iki ekranda da aynı pozisyon ve boşluklarla görünür.
@@ -8,16 +8,16 @@ class AdminActionBar extends StatelessWidget {
   /// Hangi görünüm aktif (guest veya admin)
   final AdminPanelView activeView;
   
-  /// Guest View butonuna tıklandığında
+  /// Guest View butonuna tıklandığında
   final VoidCallback onGuestViewTap;
   
-  /// Admin Panel butonuna tıklandığında
+  /// Admin Panel butonuna tıklandığında
   final VoidCallback onAdminPanelTap;
   
-  /// Logout butonuna tıklandığında
+  /// Logout butonuna tıklandığında
   final VoidCallback onLogoutTap;
   
-  /// Toggle teması (dark: koyu arka plan için, light: açık arka plan için)
+  /// Toggle teması (dark: koyu arka plan iÇin, light: aÇık arka plan iÇin)
   final ToggleTheme theme;
 
   const AdminActionBar({

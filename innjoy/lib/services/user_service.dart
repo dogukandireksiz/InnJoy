@@ -1,9 +1,9 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:login_page/model/user_model.dart';
-import 'logger_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:login_page/models/user_model.dart';
+import 'package:login_page/services/logger_service.dart';
 
 class UserService {
-  // Firestore bağlantı nesnesi
+  // Firestore bağlantı nesnesi
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   // Firestore'a yeni kullanıcı kaydı ekleyen fonksiyon

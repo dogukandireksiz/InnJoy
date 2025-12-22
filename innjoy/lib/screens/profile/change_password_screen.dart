@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../service/auth.dart';
-import '../../utils/custom_snackbar.dart';
+import '../../services/auth.dart';
+import '../../utils/dialogs/custom_snackbar.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});

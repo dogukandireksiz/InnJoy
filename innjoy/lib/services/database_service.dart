@@ -1,14 +1,14 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-import '../model/menu_item_model.dart';
+import '../models/menu_item_model.dart';
 import 'dart:math';
-import 'logger_service.dart';
+import 'package:login_page/services/logger_service.dart';
 
-/// DatabaseService - Singleton pattern ile uygulanan veritabanÄ± servisi.
-/// Her `DatabaseService()` Ã§aÄŸrÄ±sÄ± aynÄ± instance'Ä± dÃ¶ndÃ¼rÃ¼r,
-/// bÃ¶ylece gereksiz nesne oluÅŸumu ve memory leak Ã¶nlenir.
+/// DatabaseService - Singleton pattern ile uygulanan veritabanı servisi.
+/// Her `DatabaseService()` çağrısı aynı instance'ı döndürür,
+/// böylece gereksiz nesne oluşumu ve memory leak önlenir.
 class DatabaseService {
   // Singleton instance
   static final DatabaseService _instance = DatabaseService._internal();
@@ -125,13 +125,13 @@ class DatabaseService {
         .delete();
   }
 
-  // --- OTEL LÄ°STESÄ°NÄ° GETÄ°R ---
+  // --- OTEL LİSTESİNİ GETİR ---
   Stream<List<Map<String, dynamic>>> getHotels() {
     return _db.collection('hotels').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         var data = doc.data();
         data['id'] =
-            doc.id; // Document ID'yi (Ã–rn: L2Nw...) 'id' olarak ekliyoruz
+            doc.id; // Document ID'yi (Örn: L2Nw...) 'id' olarak ekliyoruz
         return data;
       }).toList();
     });
@@ -157,7 +157,7 @@ class DatabaseService {
 
       if (snapshot.docs.isNotEmpty) {
         final data = snapshot.docs.first.data();
-        // Veriyi parent dokÃ¼mana yaz
+        // Veriyi parent dokümana yaz
         await _db
             .collection('hotels')
             .doc(hotelName)
@@ -170,9 +170,9 @@ class DatabaseService {
     return false;
   }
 
-  // YENÄ°: Otelin restoranlarÄ±nÄ± getir
-  // Not: Restoran belgesi boÅŸ olabilir (sadece subcollection'lar var)
-  // Bu durumda settings/general'dan veriyi Ã§ekiyoruz
+  // YENİ: Otelin restoranlarını getir
+  // Not: Restoran belgesi boş olabilir (sadece subcollection'lar var)
+  // Bu durumda settings/general'dan veriyi çekiyoruz
   Stream<List<Map<String, dynamic>>> getRestaurants(String hotelName) {
     Logger.debug('DEBUG: getRestaurants called with hotelName: $hotelName');
     return _db
@@ -191,7 +191,7 @@ class DatabaseService {
             );
             Map<String, dynamic> data;
 
-            // EÄŸer belge boÅŸsa, settings/general'dan veriyi Ã§ek
+            // Eğer belge boşsa, settings/general'dan veriyi çek
             if (originalData.isEmpty) {
               Logger.debug('DEBUG: Fetching settings/general for ${doc.id}');
               try {
@@ -207,7 +207,7 @@ class DatabaseService {
                   data = {...settingsDoc.data()!, 'id': doc.id};
                   Logger.debug('DEBUG: Got settings data: $data');
                 } else {
-                  // Settings de yoksa, en azÄ±ndan id ve name olarak doc.id kullan
+                  // Settings de yoksa, en azından id ve name olarak doc.id kullan
                   data = {'id': doc.id, 'name': doc.id};
                   Logger.debug('DEBUG: Using fallback data: $data');
                 }
@@ -316,7 +316,7 @@ class DatabaseService {
         .delete();
   }
 
-  // --- RESTAURANT AYARLARI (BAÅLIK, AÃ‡IKLAMA, RESÄ°M) ---
+  // --- RESTAURANT AYARLARI (BAŞLIK, AÇIKLAMA, RESİM) ---
   Stream<Map<String, dynamic>?> getRestaurantSettings(
     String hotelName,
     String restaurantId,
@@ -454,7 +454,7 @@ class DatabaseService {
         .set(data, SetOptions(merge: true));
   }
 
-  // --- SÄ°PARÄ°Å VERME ---
+  // --- SİPARİŞ VERME ---
   Future<void> placeRoomServiceOrder(
     String hotelName,
     String roomNumber,
@@ -592,7 +592,7 @@ class DatabaseService {
     }
   }
 
-  // --- HARCAMA TAKÄ°BÄ° (SPENDINGS) ---
+  // --- HARCAMA TAKİBİ (SPENDINGS) ---
   // Gets spending data by looking up user's current reservation
   Stream<Map<String, dynamic>?> getMySpending(String hotelName) {
     User? user = _auth.currentUser;
@@ -647,7 +647,7 @@ class DatabaseService {
   // NOTE: Legacy getOrderHistory() method removed.
   // Use hotel-specific path: hotels/{hotelName}/room_service/orders/items
 
-  // --- HOUSEKEEPING (TEMÄ°ZLÄ°K/BAKIM) Ä°STEÄÄ° GÃ–NDER ---
+  // --- HOUSEKEEPING (TEMİZLİK/BAKIM) İSTEĞİ GÖNDER ---
   Future<void> requestHousekeeping(String requestType, String note) async {
     User? user = _auth.currentUser;
     if (user == null) return;
@@ -682,7 +682,7 @@ class DatabaseService {
   // Use getHotelHousekeepingRequests(hotelName) for admin access or
   // getMyHousekeepingRequests(hotelName) for customer access.
 
-  // --- OTEL BAZLI HOUSEKEEPING Ä°STEKLERÄ°NÄ° GETÄ°R (ADMÄ°N Ä°Ã‡Ä°N) ---
+  // --- OTEL BAZLI HOUSEKEEPING İSTEKLERİNİ GETİR (ADMİN İÇİN) ---
   Stream<List<Map<String, dynamic>>> getHotelHousekeepingRequests(
     String hotelName,
   ) {
@@ -693,7 +693,7 @@ class DatabaseService {
         .where(
           'status',
           isNotEqualTo: 'archived',
-        ) // ArÅŸivlenmiÅŸleri gÃ¶sterme
+        ) // Arşivlenmişleri gösterme
         .snapshots()
         .map((snapshot) {
           final requests = snapshot.docs.map((doc) {
@@ -701,7 +701,7 @@ class DatabaseService {
             data['id'] = doc.id; // Document ID'yi ekle
             return data;
           }).toList();
-          // Timestamp'e gÃ¶re sÄ±rala (descending)
+          // Timestamp'e göre sırala (descending)
           requests.sort((a, b) {
             final aTime = a['timestamp'] as Timestamp?;
             final bTime = b['timestamp'] as Timestamp?;
@@ -712,7 +712,7 @@ class DatabaseService {
         });
   }
 
-  // --- ODA Ä°Ã‡Ä°N HOUSEKEEPING Ä°STEKLERÄ°NÄ° ARÅÄ°VLE (CHECK-OUT) ---
+  // --- ODA İÇİN HOUSEKEEPING İSTEKLERİNİ ARŞİVLE (CHECK-OUT) ---
   Future<void> archiveHousekeepingRequestsForRoom(
     String hotelName,
     String roomNumber,
@@ -725,7 +725,7 @@ class DatabaseService {
         .where('status', isNotEqualTo: 'archived')
         .get();
 
-    // TÃ¼m bekleyen/aktif istekleri arÅŸivle
+    // Tüm bekleyen/aktif istekleri arşivle
     final batch = _db.batch();
     for (final doc in snapshot.docs) {
       batch.update(doc.reference, {
@@ -738,23 +738,23 @@ class DatabaseService {
 
   // NOTE: Legacy getEvents() method removed.\n  // Use getHotelEvents(hotelName) for hotel-specific events.
 
-  // --- OTEL Ã–ZELÄ°NDE ETKÄ°NLÄ°K Ä°ÅLEMLERÄ° ---
+  // --- OTEL ÖZELİNDE ETKİNLİK İŞLEMLERİ ---
 
-  // Helper: Etkinlik adÄ±nÄ± sanitize et (klasÃ¶r adÄ± iÃ§in)
+  // Helper: Etkinlik adını sanitize et (klasör adı için)
   String _sanitizeEventName(String name) {
     final turkishChars = {
-      'Ä±': 'i',
-      'ÄŸ': 'g',
-      'Ã¼': 'u',
-      'ÅŸ': 's',
-      'Ã¶': 'o',
-      'Ã§': 'c',
-      'Ä°': 'I',
-      'Ä': 'G',
-      'Ãœ': 'U',
-      'Å': 'S',
-      'Ã–': 'O',
-      'Ã‡': 'C',
+      'ı': 'i',
+      'ğ': 'g',
+      'ü': 'u',
+      'ş': 's',
+      'ö': 'o',
+      'ç': 'c',
+      'İ': 'I',
+      'Ğ': 'G',
+      'Ü': 'U',
+      'Ş': 'S',
+      'Ö': 'O',
+      'Ç': 'C',
     };
     String sanitized = name;
     turkishChars.forEach((key, value) {
@@ -768,7 +768,7 @@ class DatabaseService {
     return '${sanitized}_$timestamp';
   }
 
-  // 1. Etkinlikleri Getir (Otel BazlÄ±)
+  // 1. Etkinlikleri Getir (Otel Bazlı)
   Stream<List<Map<String, dynamic>>> getHotelEvents(String hotelName) {
     return _db
         .collection('hotels')
@@ -791,7 +791,7 @@ class DatabaseService {
             }
           }
 
-          // Tarihe gÃ¶re sÄ±rala
+          // Tarihe göre sırala
           events.sort((a, b) {
             final aDate = a['date'];
             final bDate = b['date'];
@@ -820,11 +820,11 @@ class DatabaseService {
         .collection('events')
         .doc(eventFolderId);
 
-    // Ana event dokÃ¼manÄ± - SORGULAMA Ä°Ã‡Ä°N GEREKLÄ° ALANLAR BURAYA
+    // Ana event dokümanı - SORGULAMA İÇİN GEREKLİ ALANLAR BURAYA
     await eventRef.set({
       'createdAt': FieldValue.serverTimestamp(),
       'eventName': eventData['title'],
-      'category': eventData['category'], // SORGULAMA Ä°Ã‡Ä°N ÅART
+      'category': eventData['category'], // SORGULAMA İÇİN ŞART
       'date': eventData['date'],
       'isPublished': eventData['isPublished'] ?? true,
     });
@@ -838,7 +838,7 @@ class DatabaseService {
     return eventFolderId;
   }
 
-  // 3. Etkinlik GÃ¼ncelle
+  // 3. Etkinlik Güncelle
   Future<void> updateEvent(
     String hotelName,
     String eventId,
@@ -850,7 +850,7 @@ class DatabaseService {
         .collection('events')
         .doc(eventId);
 
-    // Ana dokÃ¼manÄ± gÃ¼ncelle (Sorgu verileri)
+    // Ana dokümanı güncelle (Sorgu verileri)
     await eventRef.update({
       if (eventData.containsKey('title')) 'eventName': eventData['title'],
       if (eventData.containsKey('category')) 'category': eventData['category'],
@@ -859,14 +859,14 @@ class DatabaseService {
         'isPublished': eventData['isPublished'],
     });
 
-    // DetaylarÄ± gÃ¼ncelle
+    // Detayları güncelle
     await eventRef
         .collection('hotel_information')
         .doc('details')
         .update(eventData);
   }
 
-  // --- ETKÄ°NLÄ°K KATILIMCILARI (ADMIN) ---
+  // --- ETKİNLİK KATILIMCILARI (ADMIN) ---
   Stream<List<Map<String, dynamic>>> getEventParticipants(
     String hotelName,
     String eventId,
@@ -902,7 +902,7 @@ class DatabaseService {
       await doc.reference.delete();
     }
 
-    // Ana dokÃ¼manÄ± sil
+    // Ana dokümanı sil
     await eventRef.delete();
   }
 
@@ -910,7 +910,7 @@ class DatabaseService {
   // Use registerForEvent(hotelName, eventId, userInfo, eventDetails) instead.
   // It correctly uses hotels/{hotelName}/events/{eventId}/registrants path.
 
-  // 1. Yeni Rezervasyon OluÅŸtur (Admin) - Oda numarasÄ±na gÃ¶re kayÄ±t
+  // 1. Yeni Rezervasyon Oluştur (Admin) - Oda numarasına göre kayıt
   Future<String> createReservation(
     String hotelName,
     String roomNumber,
@@ -918,22 +918,22 @@ class DatabaseService {
     DateTime checkInDate,
     DateTime checkOutDate,
   ) async {
-    // 6 Haneli Rastgele PNR Ãœret (check-in kodu olarak)
+    // 6 Haneli Rastgele PNR Üret (check-in kodu olarak)
     String pnr = _generateRandomPnr();
 
-    // QR Kod verisi oluÅŸtur (benzersiz tanÄ±mlayÄ±cÄ±)
+    // QR Kod verisi oluştur (benzersiz tanımlayıcı)
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final qrCodeData = 'INNJOY:$hotelName:$roomNumber:$pnr:$timestamp';
 
     final reservation = {
-      'pnr': pnr, // Check-in iÃ§in kullanÄ±lacak kod
+      'pnr': pnr, // Check-in için kullanılacak kod
       'roomNumber': roomNumber,
       'guestName': guestName,
       'checkInDate': Timestamp.fromDate(checkInDate),
       'checkOutDate': Timestamp.fromDate(checkOutDate),
       'status': 'active',
-      'currentBalance': 0, // Bakiye sÄ±fÄ±rdan baÅŸlar
-      'expenses': [], // Harcamalar boÅŸ liste
+      'currentBalance': 0, // Bakiye sıfırdan başlar
+      'expenses': [], // Harcamalar boş liste
       'qrCodeData': qrCodeData, // QR Kod verisi
       'createdAt': FieldValue.serverTimestamp(),
     };
@@ -943,10 +943,10 @@ class DatabaseService {
         .collection('hotels')
         .doc(hotelName)
         .collection('reservations')
-        .doc(roomNumber) // Oda numarasÄ± doc ID olarak
+        .doc(roomNumber) // Oda numarası doc ID olarak
         .set(reservation);
 
-    return pnr; // PNR'Ä± dÃ¶ndÃ¼r (kullanÄ±cÄ±ya verilecek)
+    return pnr; // PNR'ı döndür (kullanıcıya verilecek)
   }
 
   // 2. PNR Listesini Getir (Admin - Kendi Oteli)
@@ -955,7 +955,7 @@ class DatabaseService {
         .collection('hotels')
         .doc(hotelName)
         .collection('reservations')
-        .orderBy('checkOutDate') // En yakÄ±n Ã§Ä±kÄ±ÅŸ tarihine gÃ¶re sÄ±rala
+        .orderBy('checkOutDate') // En yakın çıkış tarihine göre sırala
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) => doc.data()).toList();
@@ -963,7 +963,7 @@ class DatabaseService {
   }
 
   // 2.1 Otel Bilgilerini Getir (Doluluk vb.)
-  // GÃ¼ncelleme: KullanÄ±cÄ± 'hotel information' alt koleksiyonu kullanÄ±yor.
+  // Güncelleme: Kullanıcı 'hotel information' alt koleksiyonu kullanıyor.
   Stream<Map<String, dynamic>?> getHotelInfo(String hotelName) {
     return _db
         .collection('hotels')
@@ -979,14 +979,14 @@ class DatabaseService {
         });
   }
 
-  // 3. PNR DoÄŸrula ve Kullan (MÃ¼ÅŸteri) - PNR ile oda bul ve check-in yap
+  // 3. PNR Doğrula ve Kullan (Müşteri) - PNR ile oda bul ve check-in yap
   Future<bool> verifyAndRedeemPnr(
     String pnr,
     String selectedHotel,
     String userId,
   ) async {
     try {
-      // PNR'a gÃ¶re rezervasyonu ara (artÄ±k PNR bir alan)
+      // PNR'a göre rezervasyonu ara (artık PNR bir alan)
       final querySnapshot = await _db
           .collection('hotels')
           .doc(selectedHotel)
@@ -1001,11 +1001,11 @@ class DatabaseService {
       final docRef = querySnapshot.docs.first.reference;
       final data = querySnapshot.docs.first.data();
 
-      // PNR GeÃ§erli -> KullanÄ±ldÄ± olarak iÅŸaretle
+      // PNR Geçerli -> Kullanıldı olarak işaretle
       final email = _auth.currentUser?.email;
       String? linkedUserName;
 
-      // KullanÄ±cÄ±nÄ±n ismini Ã§ekelim
+      // Kullanıcının ismini çekelim
       try {
         final userDoc = await _db.collection('users').doc(userId).get();
         if (userDoc.exists && userDoc.data() != null) {
@@ -1019,12 +1019,12 @@ class DatabaseService {
         'status': 'used',
         'usedBy': userId,
         'guestEmail': email,
-        'claimedGuestName': linkedUserName, // GerÃ§ek kullanÄ±cÄ± adÄ±
-        'currentBalance': 0, // Bakiye sÄ±fÄ±rdan baÅŸlar
-        'expenses': [], // Harcamalar boÅŸ liste olarak baÅŸlar
+        'claimedGuestName': linkedUserName, // Gerçek kullanıcı adı
+        'currentBalance': 0, // Bakiye sıfırdan başlar
+        'expenses': [], // Harcamalar boş liste olarak başlar
       });
 
-      // KullanÄ±cÄ±nÄ±n profiline otel bilgisini ve TARÄ°HLERÄ° kaydet
+      // Kullanıcının profiline otel bilgisini ve TARİHLERİ kaydet
       final checkIn = data['checkInDate'];
       final checkOut = data['checkOutDate'];
 
@@ -1046,7 +1046,7 @@ class DatabaseService {
   // 4. Update Reservation Status & Clean User (roomNumber ile)
   Future<void> updateReservationStatus(
     String hotelName,
-    String roomNumber, // ArtÄ±k roomNumber kullanÄ±yoruz
+    String roomNumber, // Artık roomNumber kullanıyoruz
     String status,
   ) async {
     final resRef = _db
@@ -1055,19 +1055,19 @@ class DatabaseService {
         .collection('reservations')
         .doc(roomNumber); // roomNumber doc ID olarak
 
-    // Eger 'past' (GeÃ§miÅŸ) yapÄ±yorsak, kullanÄ±cÄ±nÄ±n profilinden de oteli silelim
-    // ve housekeeping isteklerini arÅŸivle
+    // Eger 'past' (Geçmiş) yapıyorsak, kullanıcının profilinden de oteli silelim
+    // ve housekeeping isteklerini arşivle
     if (status == 'past') {
       final doc = await resRef.get();
       if (doc.exists) {
         final data = doc.data();
         final userId = data?['usedBy'];
 
-        // Housekeeping isteklerini arÅŸivle
+        // Housekeeping isteklerini arşivle
         await archiveHousekeepingRequestsForRoom(hotelName, roomNumber);
 
         if (userId != null) {
-          // KullanÄ±cÄ±yÄ± otelden Ã§Ä±kar
+          // Kullanıcıyı otelden çıkar
           await _db.collection('users').doc(userId).update({
             'hotelName': FieldValue.delete(),
             'roomNumber': FieldValue.delete(),
@@ -1092,7 +1092,7 @@ class DatabaseService {
         .delete();
   }
 
-  // YardÄ±mcÄ±: Rastgele 6 haneli kod Ã¼retici (Ã–rn: XK92M4)
+  // Yardımcı: Rastgele 6 haneli kod üretici (Örn: XK92M4)
   String _generateRandomPnr() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random();
@@ -1102,9 +1102,9 @@ class DatabaseService {
     ).join();
   }
 
-  // --- KULLANICI ROLÃœNÃœ GETÄ°R (DEBUG MODU) ---
-  // --- KULLANICI VERÄ°SÄ°NÄ° GETÄ°R (ROL VE OTEL ADI Ä°Ã‡Ä°N) ---
-  // --- KULLANICI VERÄ°SÄ°NÄ° GETÄ°R (TEK SEFERLÄ°K) ---
+  // --- KULLANICI ROLÜNÜ GETİR (DEBUG MODU) ---
+  // --- KULLANICI VERİSİNİ GETİR (ROL VE OTEL ADI İÇİN) ---
+  // --- KULLANICI VERİSİNİ GETİR (TEK SEFERLİK) ---
   Future<Map<String, dynamic>?> getUserData(String userId) async {
     try {
       DocumentSnapshot doc = await _db.collection('users').doc(userId).get();
@@ -1112,16 +1112,16 @@ class DatabaseService {
       if (doc.exists && doc.data() != null) {
         return doc.data() as Map<String, dynamic>;
       } else {
-        Logger.debug("âŒ ERROR: User not found in database!");
+        Logger.debug("❌ ERROR: User not found in database!");
         return null;
       }
     } catch (e) {
-      Logger.debug("ğŸ”¥ CRITICAL ERROR: $e");
+      Logger.debug("🔥 CRITICAL ERROR: $e");
       return null;
     }
   }
 
-  // --- KULLANICI VERÄ°SÄ°NÄ° DÄ°NLE (CANLI AKIÅ) ---
+  // --- KULLANICI VERİSİNİ DİNLE (CANLI AKIŞ) ---
   Stream<Map<String, dynamic>?> getUserStream(String userId) {
     return _db.collection('users').doc(userId).snapshots().map((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
@@ -1131,7 +1131,7 @@ class DatabaseService {
     });
   }
 
-  // --- KULLANICI KAYDET (Senin DeÄŸiÅŸken Ä°simlerine GÃ¶re) ---
+  // --- KULLANICI KAYDET (Senin Değişken İsimlerine Göre) ---
   Future<void> saveUserdata(
     String uid,
     String email,
@@ -1139,7 +1139,7 @@ class DatabaseService {
     String role = 'customer',
   }) async {
     await _db.collection('users').doc(uid).set({
-      'email': email, // auth.dart ile tutarlÄ±
+      'email': email, // auth.dart ile tutarlı
       'name_username': name,
       'role': role,
       'uid': uid,
@@ -1255,7 +1255,7 @@ class DatabaseService {
     }
   }
 
-  // --- KULLANICIYA AÄ°T TÃœM REZERVASYONLARI GETÄ°R (Otel BazlÄ± - Index gerektirmez) ---
+  // --- KULLANICIYA AİT TÜM REZERVASYONLARI GETİR (Otel Bazlı - Index gerektirmez) ---
   Stream<List<Map<String, dynamic>>> getUserReservations(
     String userId, {
     String? hotelName,
@@ -1264,10 +1264,10 @@ class DatabaseService {
       return Stream.value([]);
     }
 
-    // collectionGroup kullanarak tÃ¼m 'reservations' koleksiyonlarÄ±nÄ± tarar.
-    // userId ve hotelName'e gÃ¶re filtreleme yapar.
-    // NOT: Bu sorgu Firebase Console'da bir Index oluÅŸturmanÄ±zÄ± gerektirebilir.
-    // Konsolda Ã§Ä±kan linke tÄ±klayarak oluÅŸturun.
+    // collectionGroup kullanarak tüm 'reservations' koleksiyonlarını tarar.
+    // userId ve hotelName'e göre filtreleme yapar.
+    // NOT: Bu sorgu Firebase Console'da bir Index oluşturmanızı gerektirebilir.
+    // Konsolda çıkan linke tıklayarak oluşturun.
     return _db
         .collectionGroup('reservations')
         .where('userId', isEqualTo: userId)
@@ -1277,8 +1277,8 @@ class DatabaseService {
         .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 
-  // --- KULLANICIYA AÄ°T TÃœM ETKÄ°NLÄ°K KAYITLARINI GETÄ°R (Otel BazlÄ±) ---
-  // --- KULLANICIYA AÄ°T TÃœM ETKÄ°NLÄ°K KAYITLARINI GETÄ°R (Otel BazlÄ±) ---
+  // --- KULLANICIYA AİT TÜM ETKİNLİK KAYITLARINI GETİR (Otel Bazlı) ---
+  // --- KULLANICIYA AİT TÜM ETKİNLİK KAYITLARINI GETİR (Otel Bazlı) ---
   Stream<List<Map<String, dynamic>>> getUserEvents(
     String userId, {
     String? hotelName,
@@ -1288,7 +1288,7 @@ class DatabaseService {
       return;
     }
 
-    // TÃ¼m etkinliklerin ID'lerini al
+    // Tüm etkinliklerin ID'lerini al
     final eventsSnapshot = await _db
         .collection('hotels')
         .doc(hotelName)
@@ -1300,7 +1300,7 @@ class DatabaseService {
       return;
     }
 
-    // Her etkinliÄŸin registrants'Ä±na bak ve kullanÄ±cÄ±yÄ± ara
+    // Her etkinliğin registrants'ına bak ve kullanıcıyı ara
     List<Map<String, dynamic>> allRegistrations = [];
 
     for (var eventDoc in eventsSnapshot.docs) {
@@ -1310,18 +1310,18 @@ class DatabaseService {
           .get();
 
       if (registrantDoc.exists && registrantDoc.data() != null) {
-        // Event detaylarÄ±nÄ± (resim, lokasyon, saat) ve kayÄ±t detaylarÄ±nÄ± (tarih) birleÅŸtir
+        // Event detaylarını (resim, lokasyon, saat) ve kayıt detaylarını (tarih) birleştir
         final eventData = eventDoc.data();
         final registrationData = registrantDoc.data()!;
 
-        // Ã‡akÄ±ÅŸmalarÄ± Ã¶nlemek ve veriyi zenginleÅŸtirmek iÃ§in birleÅŸtirme
+        // Çakışmaları önlemek ve veriyi zenginleştirmek için birleştirme
         final mergedData = <String, dynamic>{
           ...eventData, // Event'ten gelen title, location, time, imageAsset
           ...registrationData, // Registrant'tan gelen timestamp
           'eventId': eventDoc.id,
-          // Tarih karmaÅŸasÄ±nÄ± Ã¶nlemek iÃ§in:
-          // EÄŸer registrationData'da 'date' yoksa veya eventData'daki 'date' (gerÃ§ek etkinlik tarihi) gerekiyorsa
-          // Genellikle takvimde etkinliÄŸin olduÄŸu gÃ¼n gÃ¶sterilmeli
+          // Tarih karmaşasını önlemek için:
+          // Eğer registrationData'da 'date' yoksa veya eventData'daki 'date' (gerçek etkinlik tarihi) gerekiyorsa
+          // Genellikle takvimde etkinliğin olduğu gün gösterilmeli
           'eventDate': eventData['date'],
         };
 
@@ -1332,7 +1332,7 @@ class DatabaseService {
     yield allRegistrations;
   }
 
-  // --- KULLANICIYA AÄ°T TÃœM SPA RANDEVULARINI GETÄ°R (Otel BazlÄ±) ---
+  // --- KULLANICIYA AİT TÜM SPA RANDEVULARINI GETİR (Otel Bazlı) ---
   Stream<List<Map<String, dynamic>>> getUserSpaAppointments(
     String userId, {
     String? hotelName,
@@ -1374,7 +1374,7 @@ class DatabaseService {
         .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 
-  // ETKÄ°NLÄ°K KAYIT
+  // ETKİNLİK KAYIT
   Future<Map<String, dynamic>> registerForEvent(
     String hotelName,
     String eventId,
@@ -1414,7 +1414,7 @@ class DatabaseService {
           };
         }
 
-        // KullanÄ±cÄ± zaten kayÄ±tlÄ± mÄ± kontrol et
+        // Kullanıcı zaten kayıtlı mı kontrol et
         final userSnapshot = await transaction.get(registrantsRef);
         if (userSnapshot.exists) {
           return {
@@ -1424,10 +1424,10 @@ class DatabaseService {
           };
         }
 
-        // KayÄ±t sayÄ±sÄ±nÄ± gÃ¼ncelle
+        // Kayıt sayısını güncelle
         transaction.update(hotelInfoRef, {'registered': currentRegistered + 1});
 
-        // KullanÄ±cÄ±yÄ± kaydet
+        // Kullanıcıyı kaydet
         final registrantData = {
           'userId': userInfo['userId'],
           'userName': userInfo['kullaniciAdi'] ?? userInfo['userName'] ?? '',
@@ -1469,7 +1469,7 @@ class DatabaseService {
     }
   }
 
-  // --- SPA RANDEVU OLUÅTURMA ---
+  // --- SPA RANDEVU OLUŞTURMA ---
   Future<void> bookSpaAppointment({
     required String serviceName,
     required String duration,
@@ -1481,7 +1481,7 @@ class DatabaseService {
     User? user = _auth.currentUser;
     if (user == null) throw Exception("User is not logged in.");
 
-    // 1. KullanÄ±cÄ± Bilgilerini ve Otelini Ã‡ek
+    // 1. Kullanıcı Bilgilerini ve Otelini Çek
     final userDoc = await _db.collection('users').doc(user.uid).get();
     if (!userDoc.exists) throw Exception("User profile not found.");
 
@@ -1490,7 +1490,7 @@ class DatabaseService {
 
     if (hotelName.isEmpty) throw Exception("Hotel information not found.");
 
-    // 2. Aktif Rezervasyonu Bul ve Ãœcreti YansÄ±t (SADECE ODA HESABI Ä°SE)
+    // 2. Aktif Rezervasyonu Bul ve Ücreti Yansıt (SADECE ODA HESABI İSE)
     if (paymentMethod == 'room_charge' && price > 0) {
       final roomNumber = userData['roomNumber'];
 
@@ -1537,7 +1537,7 @@ class DatabaseService {
           'currentBalance': FieldValue.increment(price),
         });
       } else {
-        // EÄŸer aktif rezervasyon yoksa
+        // Eğer aktif rezervasyon yoksa
         throw Exception(
           "No active hotel reservation found, cannot charge to room.",
         );
@@ -1571,9 +1571,9 @@ class DatabaseService {
         });
   }
 
-  // --- MÃœSAÄ°TLÄ°K KONTROLÃœ Ä°Ã‡Ä°N ---
+  // --- MÜSAİTLİK KONTROLÜ İÇİN ---
   Stream<List<String>> getSpaBookedSlots(String hotelName, DateTime date) {
-    // SeÃ§ilen gÃ¼nÃ¼n baÅŸlangÄ±cÄ± ve bitiÅŸi
+    // Seçilen günün başlangıcı ve bitişi
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
@@ -1591,7 +1591,7 @@ class DatabaseService {
         .where(
           'status',
           isNotEqualTo: 'cancelled',
-        ) // Ä°ptal edilenler uygun sayÄ±lÄ±r
+        ) // İptal edilenler uygun sayılır
         .snapshots()
         .map((snapshot) {
           return snapshot.docs
@@ -1600,7 +1600,7 @@ class DatabaseService {
         });
   }
 
-  // --- SPA RANDEVULARINI GETÄ°R (ADMIN) ---
+  // --- SPA RANDEVULARINI GETİR (ADMIN) ---
   Stream<List<Map<String, dynamic>>> getSpaReservations(String hotelName) {
     return _db
         .collection('hotels')
@@ -1608,7 +1608,7 @@ class DatabaseService {
         .collection('spa_wellness')
         .doc('reservations')
         .collection('appointments')
-        .orderBy('appointmentDate', descending: true) // Yeni randevular Ã¼stte
+        .orderBy('appointmentDate', descending: true) // Yeni randevular üstte
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) {
@@ -1619,7 +1619,7 @@ class DatabaseService {
         });
   }
 
-  // --- SPA RANDEVU DURUMU GÃœNCELLE (ADMIN) ---
+  // --- SPA RANDEVU DURUMU GÜNCELLE (ADMIN) ---
   Future<void> updateSpaReservationStatus(
     String hotelName,
     String reservationId,
@@ -1635,7 +1635,7 @@ class DatabaseService {
         .update({'status': status});
   }
 
-  // --- SPA MENÃœ YÃ–NETÄ°MÄ° (ADMIN) ---
+  // --- SPA MENÜ YÖNETİMİ (ADMIN) ---
 
   // 1. Spa Hizmeti Ekle
   Future<void> addSpaService(
@@ -1651,7 +1651,7 @@ class DatabaseService {
         .set({...serviceData, 'type': 'service'});
   }
 
-  // 2. Spa Hizmeti GÃ¼ncelle
+  // 2. Spa Hizmeti Güncelle
   Future<void> updateSpaService(
     String hotelName,
     String docId,
@@ -1675,7 +1675,7 @@ class DatabaseService {
         .delete();
   }
 
-  // 4. Spa MenÃ¼sÃ¼nÃ¼ Getir (Stream)
+  // 4. Spa Menüsünü Getir (Stream)
   Stream<List<Map<String, dynamic>>> getSpaMenu(String hotelName) {
     return _db
         .collection('hotels')
@@ -1692,8 +1692,8 @@ class DatabaseService {
         });
   }
 
-  // --- ODA YÃ–NETÄ°MÄ° ---
-  // TÃ¼m odalarÄ± Ã§ek (Ä°simlerini ve DND durumlarÄ±nÄ± gÃ¶rmek iÃ§in)
+  // --- ODA YÖNETİMİ ---
+  // Tüm odaları çek (İsimlerini ve DND durumlarını görmek için)
   Stream<List<Map<String, dynamic>>> getRooms(String hotelName) {
     return _db
         .collection('hotels')
@@ -1709,7 +1709,7 @@ class DatabaseService {
         });
   }
 
-  // --- MÃœÅTERÄ° Ä°STEKLERÄ° (CUSTOMER REQUESTS) ---
+  // --- MÜŞTERİ İSTEKLERİ (CUSTOMER REQUESTS) ---
 
   // Get ALL room service orders (Admin)
   Stream<List<Map<String, dynamic>>> getAllRoomServiceOrders(String hotelName) {
@@ -1840,14 +1840,14 @@ class DatabaseService {
     }
   }
 
-  // Oda verilerini dinleyen Stream (UI'daki StreamBuilder iÃ§in)
+  // Oda verilerini dinleyen Stream (UI'daki StreamBuilder için)
   Stream<DocumentSnapshot> getRoomStream(String documentId) {
     return _db.collection('rooms').doc(documentId).snapshots();
   }
 
-  // --- BÄ°LDÄ°RÄ°M TERCÄ°HLERÄ° ---
+  // --- BİLDİRİM TERCİHLERİ ---
 
-  // 1. KullanÄ±cÄ±nÄ±n seÃ§tiÄŸi ilgi alanlarÄ±nÄ± getir
+  // 1. Kullanıcının seçtiği ilgi alanlarını getir
   Future<List<String>> getUserInterests() async {
     User? user = _auth.currentUser;
     if (user == null) return [];
@@ -1862,12 +1862,12 @@ class DatabaseService {
       }
       return [];
     } catch (e) {
-      Logger.debug("Ä°lgi alanlarÄ± Ã§ekilemedi: $e");
+      Logger.debug("İlgi alanları çekilemedi: $e");
       return [];
     }
   }
 
-  // 2. KullanÄ±cÄ±nÄ±n ilgi alanlarÄ±nÄ± gÃ¼ncelle
+  // 2. Kullanıcının ilgi alanlarını güncelle
   Future<void> updateUserInterests(List<String> interests) async {
     User? user = _auth.currentUser;
     if (user != null) {
@@ -1877,14 +1877,14 @@ class DatabaseService {
     }
   }
 
-  // 3. Ä°lgi alanlarÄ±na gÃ¶re yeni etkinlikleri dinle
+  // 3. İlgi alanlarına göre yeni etkinlikleri dinle
   Stream<QuerySnapshot> listenForInterestEvents(
     String hotelName,
     List<String> interests,
   ) {
-    // Sadece ÅŸu andan sonra eklenen/gÃ¼ncellenen etkinlikleri dinle
-    // Not: 'createdAt' veya benzeri bir zaman damgasÄ± etkinliklerde olmalÄ±.
-    // Åimdilik sadece dinleyici ekliyoruz, client tarafÄ±nda filtreleme yapacaÄŸÄ±z.
+    // Sadece şu andan sonra eklenen/güncellenen etkinlikleri dinle
+    // Not: 'createdAt' veya benzeri bir zaman damgası etkinliklerde olmalı.
+    // Şimdilik sadece dinleyici ekliyoruz, client tarafında filtreleme yapacağız.
     // Firestore whereIn sorgusu ile sadece ilgili kategorileri dinle
 
     if (interests.isEmpty) return const Stream.empty();
@@ -1894,7 +1894,7 @@ class DatabaseService {
         .doc(hotelName)
         .collection('events')
         .where('category', whereIn: interests)
-        // .where('createdAt', isGreaterThan: Timestamp.now()) // EÄŸer etkinliklerde createdAt varsa bunu aÃ§Ä±n
+        // .where('createdAt', isGreaterThan: Timestamp.now()) // Eğer etkinliklerde createdAt varsa bunu açın
         .snapshots();
   }
 }

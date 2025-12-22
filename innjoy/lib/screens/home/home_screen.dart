@@ -1,10 +1,10 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:login_page/screens/emergency/emergency_screen.dart';
+import '../emergency/emergency_screen.dart';
 import 'dart:ui';
 import '../services/service_screen.dart';
 import '../events_activities/events_activities_screen.dart';
@@ -12,8 +12,8 @@ import '../events_activities/event_details_screen.dart';
 import '../room_service/room_service_screen.dart';
 import '../housekeeping/housekeeping_screen.dart';
 import '../profile/profile_screen.dart';
-import '../../service/database_service.dart';
-import '../../utils/custom_dialog.dart';
+import '../../services/database_service.dart';
+import '../../utils/dialogs/custom_dialog.dart';
 import 'hotel_selection_screen.dart';
 import '../../widgets/auth_wrapper.dart';
 import '../customer/my_plans_screen.dart';
@@ -21,18 +21,18 @@ import '../requests/customer_requests_screen.dart';
 import '../payment/spending_tracker_screen.dart';
 import '../../map/map_screen.dart';
 import 'admin_home_screen.dart';
-import '../../widgets/custom_top_navigation_bar.dart';
-import '../../widgets/admin_action_bar.dart';
+import '../../widgets/common/custom_top_navigation_bar.dart';
+import '../../widgets/admin/admin_action_bar.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Ana Ekran (Home Screen)
 ///
-/// Kullanıcının otel deneyimini yönettiği, hizmetlere, etkinliklere
-/// ve fatura detaylarına erişebildiği ana kontrol panelidir.
+/// Kullanıcının otel deneyimini yönettiği, hizmetlere, etkinliklere
+/// ve fatura detaylarına erişebildiği ana kontrol panelidir.
 class HomeScreen extends StatefulWidget {
   final String userName;
-  final bool? isAdmin; // Gecikmeyi önlemek için opsiyonel parametre
-  final String? hotelName; // Admin Guest View için opsiyonel
+  final bool? isAdmin; // Gecikmeyi önlemek iÇin opsiyonel parametre
+  final String? hotelName; // Admin Guest View iÇin opsiyonel
 
   const HomeScreen({
     super.key,
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Eğer parametre geldiyse direkt onu kullan (Gecikme olmaz)
+    // Eğer parametre geldiyse direkt onu kullan (Gecikme olmaz)
     // Gelmediyse varsayılan false ve asenkron kontrol
     _isAdmin = widget.isAdmin ?? false;
     _hotelName = widget.hotelName;
@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (mounted) {
         setState(() {
-          // Eğer admin parametresi geldiyse onu ezme, sadece hotelName al
+          // Eğer admin parametresi geldiyse onu ezme, sadece hotelName al
           if (widget.isAdmin == null) _isAdmin = role == 'admin';
           _hotelName ??= hotel;
           _roomNumber = room ?? _roomNumber;
@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
             : IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.grey),
                 onPressed: () {
-                  // Müşteri ise otel seçimine gitsin
+                  // Müşteri ise otel seÇimine gitsin
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (_) => const HotelSelectionScreen(),
@@ -718,8 +718,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
 /// Otel Bilgi Kartı
 ///
-/// Kullanıcının konakladığı otel adı, oda numarası ve tarih aralığını gösterir.
-/// Ayrıca kapı kilit açma (Unlock) butonu burada bulunur.
+/// Kullanıcının konakladığı otel adı, oda numarası ve tarih aralığını gösterir.
+/// Ayrıca kapı kilit aÇma (Unlock) butonu burada bulunur.
 class _HotelCard extends StatefulWidget {
   final String hotelName;
   final String? roomNumber;
@@ -1087,7 +1087,7 @@ class _HotelCardState extends State<_HotelCard> {
               padding: const EdgeInsets.all(12),
             ),
           ),
-          // Kapı Açma Düğmesi (Unlock Button)
+          // Kapı AÇma Düğmesi (Unlock Button)
           ElevatedButton(
             onPressed: () {
               _showComingSoonDialog(context);
@@ -1479,7 +1479,7 @@ class _SpendingCard extends StatelessWidget {
 
 enum _BottomItem { home, map, services, profile }
 
-/// Özel Alt Navigasyon Çubuğu (Custom Bottom Bar)
+/// Çâ€œzel Alt Navigasyon Çubuğu (Custom Bottom Bar)
 ///
 /// Saydam (yarı opak) ve blur efektli bir görünüme sahiptir.
 class _CustomBottomBar extends StatelessWidget {

@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -29,7 +29,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
   
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  bool _isPublished = true; // Default: Yayınla açık
+  bool _isPublished = true; // Default: Yayınla aÇık
   String? _selectedImage; // Asset path or URL
   File? _imageFile;
   
@@ -304,7 +304,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
   }
 
   Widget _buildImagePreview() {
-    // 1. Önce dosya varsa göster
+    // 1. Çâ€œnce dosya varsa göster
     if (_imageFile != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -324,7 +324,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
       );
     }
     
-    // 3. Seçili görsel varsa (düzenleme modunda)
+    // 3. SeÇili görsel varsa (düzenleme modunda)
     if (_selectedImage != null && _selectedImage!.isNotEmpty) {
       if (_selectedImage!.startsWith('http')) {
         return ClipRRect(
@@ -347,7 +347,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
       }
     }
     
-    // 4. Hiçbiri yoksa placeholder göster
+    // 4. HiÇbiri yoksa placeholder göster
     return _buildPlaceholder();
   }
 
@@ -492,7 +492,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: _selectedCategory,
+                      initialValue: _selectedCategory,
                       decoration: InputDecoration(
                         hintText: 'Select Category',
                         hintStyle: TextStyle(color: Colors.grey[400]),

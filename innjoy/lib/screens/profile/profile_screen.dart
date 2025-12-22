@@ -1,13 +1,13 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:login_page/service/auth.dart';
+import 'package:login_page/services/auth.dart';
 import '../../widgets/auth_wrapper.dart';
 import 'change_password_screen.dart';
-import '../../utils/custom_dialog.dart';
+import '../../utils/dialogs/custom_dialog.dart';
 import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
-import './notifications_chose_screen.dart';
+import 'notifications_chose_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -96,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // Profil Fotoğrafı
+                  // Profil Fotoğrafı
                   Stack(
                     children: [
                       Container(
@@ -391,7 +391,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       isDanger: true,
                     );
                     if (shouldLogout == true) {
-                      // Login sayfasının bulunduğu AuthWrapper'a yönlendir
+                      // Login sayfasının bulunduğu AuthWrapper'a yönlendir
                       // Mevcut tüm sayfaları stack'ten temizle
                       await Auth().signOut();
                       if (context.mounted) {

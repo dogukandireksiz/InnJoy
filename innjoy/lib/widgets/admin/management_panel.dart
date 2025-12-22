@@ -58,58 +58,27 @@ class ManagementPanel extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        userName,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const Text(
-                        'Front Desk Manager',
-                        style: TextStyle(color: Colors.black54, fontSize: 12),
-                      ),
+                      Text(userName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      const Text('Front Desk Manager', style: TextStyle(color: Colors.black54, fontSize: 12)),
                     ],
                   ),
                 ),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(Icons.chevron_right),
-                ),
+                )
               ],
             ),
           ),
           const SizedBox(height: 16),
-          _PanelItem(
-            icon: Icons.dashboard_rounded,
-            label: 'Dashboard',
-            selected: true,
-            onTap: () => onNavigate('dashboard'),
-          ),
-          _PanelItem(
-            icon: Icons.bed,
-            label: 'Rooms',
-            onTap: () => onNavigate('rooms'),
-          ),
-          _PanelItem(
-            icon: Icons.inbox,
-            label: 'Requests',
-            onTap: () => onNavigate('requests'),
-          ),
-          _PanelItem(
-            icon: Icons.edit,
-            label: 'Edits',
-            onTap: () => onNavigate('edits'),
-          ),
-          _PanelItem(
-            icon: Icons.emergency_share,
-            label: 'Emergencies',
-            onTap: () => onNavigate('emergency'),
-          ),
+          _PanelItem(icon: Icons.dashboard_rounded, label: 'Dashboard', selected: true, onTap: () => onNavigate('dashboard')),
+          _PanelItem(icon: Icons.bed, label: 'Rooms', onTap: () => onNavigate('rooms')),
+          _PanelItem(icon: Icons.inbox, label: 'Requests', onTap: () => onNavigate('requests')),
+          _PanelItem(icon: Icons.edit, label: 'Edits', onTap: () => onNavigate('edits')),
+          _PanelItem(icon: Icons.emergency_share, label: 'Acil Durumlar', onTap: () => onNavigate('emergency')),
           const Spacer(),
           const Divider(),
-          _PanelItem(
-            icon: Icons.settings,
-            label: 'Settings',
-            onTap: () => onNavigate('settings'),
-          ),
+          _PanelItem(icon: Icons.settings, label: 'Settings', onTap: () => onNavigate('settings')),
           const SizedBox(height: 8),
           TextButton.icon(
             onPressed: onSignOut,
@@ -117,10 +86,7 @@ class ManagementPanel extends StatelessWidget {
             label: const Text('Sign Out'),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'v2.4.0 � Innjoy Management',
-            style: TextStyle(color: Colors.black38, fontSize: 11),
-          ),
+          const Text('v2.4.0 • Innjoy Management', style: TextStyle(color: Colors.black38, fontSize: 11)),
         ],
       ),
     );
@@ -152,9 +118,7 @@ class _PanelItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: selected
-                    ? Colors.blue.withValues(alpha: 0.12)
-                    : Colors.transparent,
+                color: selected ? Colors.blue.withValues(alpha: 0.12) : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: selected ? Colors.blue : Colors.black87),
@@ -169,6 +133,7 @@ class _PanelItem extends StatelessWidget {
                 ),
               ),
             ),
+
           ],
         ),
       ),
@@ -196,12 +161,15 @@ void showManagementPanel({
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       final width = MediaQuery.of(context).size.width;
       final panelWidth = width * 0.82;
-
+      
       final slideAnimation = Tween<Offset>(
         begin: const Offset(1, 0), // Start from right
         end: Offset.zero,
-      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
-
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      ));
+      
       return Stack(
         children: [
           // Dismiss on tap outside
@@ -253,3 +221,12 @@ void showManagementPanel({
     },
   );
 }
+
+
+
+
+
+
+
+
+

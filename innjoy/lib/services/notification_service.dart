@@ -2,7 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:flutter/material.dart';
-import 'logger_service.dart';
+import 'package:login_page/services/logger_service.dart';
 
 /// NotificationService - Singleton pattern ile zamanlanmış bildirimler.
 /// Rezervasyon, etkinlik ve spa randevuları için 1 saat önceden hatırlatıcı gönderir.

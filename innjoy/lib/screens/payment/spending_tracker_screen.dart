@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 
 class SpendingTrackerScreen extends StatefulWidget {
   const SpendingTrackerScreen({super.key});
@@ -271,7 +271,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                '\$${currentBalance.toStringAsFixed(2)}',
+                                                '₺${currentBalance.toStringAsFixed(2)}',
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 36,
@@ -547,7 +547,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                     ],
                   ),
                   Text(
-                    '-\$${dayTotal.toStringAsFixed(2)}',
+                    '-₺${dayTotal.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -694,7 +694,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '-\$${amount.toStringAsFixed(2)}',
+                '-₺${amount.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -766,7 +766,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
             Row(
               children: [
                 Text(
-                  '\$${(data['total'] as double).toStringAsFixed(2)}',
+                  '₺${(data['total'] as double).toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -843,7 +843,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                             ),
                           ),
                           Text(
-                            'Total: \$${(categoryData['total'] as double).toStringAsFixed(2)}',
+                            'Total: ₺${(categoryData['total'] as double).toStringAsFixed(2)}',
                             style: TextStyle(
                               color: categoryData['color'],
                               fontSize: 16,
@@ -947,7 +947,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                     style: TextStyle(fontSize: 16, color: Color(0xFF4c739a)),
                   ),
                   Text(
-                    '\$${amount.toStringAsFixed(2)}',
+                    '₺${amount.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

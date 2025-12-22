@@ -1,4 +1,4 @@
-﻿
+
 
 class MenuItem{
   final String id;
@@ -21,7 +21,7 @@ class MenuItem{
     this.preparationTime,
   });
 
-  //firebaseden veri çekerken
+  //firebaseden veri Çekerken
   factory MenuItem.fromMap(Map<String, dynamic> data, String documentId) {
     return MenuItem(
       id: documentId,
@@ -35,7 +35,7 @@ class MenuItem{
     );
   }
 
-    // Firebase'e veri gönderirken (Sipariş vb.) bu çalışacak
+    // Firebase'e veri gönderirken (Sipariş vb.) bu Çalışacak
   Map<String, dynamic> toMap() {
     return {
       'name': name,

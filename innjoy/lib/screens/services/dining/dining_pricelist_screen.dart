@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dining_booking_screen.dart';
 
 // Menü öğesi modeli
@@ -249,10 +249,12 @@ class DiningData {
 
 class DiningPricelistScreen extends StatefulWidget {
   final String venueName;
+  final String hotelName;
 
   const DiningPricelistScreen({
     super.key,
     required this.venueName,
+    required this.hotelName,
   });
 
   @override
@@ -437,7 +439,7 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => DiningBookingScreen(
-                    hotelName: 'Grand Hayat Otel', // Assuming default/global hotel context here as it's not passed in
+                    hotelName: widget.hotelName,
                     restaurantId: widget.venueName, // Using venueName as ID for now or need mapping
                     restaurantName: widget.venueName,
                     imageUrl: _venue?.headerImagePath ?? 'assets/images/arkaplan.jpg',

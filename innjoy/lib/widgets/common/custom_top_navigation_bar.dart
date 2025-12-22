@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 /// Enum to indicate which view is currently active
 enum AdminPanelView { guest, admin }

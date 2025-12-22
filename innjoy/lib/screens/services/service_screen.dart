@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dining/dining_booking_screen.dart';
 
 import '../dining/customer_menu_screen.dart';
 import 'spa_wellness/spa_wellness_screen.dart';
 import 'fitness/details/fitness_details_screen.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 
 class ServiceScreen extends StatefulWidget {
   final String? hotelName;
@@ -25,14 +25,22 @@ class _ServiceScreenState extends State<ServiceScreen> {
     super.initState();
     // Auto-seed default data if missing (Self-healing)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _db.seedDefaultServices(widget.hotelName ?? 'Grand Hayat Otel');
+      if (widget.hotelName != null) {
+        _db.seedDefaultServices(widget.hotelName!);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     // Combine 3 streams: Restaurant, Spa, Fitness
-    final hotelName = widget.hotelName ?? 'Grand Hayat Otel';
+    final hotelName = widget.hotelName;
+
+    if (hotelName == null) {
+      return const Scaffold(
+        body: Center(child: Text("No hotel selected")),
+      );
+    }
 
     // We can use a StreamBuilder that listens to a combined stream
     // Since we don't want to add huge dependencies, we can use a nested approach or a simple combinator.

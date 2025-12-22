@@ -1,16 +1,16 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart'; // Harita paketi
 import 'package:latlong2/latlong.dart'; // Koordinat paketi
 import 'package:geolocator/geolocator.dart'; // Konum paketi
 
-// Kendi proje yollarını kontrol et:
-import 'package:login_page/service/database_service.dart';
+// Kendi proje yollar�n� kontrol et:
+import 'package:login_page/services/database_service.dart';
 import 'package:login_page/location/location_model.dart';
 import 'package:login_page/screens/emergency/full_map_screen.dart';
 
-// Acil Çıkış Kapısı Modeli
+// Acil ��k�� Kap�s� Modeli
 class EmergencyExit {
   final String id;
   final String name;
@@ -38,13 +38,13 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
   final MapController _mapController = MapController();
   final Distance _distanceCalculator = const Distance();
 
-  // --- MUĞLA SITKI KOÇMAN ÜNİVERSİTESİ MÜHENDİSLİK FAKÜLTESİ ---
+  // --- MU�LA SITKI KO�MAN �N�VERS�TES� M�HEND�SL�K FAK�LTES� ---
   // Ana Koordinatlar: 37.1614, 28.3758 (Haritadaki bina merkezi)
 
-  // GPS çekmezse kullanılacak YEDEK KONUM (Mühendislik Fakültesi Merkezi)
+  // GPS �ekmezse kullan�lacak YEDEK KONUM (M�hendislik Fak�ltesi Merkezi)
   final LatLng _backupLocation = const LatLng(37.1614, 28.3758);
 
-  // MÜHENDİSLİK FAKÜLTESİ ACİL ÇIKIŞ KAPILARI
+  // M�HEND�SL�K FAK�LTES� AC�L �IKI� KAPILARI
   final List<EmergencyExit> _emergencyExits = const [
     // Main Entrance (North - Moonlight Square direction)
     EmergencyExit(
@@ -83,17 +83,17 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     ),
   ];
 
-  // En yakın çıkış bilgisi
+  // En yak�n ��k�� bilgisi
   EmergencyExit? _nearestExit;
   double? _nearestExitDistance;
 
-  // Kullanıcı Konumu ve Oda Bilgileri
+  // Kullan�c� Konumu ve Oda Bilgileri
   LatLng? _userLocation;
   String? userActualRoomNumber;
   String selectedLocationKey = 'my_room';
   bool isLoadingUser = true;
 
-  // Dropdown Seçenekleri
+  // Dropdown Se�enekleri
   final Map<String, String> locationOptions = {
     'my_room': 'My Room',
     'restaurant': 'Restaurant',
@@ -110,7 +110,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     _updateStream();
   }
 
-  // En yakın çıkışı hesapla
+  // En yak�n ��k��� hesapla
   void _calculateNearestExit(LatLng userPos) {
     EmergencyExit? nearest;
     double minDistance = double.infinity;
@@ -139,39 +139,39 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     _roomStream = _dbService.getRoomStream(documentIdToQuery);
   }
 
-  // --- 1. KONUM TAKİBİ VE YEDEK KONUM MANTIĞI ---
+  // --- 1. KONUM TAK�B� VE YEDEK KONUM MANTI�I ---
   Future<void> _startLocationTracking() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Servis açık mı?
+    // Servis a��k m�?
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      Logger.debug('Konum servisleri kapalı. Yedek konum kullanılıyor.');
-      _useBackupLocation(); // Servis kapalıysa yedeğe geç
+      Logger.debug('Konum servisleri kapal�. Yedek konum kullan�l�yor.');
+      _useBackupLocation(); // Servis kapal�ysa yede�e ge�
       return;
     }
 
-    // İzin kontrolü
+    // �zin kontrol�
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        Logger.debug('Konum izni reddedildi. Yedek konum kullanılıyor.');
-        _useBackupLocation(); // İzin yoksa yedeğe geç
+        Logger.debug('Konum izni reddedildi. Yedek konum kullan�l�yor.');
+        _useBackupLocation(); // �zin yoksa yede�e ge�
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      Logger.debug('Konum izni kalıcı reddedildi. Yedek konum kullanılıyor.');
+      Logger.debug('Konum izni kal�c� reddedildi. Yedek konum kullan�l�yor.');
       _useBackupLocation();
       return;
     }
 
-    // İzin alındıysa önce mevcut konumu al, sonra takibi başlat
+    // �zin al�nd�ysa �nce mevcut konumu al, sonra takibi ba�lat
     try {
-      // İlk konum alımı - daha hızlı sonuç için
+      // �lk konum al�m� - daha h�zl� sonu� i�in
       final Position initialPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -186,15 +186,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         });
         _calculateNearestExit(initialLocation);
         debugPrint(
-          'Anlık konum alındı: ${initialPosition.latitude}, ${initialPosition.longitude}',
+          'Anl�k konum al�nd�: ${initialPosition.latitude}, ${initialPosition.longitude}',
         );
       }
     } catch (e) {
-      Logger.debug('İlk konum alınamadı: $e - Yedek konum kullanılıyor');
+      Logger.debug('�lk konum al�namad�: $e - Yedek konum kullan�l�yor');
       _useBackupLocation();
     }
 
-    // Sürekli konum takibi
+    // S�rekli konum takibi
     Geolocator.getPositionStream(
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     ).listen(
@@ -204,30 +204,30 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           setState(() {
             _userLocation = newLocation;
           });
-          // Her konum güncellemesinde en yakın çıkışı yeniden hesapla
+          // Her konum g�ncellemesinde en yak�n ��k��� yeniden hesapla
           _calculateNearestExit(newLocation);
         }
       },
       onError: (e) {
-        // Stream hatası durumunda da yedeğe dön
-        Logger.debug('Konum stream hatası: $e');
+        // Stream hatas� durumunda da yede�e d�n
+        Logger.debug('Konum stream hatas�: $e');
         _useBackupLocation();
       },
     );
   }
 
-  // GPS Çalışmazsa devreye girecek fonksiyon
+  // GPS �al��mazsa devreye girecek fonksiyon
   void _useBackupLocation() {
     if (mounted) {
       setState(() {
         _userLocation = _backupLocation;
       });
-      // Yedek konum için de en yakın çıkışı hesapla
+      // Yedek konum i�in de en yak�n ��k��� hesapla
       _calculateNearestExit(_backupLocation);
     }
   }
 
-  // --- 2. KULLANICI ODA BİLGİSİ ---
+  // --- 2. KULLANICI ODA B�LG�S� ---
   Future<void> _loadUserData() async {
     try {
       String room = await _dbService.getUserRoomNumber();
@@ -243,7 +243,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     }
   }
 
-  // --- 3. ACİL DURUM BİLDİRİMİ ---
+  // --- 3. AC�L DURUM B�LD�R�M� ---
   Future<void> _handleSendAlert(String emergencyType) async {
     String roomToSend = userActualRoomNumber ?? "Unknown";
 
@@ -289,7 +289,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     }
   }
 
-  // --- YARDIMCI FONKSİYONLAR ---
+  // --- YARDIMCI FONKS�YONLAR ---
   String get documentIdToQuery {
     if (selectedLocationKey == 'my_room') {
       return userActualRoomNumber ?? "1";
@@ -307,7 +307,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Tasarım Renkleri
+    // Tasar�m Renkleri
     const Color backgroundColor = Color(0xFF000000);
     const Color containerColor = Color(0xFF1E1E1E);
     const Color textColor = Colors.white;
@@ -369,7 +369,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             children: [
-              // ÜST BUTONLAR
+              // �ST BUTONLAR
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -421,18 +421,18 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                     var data = snapshot.data!.data() as Map<String, dynamic>;
 
-                    // Not: Firebase verileri gelecekte kullanılabilir
+                    // Not: Firebase verileri gelecekte kullan�labilir
                     // ignore: unused_local_variable
                     final _ = LocationModel.fromFirestore(
                       data,
                       documentIdToQuery,
                     );
 
-                    // Kullanıcı Noktası (GPS veya Yedek)
+                    // Kullan�c� Noktas� (GPS veya Yedek)
                     final LatLng currentUserPoint =
                         _userLocation ?? _backupLocation;
 
-                    // En yakın çıkış noktası
+                    // En yak�n ��k�� noktas�
                     final LatLng targetExitPoint =
                         _nearestExit?.location ??
                         _emergencyExits.first.location;
@@ -444,7 +444,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                     return Column(
                       children: [
-                        // --- CANLI MİNİ HARİTA ---
+                        // --- CANLI M�N� HAR�TA ---
                         Expanded(
                           flex: 5,
                           child: Container(
@@ -462,7 +462,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                   FlutterMap(
                                     mapController: _mapController,
                                     options: MapOptions(
-                                      // Harita açıldığında kullanıcıyı merkez al
+                                      // Harita a��ld���nda kullan�c�y� merkez al
                                       initialCenter: currentUserPoint,
                                       initialZoom: 18.0,
                                       interactionOptions:
@@ -475,7 +475,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                         urlTemplate:
                                             'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                       ),
-                                      // ROTA ÇİZGİSİ - En yakın çıkışa
+                                      // ROTA ��ZG�S� - En yak�n ��k��a
                                       PolylineLayer(
                                         polylines: [
                                           Polyline(
@@ -488,10 +488,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                           ),
                                         ],
                                       ),
-                                      // TÜM ÇIKIŞ KAPILARI İŞARETLEYİCİLERİ
+                                      // T�M �IKI� KAPILARI ��ARETLEY�C�LER�
                                       MarkerLayer(
                                         markers: [
-                                          // Kullanıcı (Mavi İnsan)
+                                          // Kullan�c� (Mavi �nsan)
                                           Marker(
                                             point: currentUserPoint,
                                             width: 50,
@@ -502,7 +502,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                               size: 50,
                                             ),
                                           ),
-                                          // Tüm acil çıkış kapıları
+                                          // T�m acil ��k�� kap�lar�
                                           ..._emergencyExits.map((exit) {
                                             final bool isNearest =
                                                 _nearestExit?.id == exit.id;
@@ -553,7 +553,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                     ],
                                   ),
 
-                                  // 2. Katman: Büyüt Butonu
+                                  // 2. Katman: B�y�t Butonu
                                   Align(
                                     alignment: Alignment.topCenter,
                                     child: GestureDetector(
@@ -618,7 +618,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                         const SizedBox(height: 20),
 
-                        // --- TALİMATLAR KARTI ---
+                        // --- TAL�MATLAR KARTI ---
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(20),

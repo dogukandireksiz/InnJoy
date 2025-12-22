@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:login_page/screens/screens.dart';
-import 'package:login_page/widgets/verification_screen.dart';
-import '../service/database_service.dart';
+import 'package:login_page/widgets/common/verification_screen.dart';
+import '../services/database_service.dart';
 import '../screens/home/hotel_selection_screen.dart';
 import '../screens/home/admin_home_screen.dart';
 
@@ -14,12 +14,12 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Firebase Auth durumunu dinliyoruz (Giriş yapıldı mı çıkış mı yapıldı?)
+    // Firebase Auth durumunu dinliyoruz (Giriş yapıldı mı Çıkış mı yapıldı?)
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         
-        // 1. Firebase hala bağlantıyı kontrol ediyorsa bekleme ikonu göster
+        // 1. Firebase hala bağlantıyı kontrol ediyorsa bekleme ikonu göster
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
@@ -28,7 +28,7 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        // 2. Eğer snapshot içinde veri varsa (Kullanıcı giriş yapmışsa)
+        // 2. Eğer snapshot iÇinde veri varsa (Kullanıcı giriş yapmışsa)
         if (snapshot.hasData) {
           // Giriş yapmış kullanıcının bilgilerini alıyoruz
           User? user = snapshot.data;
@@ -48,7 +48,7 @@ class AuthWrapper extends StatelessWidget {
               }
 
               final userData = snapshot.data;
-              // Eğer kullanıcı verisi henüz oluşmamışsa (signup sonrası gecikme olabilir), loading göster veya misafir varsay
+              // Eğer kullanıcı verisi henüz oluşmamışsa (signup sonrası gecikme olabilir), loading göster veya misafir varsay
               if (userData == null) {
                  return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
@@ -59,7 +59,7 @@ class AuthWrapper extends StatelessWidget {
               final hotelName = userData['hotelName'];
 
               if (role == 'admin') {
-                // 1. Admin ise ama otel ataması yoksa -> ERİŞİM ENGELİ
+                // 1. Admin ise ama otel ataması yoksa -> ERİşİM ENGELİ
                 if (hotelName == null || hotelName.isEmpty) {
                   return Scaffold(
                     body: Center(
@@ -104,8 +104,8 @@ class AuthWrapper extends StatelessWidget {
                 return const AdminHomeScreen();
               }
 
-              // --- MÜŞTERİ AKIŞI ---
-              // Eğer müşterinin kayıtlı oteli yoksa -> Otel Seçim Ekranı (PNR Girişi)
+              // --- MÜşTERİ AKIşI ---
+              // Eğer müşterinin kayıtlı oteli yoksa -> Otel SeÇim Ekranı (PNR Girişi)
               if (hotelName == null || hotelName.isEmpty) {
                 return const HotelSelectionScreen();
               }
@@ -115,9 +115,9 @@ class AuthWrapper extends StatelessWidget {
               if (userData['checkOutDate'] != null && userData['checkOutDate'] is Timestamp) {
                 final checkOut = (userData['checkOutDate'] as Timestamp).toDate();
                 if (DateTime.now().isAfter(checkOut)) {
-                  // Tarih geçmiş!
+                  // Tarih geÇmiş!
                   // Kullanıcıyı HotelSelection'a atıyoruz (Girişi engelliyoruz)
-                  // İdealde burada bir "Süreniz doldu" uyarısı verilebilir ama şimdilik seçim ekranına atalım.
+                  // İdealde burada bir "Süreniz doldu" uyarısı verilebilir ama şimdilik seÇim ekranına atalım.
                   return const HotelSelectionScreen();
                 }
               }

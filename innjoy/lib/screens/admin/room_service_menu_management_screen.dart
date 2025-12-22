@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
-import '../../service/database_service.dart';
-import '../../model/menu_item_model.dart';
-import 'add_menu_item_screen.dart';
+import 'package:flutter/material.dart';
+import '../../services/database_service.dart';
+import '../../models/menu_item_model.dart';
+import 'restaurant/add_menu_item_screen.dart';
 
 class RoomServiceMenuManagementScreen extends StatefulWidget {
   final String hotelName;
@@ -392,7 +392,7 @@ class _RoomServiceMenuManagementScreenState
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
-                          '₺${item.price.toStringAsFixed(2)}',
+                          '?${item.price.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,

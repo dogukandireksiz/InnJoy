@@ -1,8 +1,8 @@
-﻿
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../service/database_service.dart';
-import '../../model/menu_item_model.dart';
+import '../../services/database_service.dart';
+import '../../models/menu_item_model.dart';
 
 class RoomServiceCartScreen extends StatefulWidget {
   final String hotelName;
@@ -247,7 +247,7 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                 Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
                 Text(
-                  '${item.price}₺', 
+                  '₺${item.price}', 
                   style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0d141b)),
                 ),
               ],
@@ -352,7 +352,7 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: TextStyle(fontSize: isTotal ? 18 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, color: isTotal ? Colors.black : Colors.grey)),
-          Text('${amount.toStringAsFixed(2)}₺', style: TextStyle(fontSize: isTotal ? 18 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, color: isTotal ? const Color(0xFF137fec) : Colors.black)),
+          Text('₺${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: isTotal ? 18 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, color: isTotal ? const Color(0xFF137fec) : Colors.black)),
         ],
       ),
     );
@@ -376,7 +376,7 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
           ),
           child: _isPlacingOrder 
               ? const CircularProgressIndicator(color: Colors.white)
-              : Text('Place Order • ${_totalPrice.toStringAsFixed(2)}₺', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              : Text('Place Order • ₺${_totalPrice.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-﻿class LocationModel {
+class LocationModel {
   final String id;
   final String name;
   final String description;
@@ -19,12 +19,12 @@
     required this.longitude,
   });
 
-  // Firebase'den gelen veriyi Dart objesine çeviren fonksiyon
+  // Firebase'den gelen veriyi Dart objesine Çeviren fonksiyon
   factory LocationModel.fromFirestore(Map<String, dynamic> data, String id) {
     return LocationModel(
       id: id,
       name: data['name'] ?? 'Bilinmeyen Yer',
-      description: data['desc'] ?? 'Açıklama yok.',
+      description: data['desc'] ?? 'AÇıklama yok.',
       fireExitNote: data['fire_note'] ?? 'Bilgi yok.',
       fireExitDistance: data['fire_dist'] ?? '-',
       imageUrl: data['image'],

@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../service/database_service.dart'; // Servis importu
+import '../../services/database_service.dart'; // Servis importu
 
 class HousekeepingScreen extends StatefulWidget {
   const HousekeepingScreen({super.key});
@@ -12,9 +12,9 @@ class HousekeepingScreen extends StatefulWidget {
 }
 
 class _HousekeepingScreenState extends State<HousekeepingScreen> {
-  // --- TASARIM DEĞİŞKENLERİ ---
+  // --- TASARIM DE���KENLER� ---
   bool _doNotDisturb = false;
-  int _selectedTimeType = 0; // 0: Hemen Temizle, 1: Belirli Saat Aralığında
+  int _selectedTimeType = 0; // 0: Hemen Temizle, 1: Belirli Saat Aral���nda
   String _selectedTimeRange = '14:00 - 16:00';
 
   // Malzeme talepleri
@@ -24,9 +24,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
 
   final TextEditingController _notesController = TextEditingController();
 
-  //--- MANTIK DEĞİŞKENLERİ ---
-  bool _requestSent = false; // UI durumu için
-  bool _isLoading = false; // Yükleniyor durumu için
+  //--- MANTIK DE���KENLER� ---
+  bool _requestSent = false; // UI durumu i�in
+  bool _isLoading = false; // Y�kleniyor durumu i�in
 
   // User and hotel context
   String? _hotelName;
@@ -51,7 +51,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        Logger.debug('🔍 Loading user data for UID: ${user.uid}');
+        Logger.debug('?? Loading user data for UID: ${user.uid}');
 
         // Fetch user data directly from Firestore
         final userDoc = await FirebaseFirestore.instance
@@ -68,16 +68,16 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               _doNotDisturb = userData['doNotDisturb'] ?? false;
             });
             Logger.debug(
-              '✅ User context loaded: Hotel=$_hotelName, Room=$_roomNumber, DND=$_doNotDisturb',
+              '? User context loaded: Hotel=$_hotelName, Room=$_roomNumber, DND=$_doNotDisturb',
             );
           } else {
-            Logger.debug('❌ User document exists but data is null');
+            Logger.debug('? User document exists but data is null');
           }
         } else {
-          Logger.debug('❌ User document does not exist for UID: ${user.uid}');
+          Logger.debug('? User document does not exist for UID: ${user.uid}');
         }
       } catch (e) {
-        Logger.debug('❌ Error loading user context: $e');
+        Logger.debug('? Error loading user context: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -89,7 +89,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         }
       }
     } else {
-      Logger.debug('❌ No authenticated user');
+      Logger.debug('? No authenticated user');
     }
   }
 
@@ -141,7 +141,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
 
     try {
       Logger.debug(
-        '🔄 Updating DND to: $value for Hotel=$_hotelName, Room=$_roomNumber',
+        '?? Updating DND to: $value for Hotel=$_hotelName, Room=$_roomNumber',
       );
 
       // Update room's doNotDisturb status in Firebase (if roomNumber exists)
@@ -162,7 +162,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
             .update({'doNotDisturb': value});
       }
 
-      Logger.debug('✅ DND updated successfully');
+      Logger.debug('? DND updated successfully');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -176,7 +176,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         );
       }
     } catch (e) {
-      Logger.debug('❌ Error updating DND: $e');
+      Logger.debug('? Error updating DND: $e');
       // Revert state on error
       setState(() => _doNotDisturb = !value);
 
@@ -198,11 +198,11 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     super.dispose();
   }
 
-  // --- FIREBASE İSTEK GÖNDERME FONKSİYONU ---
+  // --- FIREBASE �STEK G�NDERME FONKS�YONU ---
   Future<void> _sendRequest() async {
     setState(() => _isLoading = true);
 
-    // 1. Verileri Hazırla: Tasarımdaki tüm seçimleri birleştiriyoruz
+    // 1. Verileri Haz�rla: Tasar�mdaki t�m se�imleri birle�tiriyoruz
     StringBuffer detailsBuffer = StringBuffer();
     detailsBuffer.writeln(
       "Timing: ${_selectedTimeType == 0 ? 'Now' : _selectedTimeRange}",
@@ -223,15 +223,15 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     }
 
     try {
-      // 2. Servisi Çağır (Kategori otomatik olarak 'Housekeeping')
+      // 2. Servisi �a��r (Kategori otomatik olarak 'Housekeeping')
       await DatabaseService().requestHousekeeping(
         'Housekeeping', // Kategori
-        detailsBuffer.toString(), // Hazırladığımız detaylı metin
+        detailsBuffer.toString(), // Haz�rlad���m�z detayl� metin
       );
 
       if (!mounted) return;
 
-      // 3. Başarılı ise UI güncelle
+      // 3. Ba�ar�l� ise UI g�ncelle
       setState(() {
         _requestSent = true;
         _isLoading = false;
@@ -281,7 +281,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Rahatsız Etmeyin Toggle
+            // Rahats�z Etmeyin Toggle
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -339,7 +339,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Zaman Seçimi Chips
+              // Zaman Se�imi Chips
               Row(
                 children: [
                   _TimeChip(
@@ -356,7 +356,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ],
               ),
 
-              // Saat Seçimi (sadece Belirli Saat Aralığında seçiliyse)
+              // Saat Se�imi (sadece Belirli Saat Aral���nda se�iliyse)
               if (_selectedTimeType == 1) ...[
                 const SizedBox(height: 16),
                 Container(
@@ -602,7 +602,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            // Eğer istek gönderildiyse veya şu an yükleniyorsa butona basılmasın
+            // E�er istek g�nderildiyse veya �u an y�kleniyorsa butona bas�lmas�n
             onPressed: (_requestSent || _isLoading) ? null : _sendRequest,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
@@ -686,7 +686,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
   }
 }
 
-// --- YARDIMCI WIDGET'LAR (Tasarım Kodundan) ---
+// --- YARDIMCI WIDGET'LAR (Tasar�m Kodundan) ---
 
 class _TimeChip extends StatelessWidget {
   final String label;

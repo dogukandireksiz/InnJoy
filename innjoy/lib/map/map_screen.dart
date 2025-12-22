@@ -1,12 +1,12 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatefulWidget {
-  // Çağıran dosya (emergency_screen) hata vermesin diye bu parametreleri tutuyoruz,
-  // ama çizim yaparken kullanmayacağız.
+  // �a��ran dosya (emergency_screen) hata vermesin diye bu parametreleri tutuyoruz,
+  // ama �izim yaparken kullanmayaca��z.
   final LatLng selectedLocation;
   final LatLng? userLocation;
   final String? locationName;
@@ -87,7 +87,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // Sadece kullanıcıya odaklanan fonksiyon
+  // Sadece kullan�c�ya odaklanan fonksiyon
   void _centerOnUser() {
     final LatLng displayUserLocation =
         _foundLocation ?? widget.userLocation ?? _backupLocation;
@@ -96,7 +96,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Hangi konumu göstereceğiz?
+    // Hangi konumu g�sterece�iz?
     final LatLng displayUserLocation =
         _foundLocation ?? widget.userLocation ?? _backupLocation;
     final bool isSimulationMode =
@@ -105,7 +105,7 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // --- 1. HARİTA ---
+          // --- 1. HAR�TA ---
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -118,12 +118,12 @@ class _MapScreenState extends State<MapScreen> {
                 userAgentPackageName: 'com.oteluygulamasi.app',
               ),
 
-              // NOT: PolylineLayer (Kırmızı Çizgi) buradan kaldırıldı.
+              // NOT: PolylineLayer (K�rm�z� �izgi) buradan kald�r�ld�.
               MarkerLayer(
                 markers: [
-                  // NOT: Hedef (Yeşil Kapı) ikonu kaldırıldı.
+                  // NOT: Hedef (Ye�il Kap�) ikonu kald�r�ld�.
 
-                  // Sadece Kullanıcı (Mavi İnsan)
+                  // Sadece Kullan�c� (Mavi �nsan)
                   Marker(
                     point: displayUserLocation,
                     width: 60,
@@ -139,7 +139,7 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
-          // --- 2. GERİ DÖN BUTONU ---
+          // --- 2. GER� D�N BUTONU ---
           Positioned(
             top: 50,
             left: 20,
@@ -153,7 +153,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // --- 3. KONUMUMA GİT BUTONU ---
+          // --- 3. KONUMUMA G�T BUTONU ---
           Positioned(
             right: 20,
             bottom: 80,
@@ -164,7 +164,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // --- 4. SİMÜLASYON UYARISI ---
+          // --- 4. S�M�LASYON UYARISI ---
           if (isSimulationMode || _isLoadingLocation)
             Positioned(
               top: 60,

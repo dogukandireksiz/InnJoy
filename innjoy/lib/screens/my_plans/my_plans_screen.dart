@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 
 class MyPlansScreen extends StatefulWidget {
   const MyPlansScreen({super.key});

@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Şifremi Unuttum Ekranı (ForgotPasswordScreen)
+/// şifremi Unuttum Ekranı (ForgotPasswordScreen)
 ///
 /// Kullanıcının kayıtlı e-posta adresini girerek Firebase üzerinden
-/// şifre sıfırlama bağlantısı almasını sağlar.
+/// şifre sıfırlama bağlantısı almasını sağlar.
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -14,7 +14,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  // Kullanıcının girdiği e-posta verisini tutan kontrolcü
+  // Kullanıcının girdiği e-posta verisini tutan kontrolcü
   final TextEditingController _emailController = TextEditingController();
 
   /// Firebase kullanarak şifre sıfırlama e-postası gönderir.
@@ -31,7 +31,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     try {
-      // 2. Firebase isteği
+      // 2. Firebase isteği
       await FirebaseAuth.instance.sendPasswordResetEmail(
         email: _emailController.text.trim(),
       );
@@ -71,7 +71,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   void dispose() {
-    // Bellek sızıntısını önlemek için controller serbest bırakılır
+    // Bellek sızıntısını önlemek iÇin controller serbest bırakılır
     _emailController.dispose();
     super.dispose();
   }
@@ -80,7 +80,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     // Tema renkleri (Tasarım sistemine göre sabitler)
     final Color primaryColor = const Color(0xFF38bdf8); // Gökyüzü mavisi
-    final Color backgroundColor = const Color(0xFFf3f4f6); // Açık gri zemin
+    final Color backgroundColor = const Color(0xFFf3f4f6); // AÇık gri zemin
     final Color inputFillColor = const Color(0xFFffffff); // Beyaz input alanı
     final Color textDark = const Color(0xFF111827); // Koyu metin
     final Color textSubtle = const Color(0xFF6b7280); // Silik metin
@@ -90,7 +90,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          // Klavye açıldığında taşma olmaması için ScrollView kullanıldı
+          // Klavye aÇıldığında taşma olmaması iÇin ScrollView kullanıldı
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -110,7 +110,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 40),
 
                 // ------------------------------------------
-                // Ana Form Bölümü: Başlık, Açıklama, Input
+                // Ana Form Bölümü: Başlık, AÇıklama, Input
                 // ------------------------------------------
                 Column(
                   children: [

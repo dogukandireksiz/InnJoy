@@ -1,4 +1,4 @@
-﻿class ServiceData {
+class ServiceData {
   static const List<Map<String, dynamic>> services = [
     {
       'title': 'Aurora Restaurant',

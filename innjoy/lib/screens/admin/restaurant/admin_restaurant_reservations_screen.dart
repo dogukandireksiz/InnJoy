@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../service/database_service.dart';
+import '../../../services/database_service.dart';
 
 class AdminRestaurantReservationsScreen extends StatefulWidget {
   final String hotelName;

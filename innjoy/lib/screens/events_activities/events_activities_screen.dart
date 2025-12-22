@@ -1,7 +1,7 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 import 'event_details_screen.dart';
 
 class EventsActivitiesScreen extends StatefulWidget {

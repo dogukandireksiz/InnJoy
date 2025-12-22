@@ -1,22 +1,22 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../service/auth.dart';
+import '../../services/auth.dart';
 import 'home_screen.dart';
 import '../../widgets/auth_wrapper.dart';
 import '../events_activities/admin_events_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../admin/admin_room_management_screen.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 import '../services/spa_wellness/spa_management_screen.dart';
-import '../admin/restaurant_management_screen.dart';
-import '../admin/room_service_management_screen.dart';
+import '../admin/restaurant/restaurant_management_screen.dart';
+import '../admin/room_service/room_service_management_screen.dart';
 import '../admin/admin_requests_screen.dart';
 import '../admin/admin_housekeeping_screen.dart';
-import '../../widgets/custom_top_navigation_bar.dart';
-import '../../widgets/admin_action_bar.dart';
+import '../../widgets/common/custom_top_navigation_bar.dart';
+import '../../widgets/admin/admin_action_bar.dart';
 import '../edit/chose_edit_screen.dart';
 import '../emergency/emergency_admin_screen.dart';
-import '../../widgets/management_panel.dart';
+import '../../widgets/admin/management_panel.dart';
 
 import 'dart:math' as math;
 
@@ -38,6 +38,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Temporarily seed Urban Joy Hotel data as requested
+    DatabaseService().seedDefaultServices('Urban Joy Hotel');
     _fetchHotelName();
   }
 
@@ -66,7 +68,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         .get();
     if (doc.exists && mounted) {
       setState(() {
-        _hotelName = doc.data()?['hotelName'] ?? 'Grand Hayat Otel';
+        _hotelName = doc.data()?['hotelName'];
         _isLoading = false;
         _dataLoaded = true;
       });

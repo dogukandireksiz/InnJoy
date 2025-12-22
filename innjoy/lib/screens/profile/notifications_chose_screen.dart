@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import '../../service/database_service.dart';
+import 'package:flutter/material.dart';
+import '../../services/database_service.dart';
 
 class NotificationsChoseScreen extends StatefulWidget {
   const NotificationsChoseScreen({super.key});
@@ -23,7 +23,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
     if (!mounted) return;
 
     setState(() {
-      // Mevcut etiketler ile veritabanından gelenleri eşleştir
+      // Mevcut etiketler ile veritaban�ndan gelenleri e�le�tir
       final labels = [
         'Entertainment',
         'Wellness & Life',
@@ -164,7 +164,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
                 child: ElevatedButton(
                   onPressed: hasAnyOn
                       ? () async {
-                          // Seçili kategorileri listele
+                          // Se�ili kategorileri listele
                           List<String> selectedInterests = [];
                           for (int i = 0; i < _values.length; i++) {
                             if (_values[i]) {
@@ -172,7 +172,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
                             }
                           }
 
-                          // Veritabanına kaydet
+                          // Veritaban�na kaydet
                           await DatabaseService().updateUserInterests(
                             selectedInterests,
                           );
@@ -180,7 +180,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Preferences saved ✅"),
+                                content: Text("Preferences saved ?"),
                               ),
                             );
                             Navigator.pop(context);

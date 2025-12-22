@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
-import '../../model/user_model.dart';
-import '../../service/auth.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
+import '../../models/user_model.dart';
+import '../../services/auth.dart';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../service/user_service.dart';
-import '../../utils/custom_snackbar.dart';
+import '../../services/user_service.dart';
+import '../../utils/dialogs/custom_snackbar.dart';
 import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
 import 'package:flutter/gestures.dart';
@@ -53,7 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Şifrelerin aynı olup olmadığını kontrol eder
+    // şifrelerin aynı olup olmadığını kontrol eder
     if(_passwordController.text != _confirmPasswordController.text){
       setState(() {
         errorMessage = "Passwords don't match.";
@@ -61,7 +61,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
     try {
-      // Firebase Auth → Yeni kullanıcı oluşturur (e-mail & şifre)
+      // Firebase Auth -> Yeni kullanıcı oluşturur (e-mail & şifre)
       final userCred = await Auth().createUser(
         email: _emailController.text, 
         password: _passwordController.text
@@ -78,11 +78,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       UserModel newUser = UserModel(
         uid: userCred.user!.uid,                        // Firestore belge ID olarak kullanılacak UID
         nameSurname: _nameController.text,              // Kullanıcı adı-soyadı
-        email: userCred.user!.email,                    // Firebase'in kayıt ettiği email (auth.dart ile tutarlı)
+        email: userCred.user!.email,                    // Firebase'in kayıt ettiği email (auth.dart ile tutarlı)
         password: _passwordController.text              // (Tavsiye edilmez) Firestore'a şifre gönderme
       );
 
-      // Firestore → "users" koleksiyonuna kullanıcı kaydı eklenir
+      // Firestore -> "users" koleksiyonuna kullanıcı kaydı eklenir
       await userService.createDbUser(newUser);
 
       if(mounted){
@@ -97,7 +97,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         CustomSnackBar.show(context, message: e.message ?? "Authentication Error");
       }
     } catch (e) {
-      // Diğer hatalar (Firestore vb.)
+      // Diğer hatalar (Firestore vb.)
       setState(() {
         errorMessage = "An error occurred: $e";
       });
@@ -204,7 +204,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     const SizedBox(height: 20),
 
-                    // Şifre
+                    // şifre
                     TextField(
                       controller: _passwordController,
                       obscureText: _isPasswordHidden2,
@@ -235,7 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     SizedBox(height: 20),
 
-                    // Şifre tekrar
+                    // şifre tekrar
                     TextField(
                       controller: _confirmPasswordController,
                       obscureText: _isPasswordHidden3,
@@ -437,7 +437,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     const SizedBox(height: 20),
 
-                    // Kayıt ol butonu → Firebase.createUser tetikler
+                    // Kayıt ol butonu -> Firebase.createUser tetikler
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -448,7 +448,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        onPressed: createUser, // Firebase + Firestore işlemini çalıştırır
+                        onPressed: createUser, // Firebase + Firestore işlemini Çalıştırır
                         child: const Text(
                           "Sign Up",
                           style: TextStyle(

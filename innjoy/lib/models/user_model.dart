@@ -1,4 +1,4 @@
-﻿// Kullanıcı verilerini temsil eden model sınıfı.
+// Kullanıcı verilerini temsil eden model sınıfı.
 // Bu veriler Firestore'da tutulacaktır. (İleride harcama vb. eklemeler yapılabilir.)
 
 class UserModel {
@@ -6,7 +6,7 @@ class UserModel {
   final String? nameSurname;   // Kullanıcının adı ve soyadı
   final String? email;         // Kullanıcının e-posta adresi (auth.dart ile tutarlı)
   final String? password;      // Kullanıcının şifresi (Normalde şifre Firestore'da tutulmaz!)
-  final String? hotelName;     // Yöneticinin sorumlu olduğu otel ismi
+  final String? hotelName;     // Yöneticinin sorumlu olduğu otel ismi
   final String? role;          // Kullanıcı rolü (customer, admin vb.)
 
   UserModel({
@@ -18,19 +18,19 @@ class UserModel {
     this.role = 'customer',    // Varsayılan rol: customer
   });
 
-  // JSON'dan UserModel nesnesi oluşturur (Firestore'dan veri çekerken kullanılır)
+  // JSON'dan UserModel nesnesi oluşturur (Firestore'dan veri Çekerken kullanılır)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       uid: json["uid"],
       nameSurname: json["name_username"] ?? json["username"],       // Firestore'daki "name_username" (yoksa username) alanı
-      email: json["email"] ?? json["mailAddress"],    // Önce 'email', yoksa eski 'mailAddress' alanını oku (geriye uyumluluk)
+      email: json["email"] ?? json["mailAddress"],    // Çâ€œnce 'email', yoksa eski 'mailAddress' alanını oku (geriye uyumluluk)
       password: json["password"],          // Firestore'daki "password" alanı
       hotelName: json["hotelName"],        // Firestore'daki "hotelName" alanı
       role: json["role"] ?? 'customer',    // Firestore'daki "role" alanı
     );
   }
 
-  // UserModel nesnesini JSON formatına çevirir (Firestore'a veri eklerken kullanılır)
+  // UserModel nesnesini JSON formatına Çevirir (Firestore'a veri eklerken kullanılır)
   Map<String, dynamic> toJson() {
     return {
       "uid": uid,

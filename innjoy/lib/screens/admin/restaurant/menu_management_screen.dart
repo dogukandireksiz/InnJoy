@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../services/database_service.dart';
-import '../../models/menu_item_model.dart';
-import 'restaurant/add_menu_item_screen.dart';
+import '../../../services/database_service.dart';
+import '../../../models/menu_item_model.dart';
+import 'add_menu_item_screen.dart';
 
 class MenuManagementScreen extends StatefulWidget {
   final String hotelName;
@@ -51,8 +51,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
   ];
 
   String _selectedCategory = 'All';
-  final String _restaurantId =
-      'Aurora Restaurant'; // Specific restaurant name for this hotel
+  final String _restaurantId = 'Aurora Restaurant'; // Specific restaurant name for this hotel
 
   // Colors from Design
   final primaryColor = const Color(0xFF137fec);
@@ -307,30 +306,24 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
   Widget _buildPremiumMenuItemCard(MenuItem item, bool isDarkMode) {
     // HTML Design:
     // <div class="group flex flex-row bg-white dark:bg-slate-800 rounded-2xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-slate-100 dark:border-slate-700 gap-3.5 transition-all">
-
+    
     return Container(
       padding: const EdgeInsets.all(12), // p-3 -> 0.75rem -> 12px
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E2A38) : Colors.white,
         borderRadius: BorderRadius.circular(16), // rounded-2xl -> 1rem -> 16px
         border: Border.all(
-          color: isDarkMode
-              ? const Color(0xFF334155)
-              : const Color(0xFFF1F5F9), // border-slate-100 / slate-700
+          color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFF1F5F9), // border-slate-100 / slate-700
           width: 1,
         ),
-        boxShadow: isDarkMode
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: 0.04,
-                  ), // shadow-[0_2px_8px_rgba(0,0,0,0.04)]
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                  spreadRadius: 0,
-                ),
-              ],
+        boxShadow: isDarkMode ? null : [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04), // shadow-[0_2px_8px_rgba(0,0,0,0.04)]
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+            spreadRadius: 0,
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,26 +335,24 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
             height: 96, // h-24
             decoration: BoxDecoration(
               color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(
-                12,
-              ), // rounded-xl -> 0.75rem -> 12px
+              borderRadius: BorderRadius.circular(12), // rounded-xl -> 0.75rem -> 12px
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 item.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    Icon(Icons.fastfood, color: Colors.grey[400]),
+                errorBuilder: (context, error, stackTrace) => Icon(Icons.fastfood, color: Colors.grey[400]),
               ),
             ),
           ),
-
+          
           const SizedBox(width: 14), // gap-3.5 -> 0.875rem -> 14px
+
           // Content Section
           Expanded(
             child: SizedBox(
-              // minHeight ensures alignment with image, but allows growth
+               // minHeight ensures alignment with image, but allows growth
               // height: 96, // Removed to allow auto-sizing
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -377,34 +368,29 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: isDarkMode
-                              ? Colors.white
-                              : const Color(0xFF0f172a),
-                          height: 1.25,
+                          color: isDarkMode ? Colors.white : const Color(0xFF0f172a), 
+                          height: 1.25, 
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       // Description (Replacing Category)
                       Padding(
-                        padding: const EdgeInsets.only(top: 2.0),
+                        padding: const EdgeInsets.only(top: 2.0), 
                         child: Text(
-                          item.description,
+                          item.description, 
                           style: TextStyle(
                             fontSize: 12, // Slightly smaller
                             fontWeight: FontWeight.w400,
-                            color: isDarkMode
-                                ? Colors.grey[400]
-                                : const Color(0xFF64748B),
+                            color: isDarkMode ? Colors.grey[400] : const Color(0xFF64748B), 
                           ),
-                          maxLines:
-                              2, // Limit lines to prevent massive expansion
+                          maxLines: 2, // Limit lines to prevent massive expansion
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       // Price
                       Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
+                        padding: const EdgeInsets.only(top: 4.0), 
                         child: Text(
                           '?${item.price.toStringAsFixed(2)}',
                           style: TextStyle(
@@ -416,7 +402,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                       ),
                     ],
                   ),
-
+                  
                   // Bottom part (Status badge + Buttons)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -432,7 +418,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                         children: [
                           // Delete Button
                           // <button class="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 ...">
-                          InkWell(
+                           InkWell(
                             onTap: () => _deleteItem(item),
                             borderRadius: BorderRadius.circular(8),
                             child: Container(
@@ -441,46 +427,32 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
-                                color:
-                                    Colors.transparent, // Default transparent
+                                color: Colors.transparent, // Default transparent
                               ),
-                              child: Icon(
-                                Icons.delete,
-                                size: 20,
-                                color: Colors.grey[400],
-                              ),
+                              child: Icon(Icons.delete, size: 20, color: Colors.grey[400]),
                             ),
                           ),
-
+                          
                           const SizedBox(width: 8),
 
                           // Edit Button
                           // <button class="flex items-center gap-1 px-3 h-8 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-[13px] font-semibold ...">
                           InkWell(
-                            onTap: () =>
-                                _navigateToAddEditScreen(context, item: item),
+                            onTap: () => _navigateToAddEditScreen(context, item: item),
                             borderRadius: BorderRadius.circular(8),
                             child: Container(
                               height: 32,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
-                                color: primaryColor.withValues(
-                                  alpha: 0.1,
-                                ), // bg-primary/10
+                                color: primaryColor.withValues(alpha: 0.1), // bg-primary/10
                               ),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    Icons.edit,
-                                    size: 16,
-                                    color: primaryColor,
-                                  ),
+                                  Icon(Icons.edit, size: 16, color: primaryColor),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Edit',
+                                    'Düzenle',
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
@@ -545,3 +517,12 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
     );
   }
 }
+
+
+
+
+
+
+
+
+

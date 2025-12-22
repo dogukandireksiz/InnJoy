@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import '../../../../service/database_service.dart';
-import '../../../../service/notification_service.dart';
+import 'package:login_page/services/database_service.dart';
+import 'package:login_page/services/notification_service.dart';
 import '../../../../utils/connectivity_utils.dart';
 
 class SpaBookingScreen extends StatefulWidget {
@@ -103,7 +103,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
         paymentMethod: _selectedPaymentMethod,
       );
 
-      // Randevudan 1 saat önce hatırlatıcı bildirim zamanla
+      // Randevudan 1 saat �nce hat�rlat�c� bildirim zamanla
       final reminderTime1h = appointmentDateTime.subtract(
         const Duration(hours: 1),
       );
@@ -112,13 +112,13 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
           appointmentDateTime,
           'spa_1h',
         ),
-        title: '🧖 Your Spa Appointment is in 1 Hour',
+        title: '?? Your Spa Appointment is in 1 Hour',
         body: '${widget.service['name']} - Time: $_selectedTimeSlot',
         scheduledTime: reminderTime1h,
         type: 'spa',
       );
 
-      // Randevudan 30 dakika önce ikinci hatırlatıcı
+      // Randevudan 30 dakika �nce ikinci hat�rlat�c�
       final reminderTime30m = appointmentDateTime.subtract(
         const Duration(minutes: 30),
       );
@@ -127,7 +127,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
           appointmentDateTime,
           'spa_30m',
         ),
-        title: '🧖 Your Spa Appointment is in 30 Minutes',
+        title: '?? Your Spa Appointment is in 30 Minutes',
         body: '${widget.service['name']} - Time: $_selectedTimeSlot',
         scheduledTime: reminderTime30m,
         type: 'spa',
@@ -144,7 +144,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
           ),
           title: const Text("Appointment Created"),
           content: Text(
-            "Your appointment for ${widget.service['name']} has been booked.\n\nDate: ${DateFormat('dd MMM yyyy').format(_selectedDate!)}\nTime: $_selectedTimeSlot\n\n🔔 Reminders set: 1 hour and 30 min before",
+            "Your appointment for ${widget.service['name']} has been booked.\n\nDate: ${DateFormat('dd MMM yyyy').format(_selectedDate!)}\nTime: $_selectedTimeSlot\n\n?? Reminders set: 1 hour and 30 min before",
           ),
           actions: [
             TextButton(
@@ -234,7 +234,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '₺${price.toStringAsFixed(0)}',
+                            '?${price.toStringAsFixed(0)}',
                             style: const TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 24,
@@ -718,7 +718,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               Text(
-                '₺${price.toStringAsFixed(2)}',
+                '?${price.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -743,7 +743,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                 ),
               ),
               Text(
-                '₺${price.toStringAsFixed(2)}',
+                '?${price.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

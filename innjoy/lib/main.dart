@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:login_page/widgets/auth_wrapper.dart';
@@ -8,14 +8,12 @@ import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'service/database_service.dart';
-import 'service/notification_service.dart';
+import 'services/database_service.dart';
 import 'dart:async';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await NotificationService().initialize(); // Zamanlanmış bildirimler için
   runApp(const InnJoyHotelApp());
 }
 
@@ -30,7 +28,7 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  // Etkinlik bildirimleri için
+  // Etkinlik bildirimleri iÇin
   final Timestamp _appStartTime = Timestamp.now();
   final Set<String> _notifiedEventIds = {};
   StreamSubscription? _eventSubscription;
@@ -47,7 +45,7 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
   // Auth durumunu dinle ve login olunca etkinlik dinleyiciyi başlat
   void _setupAuthListener() {
     _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      Logger.debug("🔐 DEBUG: Auth state değişti, user: ${user?.uid}");
+      Logger.debug("?? DEBUG: Auth state değişti, user: ${user?.uid}");
 
       if (user != null) {
         // Kullanıcı login oldu, etkinlik dinleyicisini başlat
@@ -115,16 +113,14 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
   void _listenForInterestEvents() {
     final user = FirebaseAuth.instance.currentUser;
-    Logger.debug(
-      "🔔 DEBUG: _listenForInterestEvents başladı, user: ${user?.uid}",
-    );
+    Logger.debug("?? DEBUG: _listenForInterestEvents başladı, user: ${user?.uid}");
 
     if (user == null) {
-      Logger.debug("❌ DEBUG: User null, bildirim dinleyicisi başlatılamadı!");
+      Logger.debug("? DEBUG: User null, bildirim dinleyicisi başlatılamadı!");
       return;
     }
 
-    // 1. Kullanıcı dokümanını sürekli dinle (ilgi alanları değişirse anında yakala)
+    // 1. Kullanıcı dokümanını sürekli dinle (ilgi alanları değişirse anında yakala)
     _userSubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
@@ -132,11 +128,11 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
         .listen(
           (userSnapshot) {
             Logger.debug(
-              "📄 DEBUG: User snapshot geldi, exists: ${userSnapshot.exists}",
+              "?? DEBUG: User snapshot geldi, exists: ${userSnapshot.exists}",
             );
 
             if (!userSnapshot.exists) {
-              Logger.debug("❌ DEBUG: User dokümanı bulunamadı!");
+              Logger.debug("? DEBUG: User dokümanı bulunamadı!");
               return;
             }
 
@@ -144,27 +140,25 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
             final interests = List<String>.from(userData?['interests'] ?? []);
             final hotelName = userData?['hotelName'] as String?;
 
-            Logger.debug("📋 DEBUG: Interests: $interests");
-            Logger.debug("🏨 DEBUG: HotelName: $hotelName");
+            Logger.debug("?? DEBUG: Interests: $interests");
+            Logger.debug("?? DEBUG: HotelName: $hotelName");
 
-            // Önceki etkinlik aboneliğini iptal et (varsa)
+            // Çâ€œnceki etkinlik aboneliğini iptal et (varsa)
             _eventSubscription?.cancel();
 
-            // Eğer ilgi alanı veya otel yoksa çık
+            // Eğer ilgi alanı veya otel yoksa Çık
             if (interests.isEmpty) {
-              Logger.debug(
-                "⚠️ DEBUG: İlgi alanları boş, dinleyici başlatılmadı!",
-              );
+              Logger.debug("?? DEBUG: İlgi alanları boş, dinleyici başlatılmadı!");
               return;
             }
 
             if (hotelName == null || hotelName.isEmpty) {
-              Logger.debug("⚠️ DEBUG: HotelName boş, dinleyici başlatılmadı!");
+              Logger.debug("?? DEBUG: HotelName boş, dinleyici başlatılmadı!");
               return;
             }
 
             Logger.debug(
-              "✅ DEBUG: Etkinlik dinleyici başlatılıyor - Hotel: $hotelName, Interests: $interests",
+              "? DEBUG: Etkinlik dinleyici başlatılıyor - Hotel: $hotelName, Interests: $interests",
             );
 
             // 2. Yeni ilgi alanlarına göre etkinlikleri dinle
@@ -173,24 +167,24 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
                 .listen(
                   (snapshot) {
                     Logger.debug(
-                      "📢 DEBUG: Etkinlik snapshot geldi, docChanges: ${snapshot.docChanges.length}",
+                      "?? DEBUG: Etkinlik snapshot geldi, docChanges: ${snapshot.docChanges.length}",
                     );
 
                     for (var change in snapshot.docChanges) {
                       Logger.debug(
-                        "🔹 DEBUG: Change type: ${change.type}, docId: ${change.doc.id}",
+                        "?? DEBUG: Change type: ${change.type}, docId: ${change.doc.id}",
                       );
 
                       if (change.type == DocumentChangeType.added) {
                         final eventId = change.doc.id;
                         final data = change.doc.data() as Map<String, dynamic>?;
 
-                        Logger.debug("📌 DEBUG: Event data: $data");
+                        Logger.debug("?? DEBUG: Event data: $data");
 
                         // Zaten bildirim gönderilmişse atla
                         if (_notifiedEventIds.contains(eventId)) {
                           Logger.debug(
-                            "⏭️ DEBUG: Bu etkinlik için zaten bildirim gönderildi: $eventId",
+                            "?? DEBUG: Bu etkinlik iÇin zaten bildirim gönderildi: $eventId",
                           );
                           continue;
                         }
@@ -199,24 +193,24 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
                         if (data != null && data.containsKey('createdAt')) {
                           final createdAt = data['createdAt'] as Timestamp?;
                           Logger.debug(
-                            "⏰ DEBUG: createdAt: $createdAt, appStartTime: $_appStartTime",
+                            "? DEBUG: createdAt: $createdAt, appStartTime: $_appStartTime",
                           );
 
-                          // Sadece uygulama açıldıktan SONRA eklenenleri al
+                          // Sadece uygulama aÇıldıktan SONRA eklenenleri al
                           if (createdAt == null ||
                               createdAt.compareTo(_appStartTime) > 0) {
                             Logger.debug(
-                              "🎉 DEBUG: Yeni etkinlik bulundu, bildirim gönderiliyor: $eventId",
+                              "?? DEBUG: Yeni etkinlik bulundu, bildirim gönderiliyor: $eventId",
                             );
                             _fetchEventDetailsAndNotify(hotelName, eventId);
                           } else {
                             Logger.debug(
-                              "⏭️ DEBUG: Eski etkinlik, bildirim gönderilmiyor (appStart öncesi)",
+                              "?? DEBUG: Eski etkinlik, bildirim gönderilmiyor (appStart öncesi)",
                             );
                           }
                         } else {
                           Logger.debug(
-                            "⚠️ DEBUG: createdAt yok, yine de bildirim gönderiliyor",
+                            "?? DEBUG: createdAt yok, yine de bildirim gönderiliyor",
                           );
                           _fetchEventDetailsAndNotify(hotelName, eventId);
                         }
@@ -224,24 +218,24 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
                     }
                   },
                   onError: (error) {
-                    Logger.debug("❌ DEBUG: Etkinlik dinleyici hatası: $error");
+                    Logger.debug("? DEBUG: Etkinlik dinleyici hatası: $error");
                   },
                 );
           },
           onError: (error) {
-            Logger.debug("❌ DEBUG: User dinleyici hatası: $error");
+            Logger.debug("? DEBUG: User dinleyici hatası: $error");
           },
         );
   }
 
-  // Etkinlik detaylarını çek ve bildirim gönder (retry mekanizmalı)
+  // Etkinlik detaylarını Çek ve bildirim gönder (retry mekanizmalı)
   Future<void> _fetchEventDetailsAndNotify(
     String hotelName,
     String eventId, {
     int retryCount = 0,
   }) async {
     Logger.debug(
-      "📥 DEBUG: _fetchEventDetailsAndNotify çağrıldı - Hotel: $hotelName, EventId: $eventId (retry: $retryCount)",
+      "?? DEBUG: _fetchEventDetailsAndNotify Çağrıldı - Hotel: $hotelName, EventId: $eventId (retry: $retryCount)",
     );
 
     try {
@@ -254,13 +248,13 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
           .doc('details')
           .get();
 
-      Logger.debug("📄 DEBUG: Details dokümanı exists: ${detailsDoc.exists}");
+      Logger.debug("?? DEBUG: Details dokümanı exists: ${detailsDoc.exists}");
 
       if (!detailsDoc.exists) {
         // Details henüz yazılmamış olabilir, retry yap
         if (retryCount < 3) {
           Logger.debug(
-            "⏳ DEBUG: Details bulunamadı, ${retryCount + 1}. deneme için 500ms bekleniyor...",
+            "? DEBUG: Details bulunamadı, ${retryCount + 1}. deneme iÇin 500ms bekleniyor...",
           );
           await Future.delayed(const Duration(milliseconds: 500));
           return _fetchEventDetailsAndNotify(
@@ -269,55 +263,53 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
             retryCount: retryCount + 1,
           );
         }
-        Logger.debug("❌ DEBUG: Details dokümanı 3 denemede de bulunamadı!");
+        Logger.debug("? DEBUG: Details dokümanı 3 denemede de bulunamadı!");
         return;
       }
 
       final data = detailsDoc.data();
-      Logger.debug("📋 DEBUG: Details data: $data");
+      Logger.debug("?? DEBUG: Details data: $data");
 
       if (data == null) {
-        Logger.debug("❌ DEBUG: Details data null!");
+        Logger.debug("? DEBUG: Details data null!");
         return;
       }
 
       // createdAt kontrolü (Detaylarda da)
       final createdAt = data['createdAt'] as Timestamp?;
       Logger.debug(
-        "⏰ DEBUG: Details createdAt: $createdAt, appStartTime: $_appStartTime",
+        "? DEBUG: Details createdAt: $createdAt, appStartTime: $_appStartTime",
       );
 
-      // Null ise veya başlangıçtan sonraysa
+      // Null ise veya başlangıÇtan sonraysa
       if (createdAt == null || createdAt.compareTo(_appStartTime) > 0) {
-        Logger.debug("✅ DEBUG: Bildirim gönderilecek!");
+        Logger.debug("? DEBUG: Bildirim gönderilecek!");
         _notifiedEventIds.add(eventId);
         _showEventNotification(data);
       } else {
-        Logger.debug(
-          "⏭️ DEBUG: createdAt appStart'tan önce, bildirim gönderilmedi",
-        );
+        Logger.debug("?? DEBUG: createdAt appStart'tan önce, bildirim gönderilmedi");
       }
     } catch (e) {
-      Logger.debug('❌ DEBUG: Etkinlik detay hatası: $e');
+      Logger.debug('? DEBUG: Etkinlik detay hatası: $e');
     }
   }
 
   // Etkinlik Bildirimi Göster
   Future<void> _showEventNotification(Map<String, dynamic> data) async {
-    final title = data['title'] ?? 'New Event';
+    final title = data['title'] ?? 'Yeni Etkinlik';
     final time = data['time'] ?? '';
-    final location = data['location'] ?? 'Hotel';
+    final location = data['location'] ?? 'Otel';
     final category = data['category'] ?? '';
 
     // Benzersiz bildirim ID'si
     final int notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-    // Android Bildirim Detayları - Etkinlikler için
+    // Android Bildirim Detayları - Etkinlikler iÇin
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'event_notification_channel',
-          'Event Notifications',
-          channelDescription: 'New event notifications',
+          'Etkinlik Bildirimleri',
+          channelDescription: 'Yeni etkinlik bildirimleri',
           importance: Importance.high,
           priority: Priority.defaultPriority,
           color: Colors.blue,
@@ -341,35 +333,35 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
     await _notificationsPlugin.show(
       notificationId,
-      "🎉 New Event: $title",
-      "📍 $location • ⏰ $time${category.isNotEmpty ? ' • $category' : ''}",
+      "?? Yeni Etkinlik: $title",
+      "?? $location • ? $time${category.isNotEmpty ? ' • $category' : ''}",
       details,
     );
   }
 
   // 3. Bildirimi Göster (ALARM SESLİ VE YÜKSEK ÖNCELİKLİ)
   Future<void> _showEmergencyNotification(Map<String, dynamic> data) async {
-    String type = data['type'] ?? 'Emergency';
-    String room = data['room_number'] ?? 'Unknown';
-    String location = data['location_context'] ?? 'Hotel Area';
+    String type = data['type'] ?? 'Acil Durum';
+    String room = data['room_number'] ?? 'Bilinmiyor';
+    String location = data['location_context'] ?? 'Otel Alanı';
 
-    // Location translation (English key -> English display)
+    // Konum çevirisi (İngilizce key -> Türkçe)
     String locationText;
     switch (location) {
       case 'my_room':
-        locationText = 'Room $room';
+        locationText = 'Oda $room';
         break;
       case 'restaurant':
-        locationText = 'Restaurant';
+        locationText = 'Restoran';
         break;
       case 'fitness':
-        locationText = 'Fitness Center';
+        locationText = 'Spor Salonu';
         break;
       case 'spa':
-        locationText = 'Spa Center';
+        locationText = 'Spa Merkezi';
         break;
       case 'reception':
-        locationText = 'Reception';
+        locationText = 'Resepsiyon';
         break;
       default:
         locationText = location;
@@ -382,8 +374,8 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'emergency_alarm_channel', // Yeni kanal adı
-          'Emergency Alarms',
-          channelDescription: 'High priority emergency alarm notifications',
+          'Acil Durum Alarmları',
+          channelDescription: 'Yüksek öncelikli acil durum alarm bildirimleri',
           importance: Importance.max,
           priority: Priority.high,
           color: Colors.red,
@@ -414,8 +406,8 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
     await _notificationsPlugin.show(
       notificationId, // Benzersiz ID
-      "🚨 EMERGENCY: $type",
-      "📍 Location: $locationText",
+      "🚨 ACİL DURUM: $type",
+      "📍 Konum: $locationText",
       details,
     );
   }
@@ -434,3 +426,13 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+

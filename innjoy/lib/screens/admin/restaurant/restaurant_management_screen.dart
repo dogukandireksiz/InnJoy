@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'menu_management_screen.dart';
 import 'restaurant_settings_screen.dart';
 import 'admin_restaurant_reservations_screen.dart';
-import '../../service/database_service.dart';
+import '../../../services/database_service.dart';
 
 class RestaurantManagementScreen extends StatelessWidget {
   final String hotelName;
@@ -90,10 +90,10 @@ class RestaurantManagementScreen extends StatelessWidget {
               StreamBuilder<List<Map<String, dynamic>>>(
                 stream: DatabaseService().getRestaurants(hotelName),
                 builder: (context, snapshot) {
-                  // Fallback: Eğer stream boşsa veya hata varsa Aurora Restaurant'ı göster
+                  // Fallback: Eğer stream boşsa veya hata varsa Aurora Restaurant'ı göster
                   List<Map<String, dynamic>> restaurants = snapshot.data ?? [];
                   
-                  // Eğer restoran listesi boşsa, fallback olarak Aurora Restaurant ekle
+                  // Eğer restoran listesi boşsa, fallback olarak Aurora Restaurant ekle
                   if (restaurants.isEmpty) {
                     restaurants = [
                       {'id': 'Aurora Restaurant', 'name': 'Aurora Restaurant'}

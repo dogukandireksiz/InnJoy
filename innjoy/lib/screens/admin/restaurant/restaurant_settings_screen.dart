@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../service/database_service.dart';
+import '../../../services/database_service.dart';
 import 'admin_restaurant_reservations_screen.dart';
 
 class RestaurantSettingsScreen extends StatefulWidget {
@@ -342,7 +342,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
     } else if (_imageController.text.isNotEmpty) {
       final imageUrl = _imageController.text;
       
-      // Eğer yerel asset ise (assets/ ile başlıyorsa)
+      // Eğer yerel asset ise (assets/ ile başlıyorsa)
       if (imageUrl.startsWith('assets/')) {
         return Image.asset(
           imageUrl,

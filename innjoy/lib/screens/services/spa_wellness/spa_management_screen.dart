@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import '../../../../service/database_service.dart';
+import 'package:flutter/material.dart';
+import '../../../../services/database_service.dart';
 import 'spa_form_screen.dart';
 
 class SpaManagementScreen extends StatefulWidget {
@@ -270,7 +270,7 @@ class _SpaManagementScreenState extends State<SpaManagementScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          '₺',
+                          '?',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 14,

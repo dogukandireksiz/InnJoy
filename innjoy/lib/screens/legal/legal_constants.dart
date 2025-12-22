@@ -1,5 +1,5 @@
-﻿class LegalConstants {
-  static const String privacyPolicyTitle = "INNJOY – GİZLİLİK POLİTİKASI";
+class LegalConstants {
+  static const String privacyPolicyTitle = "INNJOY - GİZLİLİK POLİTİKASI";
   static const String privacyPolicyText = """
 Bu Gizlilik Politikası, InnJoy mobil uygulaması ve web sitesi kullanıcılarına ait kişisel verilerin 6698 Sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca nasıl toplandığını, saklandığını, kullanıldığını ve korunduğunu açıklar.
 
@@ -22,7 +22,7 @@ Toplanan veriler, aşağıdaki amaçlar doğrultusunda işlenmektedir:
 •	Açık rızanın bulunması halinde (Ticari İleti Onayı), kullanıcılara pazarlama, indirim ve kişiye özel teklifler sunmak.
 
 3. Çerezler ve Benzer Teknolojiler
-InnJoy uygulaması, uygulamanın işlevselliğini ve performansını ölçmek amacıyla analitik, oturum yönetimi ve teknik çerez benzeri teknolojiler kullanabilir. Çerez kullanımı hakkında detaylı bilgi, Çerez Politikası’nda yer almaktadır.
+InnJoy uygulaması, uygulamanın işlevselliğini ve performansını ölçmek amacıyla analitik, oturum yönetimi ve teknik çerez benzeri teknolojiler kullanabilir. Çerez kullanımı hakkında detaylı bilgi, Çerez Politikası'nda yer almaktadır.
 
 4. Üçüncü Taraflarla Paylaşım
 Kişisel verileriniz, aşağıdaki durumlar ve sınırlı amaçlar dışında, kullanıcının izni olmadan üçüncü taraflarla paylaşılmaz:
@@ -34,24 +34,24 @@ Kişisel verileriniz, aşağıdaki durumlar ve sınırlı amaçlar dışında, k
 Kişisel verileriniz, yetkisiz erişim, ifşa, değiştirme ve yok edilmeye karşı; şifreleme (kriptolama), güvenlik duvarları, erişim kısıtlamaları ve SSL/TLS protokolleri gibi teknik ve idari tedbirlerle korunmaktadır. Şifreleriniz, geri döndürülemez biçimde kriptolanarak saklanır. Verileriniz, hizmetin sunulması için gerekli süre boyunca ve ilgili yasal mevzuatta öngörülen süreler kadar saklanır.
 
 6. Kullanıcının Hakları (KVKK md. 11)
-Kullanıcılar, InnJoy’a başvurarak;
+Kullanıcılar, InnJoy'a başvurarak;
 •	Kişisel verilerinin işlenip işlenmediğini öğrenme,
 •	Verileri işlenmişse bilgi talep etme,
 •	Verilerin amacına uygun kullanılıp kullanılmadığını öğrenme,
 •	Yanlış veya eksik verilerin düzeltilmesini isteme,
-•	KVKK’nın öngördüğü şartlarda verilerin silinmesini veya yok edilmesini talep etme hakkına sahiptir.
+•	KVKK'nın öngördüğü şartlarda verilerin silinmesini veya yok edilmesini talep etme hakkına sahiptir.
 Bu haklarınızı kullanmak için support@innjoy.com adresine e-posta gönderebilirsiniz.
 
 7. Değişiklikler
 InnJoy, bu politikayı yasal mevzuata uygun olarak dilediği zaman güncelleme hakkını saklı tutar. Güncellenen politika, uygulamada yayınlandığı an yürürlüğe girer.
 """;
 
-  static const String userAgreementTitle = "INNJOY – KULLANICI SÖZLEŞMESİ";
+  static const String userAgreementTitle = "INNJOY - KULLANICI SÖZLEŞMESİ";
   static const String userAgreementText = """
 Bu Kullanıcı Sözleşmesi, InnJoy mobil uygulamasını ve web sitesini kullanmanız sırasında geçerli olan şart ve koşulları belirler. Uygulamaya kayıt olarak, işbu sözleşmenin tüm hükümlerini kabul etmiş sayılırsınız.
 
 1. Taraflar
-Bu Sözleşme, bir tarafta Muğla/menteşe adresinde mukim Innjoy A.Ş (Bundan böyle "InnJoy" olarak anılacaktır) ile diğer tarafta uygulamaya kayıt olan kullanıcı (Bundan böyle "Üye" olarak anılacaktır) arasında kurulmuştur.
+Bu Sözleşme, bir tarafta Muğla/Menteşe adresinde mukim Innjoy A.Ş. (Bundan böyle "InnJoy" olarak anılacaktır) ile diğer tarafta uygulamaya kayıt olan kullanıcı (Bundan böyle "Üye" olarak anılacaktır) arasında kurulmuştur.
 
 2. Üyelik ve Hesap Yönetimi
 2.1. Üye, kayıt formunda verdiği tüm bilgilerin doğru, güncel ve eksiksiz olduğunu, 18 yaşını doldurmuş bulunduğunu taahhüt eder. Yanlış bilgi verilmesi nedeniyle doğacak zararlardan Üye sorumludur.
@@ -72,11 +72,11 @@ Bu Sözleşme, bir tarafta Muğla/menteşe adresinde mukim Innjoy A.Ş (Bundan b
 5.2. InnJoy Tarafından: InnJoy, Üye'nin bu Sözleşme hükümlerine aykırı davrandığını tespit etmesi halinde, Üye'ye bildirim yapmaksızın üyeliğini geçici veya kalıcı olarak askıya alabilir veya Sözleşmeyi derhal feshedebilir.
 """;
 
-  static const String kvkkTitle = "INNJOY – KVKK AYDINLATMA METNİ (TAM METİN)";
+  static const String kvkkTitle = "INNJOY - KVKK AYDINLATMA METNİ (TAM METİN)";
   static const String kvkkText = """
 Veri Sorumlusu:
 İnnJoy Teknoloji Anonim Şirketi (Bundan böyle "InnJoy" veya “Uygulama” olarak anılacaktır.)
-Adres: Muğla/menteşe
+Adres: Muğla/Menteşe
 
 InnJoy Teknoloji olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) uyarınca Veri Sorumlusu sıfatıyla kişisel verilerinizin işlenmesine ilişkin sizleri bilgilendirmek amacıyla bu aydınlatma metnini hazırladık.
 
@@ -92,7 +92,7 @@ Uygulamamızın kullanımı, üyelik ve rezervasyon süreçlerinizde aşağıdak
 • Görsel Veriler: Profil Resmi/Fotoğrafı (Sadece kullanıcı tarafından yüklenmesi halinde).
 
 2. Kişisel Verilerin İşlenme Amaçları
-Kişisel verileriniz, KVKK’nın 5. ve 6. maddelerinde belirtilen hukuki şartlara uygun olarak aşağıdaki amaçlarla işlenmektedir:
+Kişisel verileriniz, KVKK'nın 5. ve 6. maddelerinde belirtilen hukuki şartlara uygun olarak aşağıdaki amaçlarla işlenmektedir:
 1. Üyelik kaydının oluşturulması, hesabınızın yönetilmesi ve kimlik doğrulama işlemlerinin sağlanması.
 2. Otel seçim, rezervasyon, ödeme ve hizmet kullanım süreçlerinin eksiksiz ve doğru bir şekilde yürütülmesi (Sözleşmenin Kurulması ve İfası).
 3. Uygulamanın performansının artırılması, hata analizleri ve kullanıcı deneyiminin iyileştirilmesi (Meşru Menfaat).
@@ -144,7 +144,7 @@ uygulama kullanım bilgilerimin analitik ve kişiselleştirme amaçlı işlenmes
 
   // --- ENGLISH TRANSLATIONS ---
 
-  static const String privacyPolicyTitleEn = "INNJOY – PRIVACY POLICY";
+  static const String privacyPolicyTitleEn = "INNJOY ' PRIVACY POLICY";
   static const String privacyPolicyTextEn = """
 This Privacy Policy explains how personal data belonging to users of the InnJoy mobile application and website is collected, stored, used, and protected in accordance with the Law on the Protection of Personal Data No. 6698 (KVKK).
 
@@ -191,12 +191,12 @@ You can send an e-mail to support@innjoy.com to exercise these rights.
 InnJoy reserves the right to update this policy at any time in accordance with legal regulations. The updated policy comes into force the moment it is published in the application.
 """;
 
-  static const String userAgreementTitleEn = "INNJOY – USER AGREEMENT";
+  static const String userAgreementTitleEn = "INNJOY ' USER AGREEMENT";
   static const String userAgreementTextEn = """
 This User Agreement determines the terms and conditions applicable during your use of the InnJoy mobile application and website. By registering for the application, you are deemed to have accepted all the provisions of this agreement.
 
 1. Parties
-This Agreement has been established between Innjoy A.Ş. residing at Muğla/Menteşe (hereinafter referred to as "InnJoy") on the one hand, and the user registering for the application (hereinafter referred to as "Member") on the other.
+This Agreement has been established between Innjoy A.ş. residing at Muğla/Menteşe (hereinafter referred to as "InnJoy") on the one hand, and the user registering for the application (hereinafter referred to as "Member") on the other.
 
 2. Membership and Account Management
 2.1. The Member undertakes that all information provided in the registration form is correct, up-to-date, and complete, and that they are over 18 years of age. The Member is responsible for damages arising from providing false information.
@@ -217,10 +217,10 @@ This Agreement has been established between Innjoy A.Ş. residing at Muğla/Ment
 5.2. By InnJoy: If InnJoy determines that the Member has acted contrary to the provisions of this Agreement, it may suspend the membership temporarily or permanently or terminate the Agreement immediately without notice to the Member.
 """;
 
-  static const String kvkkTitleEn = "INNJOY – KVKK CLARIFICATION TEXT (FULL TEXT)";
+  static const String kvkkTitleEn = "INNJOY ' KVKK CLARIFICATION TEXT (FULL TEXT)";
   static const String kvkkTextEn = """
 Data Controller:
-İnnJoy Teknoloji Anonim Şirketi (hereinafter referred to as "InnJoy" or "Application".)
+İnnJoy Teknoloji Anonim şirketi (hereinafter referred to as "InnJoy" or "Application".)
 Address: Muğla/Menteşe
 
 As InnJoy Teknoloji, we have prepared this clarification text to inform you about the processing of your personal data as Data Controller in accordance with the Law on the Protection of Personal Data No. 6698 ("KVKK").

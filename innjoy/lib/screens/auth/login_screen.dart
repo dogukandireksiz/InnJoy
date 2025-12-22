@@ -1,11 +1,11 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'signup_screen.dart';
-import '../../service/auth.dart';
+import '../../services/auth.dart';
 import 'forget_password.dart';
-import '../../utils/custom_snackbar.dart';
+import '../../utils/dialogs/custom_snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -232,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             context,
                             MaterialPageRoute(
                               // Dosya adı 'forget_password.dart' olsa bile
-                              // içindeki class adı 'ForgotPasswordScreen' olduğu için bunu çağırıyoruz.
+                              // iÇindeki class adı 'ForgotPasswordScreen' olduğu iÇin bunu Çağırıyoruz.
                               builder: (context) =>
                                   const ForgotPasswordScreen(),
                             ),

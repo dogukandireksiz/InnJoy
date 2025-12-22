@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import '../../../service/database_service.dart';
+import 'package:flutter/material.dart';
+import '../../../services/database_service.dart';
 import 'package:flutter/cupertino.dart';
 
 class DiningBookingScreen extends StatefulWidget {

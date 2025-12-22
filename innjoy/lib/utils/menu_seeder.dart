@@ -1,4 +1,4 @@
-﻿import '../model/menu_item_model.dart';
+import '../models/menu_item_model.dart';
 
 class MenuSeeder {
   static List<MenuItem> getSeedItems() {

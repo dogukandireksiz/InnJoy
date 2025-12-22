@@ -1,12 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 
 /// Customer Requests Screen
 /// 
-/// İsteklerin takip edildiği ekran - Housekeeping ve Room Service siparişleri
-/// gösterilir, tarih seçimi ve durum filtreleme yapılabilir.
+/// İsteklerin takip edildiği ekran - Housekeeping ve Room Service siparişleri
+/// gösterilir, tarih seÇimi ve durum filtreleme yapılabilir.
 class CustomerRequestsScreen extends StatefulWidget {
   final String hotelName;
 

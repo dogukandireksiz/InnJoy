@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../service/database_service.dart';
-import '../../service/notification_service.dart';
+import '../../services/database_service.dart';
+import '../../services/notification_service.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> event;
@@ -79,14 +79,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
-      // Etkinlikten 1 saat önce hatırlatıcı bildirim zamanla
+      // Etkinlikten 1 saat �nce hat�rlat�c� bildirim zamanla
       final eventDate = widget.event['date'] as Timestamp?;
       final eventTime = widget.event['time'] as String?;
 
       if (eventDate != null && eventTime != null) {
         final eventDateTime = _parseEventDateTime(eventDate, eventTime);
         if (eventDateTime != null) {
-          // 1 saat önce hatırlatıcı
+          // 1 saat �nce hat�rlat�c�
           final reminderTime1h = eventDateTime.subtract(
             const Duration(hours: 1),
           );
@@ -95,13 +95,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               eventDateTime,
               'event_1h',
             ),
-            title: '🎉 Event in 1 Hour',
+            title: '?? Event in 1 Hour',
             body: '${widget.event['title']} - ${widget.event['location']}',
             scheduledTime: reminderTime1h,
             type: 'event',
           );
 
-          // 30 dakika önce hatırlatıcı
+          // 30 dakika �nce hat�rlat�c�
           final reminderTime30m = eventDateTime.subtract(
             const Duration(minutes: 30),
           );
@@ -110,7 +110,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               eventDateTime,
               'event_30m',
             ),
-            title: '🎉 Event in 30 Minutes',
+            title: '?? Event in 30 Minutes',
             body: '${widget.event['title']} - ${widget.event['location']}',
             scheduledTime: reminderTime30m,
             type: 'event',
@@ -121,7 +121,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Registration Successful! 🔔 Reminders set: 1h & 30min before',
+            'Registration Successful! ?? Reminders set: 1h & 30min before',
           ),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 4),
@@ -148,7 +148,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
-  /// Etkinlik tarih ve saatini DateTime'a çevir
+  /// Etkinlik tarih ve saatini DateTime'a �evir
   DateTime? _parseEventDateTime(Timestamp eventDate, String eventTime) {
     try {
       final date = eventDate.toDate();
@@ -556,7 +556,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       case 'Entertainment':
         return Colors.purple;
       case 'Wellness & Life':
-        return Colors.teal; // İsim güncellendi
+        return Colors.teal; // �sim g�ncellendi
       case 'Sports':
         return Colors.orange;
       case 'Kids':
@@ -573,13 +573,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       case 'Entertainment':
         return Icons.celebration; // Yeni (Parti)
       case 'Wellness & Life':
-        return Icons.spa; // Eski (Wellness eski kalsın dendi)
+        return Icons.spa; // Eski (Wellness eski kals�n dendi)
       case 'Sports':
-        return Icons.directions_run; // Yeni (Koşan adam)
+        return Icons.directions_run; // Yeni (Ko�an adam)
       case 'Kids':
-        return Icons.child_care; // Eski (Bebek arabası/çocuk)
+        return Icons.child_care; // Eski (Bebek arabas�/�ocuk)
       case 'Food & Beverage':
-        return Icons.restaurant; // Eski (Klasik çatal bıçak)
+        return Icons.restaurant; // Eski (Klasik �atal b��ak)
       default:
         return Icons.category;
     }

@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import 'package:login_page/service/logger_service.dart';
+import 'package:flutter/material.dart';
+import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EmergencyAdminScreen extends StatefulWidget {
@@ -12,7 +12,7 @@ class EmergencyAdminScreen extends StatefulWidget {
 class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
   String _activeFilter = 'All';
 
-  // Firebase referansı
+  // Firebase referans�
   final CollectionReference _emergenciesRef = FirebaseFirestore.instance
       .collection('emergency_alerts');
 
@@ -40,13 +40,13 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
     }
   }
 
-  // --- YENİ EKLENEN FONKSİYON: DURUMU GÜNCELLE ---
+  // --- YEN� EKLENEN FONKS�YON: DURUMU G�NCELLE ---
   Future<void> _markAsSolved(String docId, String currentStatus) async {
-    // Eğer zaten çözüldüyse işlem yapma (veya isteğe göre geri al özelliği eklenebilir)
+    // E�er zaten ��z�ld�yse i�lem yapma (veya iste�e g�re geri al �zelli�i eklenebilir)
     if (currentStatus == 'Resolved') return;
 
     try {
-      // Kullanıcıya emin misin diye soralım (Opsiyonel, istemezsen direkt update kısmını kullan)
+      // Kullan�c�ya emin misin diye soral�m (Opsiyonel, istemezsen direkt update k�sm�n� kullan)
       bool? confirm = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
@@ -76,7 +76,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
       );
 
       if (confirm == true) {
-        // Firebase güncellemesi: status -> 'solved'
+        // Firebase g�ncellemesi: status -> 'solved'
         await _emergenciesRef.doc(docId).update({'status': 'solved'});
 
         if (mounted) {
@@ -275,7 +275,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                             minutesAgo: item.minutesAgo,
                             status: item.status,
                             statusColor: _statusColor(item.status),
-                            // --- TIKLAMA OLAYINI BURADA BAĞLIYORUZ ---
+                            // --- TIKLAMA OLAYINI BURADA BA�LIYORUZ ---
                             onStatusTap: () {
                               _markAsSolved(item.id, item.status);
                             },
@@ -324,7 +324,7 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-// --- KART GÜNCELLEMESİ (TIKLANABİLİR YAPILDI) ---
+// --- KART G�NCELLEMES� (TIKLANAB�L�R YAPILDI) ---
 class _EmergencyCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -387,7 +387,7 @@ class _EmergencyCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // --- BURASI DEĞİŞTİ: InkWell ile sarmalandı ---
+                    // --- BURASI DE���T�: InkWell ile sarmaland� ---
                     InkWell(
                       onTap: onStatusTap,
                       borderRadius: BorderRadius.circular(8),
@@ -416,7 +416,7 @@ class _EmergencyCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$place  •  $person',
+                  '$place  �  $person',
                   style: const TextStyle(color: Colors.white70),
                 ),
                 const SizedBox(height: 6),
@@ -433,9 +433,9 @@ class _EmergencyCard extends StatelessWidget {
   }
 }
 
-// --- MODEL GÜNCELLEMESİ (ID ALANI EKLENDİ) ---
+// --- MODEL G�NCELLEMES� (ID ALANI EKLEND�) ---
 class _EmergencyItem {
-  final String id; // Doküman ID'si
+  final String id; // Dok�man ID'si
   final String title;
   final String place;
   final String person;
@@ -498,7 +498,7 @@ class _EmergencyItem {
     String personText = 'Guest - Room $roomNum';
 
     return _EmergencyItem(
-      id: doc.id, // Doküman ID'sini alıyoruz
+      id: doc.id, // Dok�man ID'sini al�yoruz
       title: typeData,
       category: categoryData,
       place: placeText,

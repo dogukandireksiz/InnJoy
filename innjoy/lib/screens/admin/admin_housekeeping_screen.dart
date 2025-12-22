@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
@@ -705,13 +705,16 @@ class _RequestCard extends StatelessWidget {
   }
 
   void _updateStatus(BuildContext context, String newStatus) {
+    // Capture ScaffoldMessenger before async gap to avoid BuildContext issues
+    final messenger = ScaffoldMessenger.of(context);
+    
     FirebaseFirestore.instance
         .collection('hotels')
         .doc(hotelName)
         .collection('housekeeping_requests')
         .doc(id)
         .update({'status': newStatus}).then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Request status updated to $newStatus'),
           backgroundColor: newStatus == 'Completed' ? Colors.green : 
@@ -720,7 +723,7 @@ class _RequestCard extends StatelessWidget {
         ),
       );
     }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Error: $error'),
           backgroundColor: Colors.red,

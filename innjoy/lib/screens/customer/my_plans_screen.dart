@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 
 class MyPlansScreen extends StatefulWidget {
   const MyPlansScreen({super.key});
@@ -133,7 +133,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   }
 
   Widget _buildTimelineList() {
-    // Otel bilgisi yüklenene kadar bekle
+    // Otel bilgisi y�klenene kadar bekle
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -352,7 +352,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   Widget _buildEventCard(Map<String, dynamic> data) {
     final title = data['eventTitle'] ?? data['title'] ?? 'Event';
     final location = data['eventLocation'] ?? data['location'] ?? '';
-    final time = data['time'] ?? ''; // Saat bilgisi (örn: "14:00")
+    final time = data['time'] ?? ''; // Saat bilgisi (�rn: "14:00")
     final imageUrl = data['imageAsset'] ?? data['imageUrl'];
 
     // Tarih bilgisini al
@@ -363,7 +363,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
       eventDate = (data['eventDate'] as Timestamp).toDate();
     }
 
-    // Saat bilgisi: time alanından veya tarihten çıkar
+    // Saat bilgisi: time alan�ndan veya tarihten ��kar
     String timeStr = time.isNotEmpty
         ? time
         : (eventDate != null ? DateFormat('HH:mm').format(eventDate) : '');

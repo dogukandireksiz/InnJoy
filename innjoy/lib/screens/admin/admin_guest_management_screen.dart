@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import '../../service/database_service.dart';
+import '../../services/database_service.dart';
 
 class AdminGuestManagementScreen extends StatefulWidget {
   final String hotelName;
@@ -39,7 +39,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
       ),
       body: Column(
         children: [
-          // Arama Çubuğu
+          // Arama Çubuğu
           Container(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 5),
             color: const Color(0xFFF6F7FB),

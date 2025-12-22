@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../services/dining/dining_booking_screen.dart';
-import '../../model/menu_item_model.dart';
-import '../../service/database_service.dart';
+import '../../models/menu_item_model.dart';
+import '../../services/database_service.dart';
 
 class CustomerMenuScreen extends StatefulWidget {
   final String hotelName;
@@ -50,7 +50,7 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
     {
       'name': 'Desserts',
       'icon': null,
-      'emoji': '🍰',
+      'emoji': '??',
       'color': Colors.pinkAccent,
     },
     {
@@ -102,7 +102,7 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
             if (_selectedCategory == 'Starters' &&
                 (item.category == 'Appetizers' ||
                     item.category == 'Starters' ||
-                    item.category == 'Başlangıçlar')) {
+                    item.category == 'Ba�lang��lar')) {
               return true;
             }
             return item.category == _selectedCategory;

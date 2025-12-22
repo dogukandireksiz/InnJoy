@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 
 /// A simple logger service that only logs in debug mode.
 /// This replaces direct print() calls to avoid lint warnings.

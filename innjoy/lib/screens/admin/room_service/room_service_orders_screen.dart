@@ -1,4 +1,4 @@
-﻿
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -573,7 +573,7 @@ class _OrderCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '₺${totalPrice.toStringAsFixed(0)}',
+                            '?${totalPrice.toStringAsFixed(0)}',
                             style: const TextStyle(
                               color: Color(0xFF111827),
                               fontWeight: FontWeight.bold,
@@ -671,7 +671,7 @@ class _OrderCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '₺${(price * quantity).toStringAsFixed(0)}',
+                          '?${(price * quantity).toStringAsFixed(0)}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -720,7 +720,7 @@ class _OrderCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '₺${totalPrice.toStringAsFixed(0)}',
+                      '?${totalPrice.toStringAsFixed(0)}',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

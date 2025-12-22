@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
-import '../../model/menu_item_model.dart';
-import '../../service/database_service.dart';
+import 'package:flutter/material.dart';
+import '../../models/menu_item_model.dart';
+import '../../services/database_service.dart';
 import 'room_service_cart_screen.dart';
 
 class RoomServiceScreen extends StatefulWidget {

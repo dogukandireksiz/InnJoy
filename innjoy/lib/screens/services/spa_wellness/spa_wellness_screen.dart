@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import '../../../../service/database_service.dart';
+import 'package:flutter/material.dart';
+import '../../../../services/database_service.dart';
 import 'spa_booking_screen.dart';
 
 class SpaWellnessScreen extends StatefulWidget {
@@ -326,7 +326,7 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            '₺',
+                            '?',
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 14,
