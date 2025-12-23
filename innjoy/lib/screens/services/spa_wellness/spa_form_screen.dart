@@ -366,11 +366,11 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildTextField(
-                    "Price (?)",
+                    "Price (₺)",
                     _priceController,
                     isNumber: true,
                     customPrefix: const Text(
-                      '?',
+                      '₺',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

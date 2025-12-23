@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
 
 class NotificationsChoseScreen extends StatefulWidget {
@@ -10,6 +10,15 @@ class NotificationsChoseScreen extends StatefulWidget {
 }
 
 class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
+  static const List<String> _labels = [
+    'Entertainment',
+    'Wellness & Life',
+    'Sports',
+    'Kids',
+    'Food & Beverage',
+    'Other',
+  ];
+
   final List<bool> _values = List<bool>.filled(6, false);
 
   @override
@@ -23,18 +32,8 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
     if (!mounted) return;
 
     setState(() {
-      // Mevcut etiketler ile veritaban�ndan gelenleri e�le�tir
-      final labels = [
-        'Entertainment',
-        'Wellness & Life',
-        'Sports',
-        'Kids',
-        'Food & Beverage',
-        'Other',
-      ];
-
-      for (int i = 0; i < labels.length; i++) {
-        if (interests.contains(labels[i])) {
+      for (int i = 0; i < _labels.length; i++) {
+        if (interests.contains(_labels[i])) {
           _values[i] = true;
         }
       }
@@ -45,14 +44,6 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
   Widget build(BuildContext context) {
     final bool hasAnyOn = _values.any((v) => v);
     final bool allOn = _values.every((v) => v);
-    const labels = [
-      'Entertainment',
-      'Wellness & Life',
-      'Sports',
-      'Kids',
-      'Food & Beverage',
-      'Other',
-    ];
     const subtitles = [
       'Movies, shows, and events',
       'Health tips and lifestyle',
@@ -137,7 +128,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
           }
           final idx = i - 1;
           return _CardBlock(
-            label: labels[idx],
+            label: _labels[idx],
             subtitle: subtitles[idx],
             icon: icons[idx],
             cardColor: cardBg[idx],
@@ -164,23 +155,21 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
                 child: ElevatedButton(
                   onPressed: hasAnyOn
                       ? () async {
-                          // Se�ili kategorileri listele
+                          // Seçili kategorileri listele
                           List<String> selectedInterests = [];
                           for (int i = 0; i < _values.length; i++) {
                             if (_values[i]) {
-                              selectedInterests.add(labels[i]);
+                              selectedInterests.add(_labels[i]);
                             }
                           }
 
-                          // Veritaban�na kaydet
-                          await DatabaseService().updateUserInterests(
-                            selectedInterests,
-                          );
+                          // Veritabanına kaydet
+                          await DatabaseService().updateUserInterests(selectedInterests);
 
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Preferences saved ?"),
+                                content: Text('Preferences saved ✅'),
                               ),
                             );
                             Navigator.pop(context);

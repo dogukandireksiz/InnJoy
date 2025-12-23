@@ -145,6 +145,63 @@ class DatabaseService {
         .set(data, SetOptions(merge: true));
   }
 
+  /// Get hotel WiFi information from 'hotel information' subcollection
+  Stream<Map<String, dynamic>?> getHotelWifiInfo(String hotelName) {
+    return _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('hotel information')
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.docs.isNotEmpty) {
+            final doc = snapshot.docs.first;
+            if (doc.data().containsKey('wifi')) {
+              return doc.data()['wifi'] as Map<String, dynamic>;
+            }
+          }
+          return null;
+        });
+  }
+
+  /// Update hotel WiFi information in 'hotel information' subcollection
+  Future<void> updateHotelWifiInfo(
+    String hotelName,
+    String ssid,
+    String password,
+  ) async {
+    final encryption = 'WPA';
+    // Generate QR data string to save as well
+    final qrData = 'WIFI:S:$ssid;T:$encryption;P:$password;;';
+
+    final snapshot = await _db
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('hotel information')
+        .limit(1)
+        .get();
+    
+    DocumentReference ref;
+    if (snapshot.docs.isNotEmpty) {
+      ref = snapshot.docs.first.reference;
+    } else {
+      // Create new doc if missing (auto-generated ID)
+      ref = _db
+          .collection('hotels')
+          .doc(hotelName)
+          .collection('hotel information')
+          .doc();
+    }
+
+    await ref.set({
+      'wifi': {
+        'ssid': ssid,
+        'password': password,
+        'encryption': encryption,
+        'qrData': qrData,
+      }
+    }, SetOptions(merge: true));
+  }
+
   // RESTORE: Recover parent doc from 'hotel information' subcollection
   Future<bool> restoreHotelFromSubcollection(String hotelName) async {
     try {
@@ -1642,13 +1699,19 @@ class DatabaseService {
     String hotelName,
     Map<String, dynamic> serviceData,
   ) async {
-    final String serviceName = serviceData['name'] ?? 'Unknown Service';
+    // Ensure 'type' field is set
+    serviceData['type'] = 'service';
+    
+    // Use service name as document ID
+    final serviceName = serviceData['name'] ?? 'Unknown Service';
     await _db
         .collection('hotels')
         .doc(hotelName)
         .collection('spa_wellness')
-        .doc(serviceName) // Doc ID = Service Name
-        .set({...serviceData, 'type': 'service'});
+        .doc('services')
+        .collection('items')
+        .doc(serviceName)
+        .set(serviceData);
   }
 
   // 2. Spa Hizmeti Güncelle
@@ -1661,6 +1724,8 @@ class DatabaseService {
         .collection('hotels')
         .doc(hotelName)
         .collection('spa_wellness')
+        .doc('services')
+        .collection('items')
         .doc(docId)
         .update(serviceData);
   }
@@ -1671,6 +1736,8 @@ class DatabaseService {
         .collection('hotels')
         .doc(hotelName)
         .collection('spa_wellness')
+        .doc('services')
+        .collection('items')
         .doc(docId)
         .delete();
   }
@@ -1681,15 +1748,132 @@ class DatabaseService {
         .collection('hotels')
         .doc(hotelName)
         .collection('spa_wellness')
-        .where('type', isEqualTo: 'service')
+        .doc('services')
+        .collection('items')
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) {
             final data = doc.data();
-            data['id'] = doc.id; // ID'yi de ekle
+            data['id'] = doc.id;
             return data;
           }).toList();
         });
+  }
+
+  // ONE-TIME SEEDING: Add default spa services in English
+  Future<void> migrateSpaServicesToNewStructure(String hotelName) async {
+    try {
+      Logger.debug('Checking spa services seeding for $hotelName');
+
+      // Check if seeding already completed
+      final migrationDoc = await _db
+          .collection('hotels')
+          .doc(hotelName)
+          .collection('spa_wellness')
+          .doc('migration_status')
+          .get();
+
+      if (migrationDoc.exists && migrationDoc.data()?['completed'] == true) {
+        Logger.debug('Seeding already completed, skipping');
+        return;
+      }
+
+      // Check if there are existing services
+      final existingServices = await _db
+          .collection('hotels')
+          .doc(hotelName)
+          .collection('spa_wellness')
+          .doc('services')
+          .collection('items')
+          .get();
+
+      if (existingServices.docs.isNotEmpty) {
+        Logger.debug('Services already exist (${existingServices.docs.length}), skipping seeding');
+        // Still mark as completed to avoid checking again
+        await _db
+            .collection('hotels')
+            .doc(hotelName)
+            .collection('spa_wellness')
+            .doc('migration_status')
+            .set({
+              'completed': true,
+              'timestamp': FieldValue.serverTimestamp(),
+              'servicesSeeded': 0,
+              'note': 'Services already existed',
+            });
+        return;
+      }
+
+      Logger.debug('No services found, seeding default English services');
+
+      // Default spa services in English
+      final defaultServices = [
+        {
+          'name': 'Aromatherapy',
+          'description': 'Sensory therapy with essential natural oils.',
+          'duration': 60,
+          'price': 1500,
+          'imageUrl': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1000&auto=format&fit=crop',
+          'type': 'service',
+        },
+        {
+          'name': 'Skin Care',
+          'description': 'Professional skin cleansing and care.',
+          'duration': 45,
+          'price': 850,
+          'imageUrl': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=1000&auto=format&fit=crop',
+          'type': 'service',
+        },
+        {
+          'name': 'Massage Therapy',
+          'description': 'Relaxing and rejuvenating massage therapy.',
+          'duration': 60,
+          'price': 1200,
+          'imageUrl': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1000&auto=format&fit=crop',
+          'type': 'service',
+        },
+        {
+          'name': 'Sauna & Steam',
+          'description': 'Relaxation in sauna and steam rooms.',
+          'duration': 30,
+          'price': 500,
+          'imageUrl': 'https://images.unsplash.com/photo-1596178060671-7a80dc8059ea?w=1000&auto=format&fit=crop',
+          'type': 'service',
+        },
+      ];
+
+      // Add each service using service name as document ID
+      for (final serviceData in defaultServices) {
+        final serviceName = serviceData['name'] as String;
+        await _db
+            .collection('hotels')
+            .doc(hotelName)
+            .collection('spa_wellness')
+            .doc('services')
+            .collection('items')
+            .doc(serviceName)
+            .set(serviceData);
+
+        Logger.debug('Seeded service: $serviceName');
+      }
+
+      // Mark seeding as completed
+      await _db
+          .collection('hotels')
+          .doc(hotelName)
+          .collection('spa_wellness')
+          .doc('migration_status')
+          .set({
+            'completed': true,
+            'timestamp': FieldValue.serverTimestamp(),
+            'servicesSeeded': defaultServices.length,
+          });
+
+      Logger.debug('Spa services seeding completed successfully');
+    } catch (e) {
+      Logger.error('Error during spa services seeding: $e');
+      rethrow;
+    }
   }
 
   // --- ODA YÖNETİMİ ---

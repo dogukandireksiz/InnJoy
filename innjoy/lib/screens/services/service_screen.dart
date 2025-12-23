@@ -9,7 +9,8 @@ import '../../services/database_service.dart';
 
 class ServiceScreen extends StatefulWidget {
   final String? hotelName;
-  const ServiceScreen({super.key, this.hotelName});
+  final bool isTabView;
+  const ServiceScreen({super.key, this.hotelName, this.isTabView = false});
 
   @override
   State<ServiceScreen> createState() => _ServiceScreenState();
@@ -173,6 +174,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
             backgroundColor: const Color(0xFFf6f7f8),
             elevation: 0,
             scrolledUnderElevation: 0,
+            automaticallyImplyLeading: !widget.isTabView,
           ),
           body: ListView(
             padding: const EdgeInsets.all(16),

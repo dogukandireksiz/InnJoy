@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,9 +12,9 @@ class HousekeepingScreen extends StatefulWidget {
 }
 
 class _HousekeepingScreenState extends State<HousekeepingScreen> {
-  // --- TASARIM DE���KENLER� ---
+  // --- TASARIM DEĞİŞKENLERİ ---
   bool _doNotDisturb = false;
-  int _selectedTimeType = 0; // 0: Hemen Temizle, 1: Belirli Saat Aral���nda
+  int _selectedTimeType = 0; // 0: Hemen Temizle, 1: Belirli Saat Aralığında
   String _selectedTimeRange = '14:00 - 16:00';
 
   // Malzeme talepleri
@@ -24,9 +24,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
 
   final TextEditingController _notesController = TextEditingController();
 
-  //--- MANTIK DE���KENLER� ---
-  bool _requestSent = false; // UI durumu i�in
-  bool _isLoading = false; // Y�kleniyor durumu i�in
+  //--- MANTIK DEĞİŞKENLERİ ---
+  bool _requestSent = false; // UI durumu için
+  bool _isLoading = false; // Yükleniyor durumu için
 
   // User and hotel context
   String? _hotelName;
@@ -198,11 +198,11 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     super.dispose();
   }
 
-  // --- FIREBASE �STEK G�NDERME FONKS�YONU ---
+  // --- FIREBASE İSTEK GÖNDERME FONKSİYONU ---
   Future<void> _sendRequest() async {
     setState(() => _isLoading = true);
 
-    // 1. Verileri Haz�rla: Tasar�mdaki t�m se�imleri birle�tiriyoruz
+    // 1. Verileri Hazırla: Tasarımdaki tüm seçimleri birleştiriyoruz
     StringBuffer detailsBuffer = StringBuffer();
     detailsBuffer.writeln(
       "Timing: ${_selectedTimeType == 0 ? 'Now' : _selectedTimeRange}",
@@ -223,15 +223,15 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
     }
 
     try {
-      // 2. Servisi �a��r (Kategori otomatik olarak 'Housekeeping')
+      // 2. Servisi çağır (Kategori otomatik olarak 'Housekeeping')
       await DatabaseService().requestHousekeeping(
         'Housekeeping', // Kategori
-        detailsBuffer.toString(), // Haz�rlad���m�z detayl� metin
+        detailsBuffer.toString(), // Hazırladığımız detaylı metin
       );
 
       if (!mounted) return;
 
-      // 3. Ba�ar�l� ise UI g�ncelle
+      // 3. Başarılı ise UI güncelle
       setState(() {
         _requestSent = true;
         _isLoading = false;
@@ -281,7 +281,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Rahats�z Etmeyin Toggle
+            // Rahatsız Etmeyin Toggle
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -339,7 +339,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Zaman Se�imi Chips
+              // Zaman Seçimi Chips
               Row(
                 children: [
                   _TimeChip(
@@ -356,7 +356,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 ],
               ),
 
-              // Saat Se�imi (sadece Belirli Saat Aral���nda se�iliyse)
+              // Saat Seçimi (sadece Belirli Saat Aralığında seçiliyse)
               if (_selectedTimeType == 1) ...[
                 const SizedBox(height: 16),
                 Container(
@@ -602,7 +602,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            // E�er istek g�nderildiyse veya �u an y�kleniyorsa butona bas�lmas�n
+            // Eğer istek gönderildiyse veya şu an yükleniyorsa butona basılmasın
             onPressed: (_requestSent || _isLoading) ? null : _sendRequest,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
@@ -686,7 +686,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
   }
 }
 
-// --- YARDIMCI WIDGET'LAR (Tasar�m Kodundan) ---
+  // --- YARDIMCI WIDGET'LAR (Tasarım Kodundan) ---
 
 class _TimeChip extends StatelessWidget {
   final String label;

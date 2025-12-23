@@ -5,12 +5,13 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatefulWidget {
-  // �a��ran dosya (emergency_screen) hata vermesin diye bu parametreleri tutuyoruz,
-  // ama �izim yaparken kullanmayaca��z.
+  // Çağıran dosya (emergency_screen) hata vermesin diye bu parametreleri tutuyoruz,
+  // ama çizim yaparken kullanmayacağız.
   final LatLng selectedLocation;
   final LatLng? userLocation;
   final String? locationName;
   final String? noteInfo;
+  final bool isTabView;
 
   const MapScreen({
     super.key,
@@ -18,6 +19,7 @@ class MapScreen extends StatefulWidget {
     this.userLocation,
     this.locationName,
     this.noteInfo,
+    this.isTabView = false,
   });
 
   @override
@@ -87,7 +89,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // Sadece kullan�c�ya odaklanan fonksiyon
+  // Sadece kullanıcıya odaklanan fonksiyon
   void _centerOnUser() {
     final LatLng displayUserLocation =
         _foundLocation ?? widget.userLocation ?? _backupLocation;
@@ -96,7 +98,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Hangi konumu g�sterece�iz?
+    // Hangi konumu göstereceğiz?
     final LatLng displayUserLocation =
         _foundLocation ?? widget.userLocation ?? _backupLocation;
     final bool isSimulationMode =
@@ -105,7 +107,7 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // --- 1. HAR�TA ---
+          // --- 1. HARİTA ---
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -118,12 +120,12 @@ class _MapScreenState extends State<MapScreen> {
                 userAgentPackageName: 'com.oteluygulamasi.app',
               ),
 
-              // NOT: PolylineLayer (K�rm�z� �izgi) buradan kald�r�ld�.
+              // NOT: PolylineLayer (Kırmızı Çizgi) buradan kaldırıldı.
               MarkerLayer(
                 markers: [
-                  // NOT: Hedef (Ye�il Kap�) ikonu kald�r�ld�.
+                  // NOT: Hedef (Yeşil Kapı) ikonu kaldırıldı.
 
-                  // Sadece Kullan�c� (Mavi �nsan)
+                  // Sadece Kullanıcı (Mavi İnsan)
                   Marker(
                     point: displayUserLocation,
                     width: 60,
@@ -139,21 +141,22 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
-          // --- 2. GER� D�N BUTONU ---
-          Positioned(
-            top: 50,
-            left: 20,
-            child: CircleAvatar(
-              backgroundColor: Colors.black.withValues(alpha: 0.6),
-              radius: 25,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
+          // --- 2. GERİ DÖN BUTONU ---
+          if (!widget.isTabView)
+            Positioned(
+              top: 50,
+              left: 20,
+              child: CircleAvatar(
+                backgroundColor: Colors.black.withValues(alpha: 0.6),
+                radius: 25,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
             ),
-          ),
 
-          // --- 3. KONUMUMA G�T BUTONU ---
+          // --- 3. KONUMUMA GİT BUTONU ---
           Positioned(
             right: 20,
             bottom: 80,
@@ -164,7 +167,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // --- 4. S�M�LASYON UYARISI ---
+          // --- 4. SİMÜLASYON UYARISI ---
           if (isSimulationMode || _isLoadingLocation)
             Positioned(
               top: 60,

@@ -3,7 +3,7 @@ import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/database_service.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart'; // EKLEND�
+import 'package:intl/date_symbol_data_local.dart'; // EKLENDİ
 import 'package:qr_flutter/qr_flutter.dart';
 
 class AdminRoomManagementScreen extends StatefulWidget {
@@ -14,7 +14,10 @@ class AdminRoomManagementScreen extends StatefulWidget {
     super.key,
     required this.hotelName,
     this.onBack,
+    this.isTabView = false,
   });
+
+  final bool isTabView;
 
   @override
   State<AdminRoomManagementScreen> createState() =>
@@ -87,25 +90,27 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                 ),
           backgroundColor: const Color(0xFFF6F7FB),
           elevation: 0,
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              if (_isSearching) {
-                setState(() {
-                  _isSearching = false;
-                  _searchController.clear();
-                  _searchQuery = '';
-                });
-              } else {
-                if (widget.onBack != null) {
-                  widget.onBack!();
-                } else {
-                  Navigator.of(context).pop();
-                }
-              }
-            },
-          ),
+          automaticallyImplyLeading: !widget.isTabView,
+          leading: widget.isTabView
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: () {
+                    if (_isSearching) {
+                      setState(() {
+                        _isSearching = false;
+                        _searchController.clear();
+                        _searchQuery = '';
+                      });
+                    } else {
+                      if (widget.onBack != null) {
+                        widget.onBack!();
+                      } else {
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  },
+                ),
           actions: [
             if (!_isSearching)
               IconButton(
@@ -158,7 +163,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
     );
   }
 
-  // Dinamik ve statik odalar� birle�tirir
+  // Dinamik ve statik odaları birleştirir
   List<Map<String, dynamic>> _generateMockRooms(
     List<Map<String, dynamic>> reservations,
     int totalRooms,
@@ -171,7 +176,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       for (var r in roomDocs) r['id']: r,
     };
 
-    // 1. �nce veritaban�ndaki t�m aktif rezervasyonlar� listeye ekle
+    // 1. Önce veritabanındaki tüm aktif rezervasyonları listeye ekle
     Set<String> occupiedRoomNumbers = {};
 
     for (var res in reservations) {
@@ -200,7 +205,9 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
           'id': roomNumId, // Keep ID for reference
           'status': 'Occupied',
           'guestName': res['guestName'] ?? 'Guest',
+          'guestEmail': res['guestEmail'] ?? '-', // Dinamik email
           'pnr': res['pnr'] ?? '-',
+          'checkIn': res['checkInDate'], // Timestamp object
           'checkOut': res['checkOutDate'], // Timestamp object
           'data': res,
           'isDnd': isDnd,
@@ -208,8 +215,8 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       }
     }
 
-    // 2. 1'den totalRooms'a kadar odalar� kontrol et (VEYA roomDocs'tan kalanlar� ekle)
-    // E�er roomDocs varsa, oradan iterate edelim, yoksa 1..20 varsayal�m
+    // 2. 1'den totalRooms'a kadar odaları kontrol et (VEYA roomDocs'tan kalanları ekle)
+    // Eğer roomDocs varsa, oradan iterate edelim, yoksa 1..20 varsayalım
     if (roomDocs.isNotEmpty) {
       for (var doc in roomDocs) {
         final roomId = doc['id'];
@@ -246,9 +253,9 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       }
     }
 
-    // 3. Oda numaras�na g�re s�rala
+    // 3. Oda numarasına göre sırala
     rooms.sort((a, b) {
-      // Say�sal s�ralama denemesi
+      // Sayısal sıralama denemesi
       String numStrA = a['number'].toString();
       String numStrB = b['number'].toString();
 
@@ -303,7 +310,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                             child: CircularProgressIndicator(),
                           );
 
-                        // Bo� odalar� hesapla
+                        // Boş odaları hesapla
                         List<Map<String, dynamic>> reservations =
                             resSnapshot.data!;
                         Set<String> occupiedRooms = {};
@@ -327,7 +334,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                           );
                         }
 
-                        // CRASH FIX: E�er se�ili oda art�k listede yoksa (�r: yeni rezerve edildiyse), null yap.
+                        // CRASH FIX: Eğer seçili oda artık listede yoksa (ör: yeni rezerve edildiyse), null yap.
                         if (selectedRoomNumber != null &&
                             !emptyRooms.contains(selectedRoomNumber)) {
                           selectedRoomNumber = null;
@@ -339,7 +346,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // Oda Se�imi Dropdown
+                                // Oda Seçimi Dropdown
                                 DropdownButtonFormField<String>(
                                   value: selectedRoomNumber,
                                   decoration: InputDecoration(
@@ -362,7 +369,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                 ),
                                 const SizedBox(height: 16),
 
-                                // Misafir Ad�
+                                // Misafir Adı
                                 TextFormField(
                                   controller: guestNameController,
                                   decoration: InputDecoration(
@@ -377,7 +384,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                 ),
                                 const SizedBox(height: 16),
 
-                                // Giri� Tarihi
+                                // Giriş Tarihi
                                 ListTile(
                                   title: const Text('Check-In Date'),
                                   subtitle: Text(
@@ -405,7 +412,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                       initialDate: checkInDate,
                                       firstDate: DateTime.now().subtract(
                                         const Duration(days: 30),
-                                      ), // Ge�mi�e d�n�k giri� olabilir mi? Evet
+                                      ), // Geçmişe dönük giriş olabilir mi? Evet
                                       lastDate: DateTime.now().add(
                                         const Duration(days: 365),
                                       ),
@@ -414,7 +421,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                     if (picked != null) {
                                       setState(() {
                                         checkInDate = picked;
-                                        // ��k�� tarihi giri� tarihinden �nceyse, ��k��� giri�ten 1 g�n sonraya ayarla
+                                        // Çıkış tarihi giriş tarihinden önceyse, çıkışı girişten 1 gün sonraya ayarla
                                         if (checkOutDate.isBefore(
                                           checkInDate,
                                         )) {
@@ -428,7 +435,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                 ),
                                 const SizedBox(height: 8),
 
-                                // ��k�� Tarihi
+                                // Çıkış Tarihi
                                 ListTile(
                                   title: const Text('Check-Out Date'),
                                   subtitle: Text(
@@ -456,7 +463,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                       initialDate: checkOutDate,
                                       firstDate: checkInDate.add(
                                         const Duration(days: 1),
-                                      ), // Giri� tarihinden sonra olmal�
+                                      ), // Giriş tarihinden sonra olmalı
                                       lastDate: DateTime.now().add(
                                         const Duration(days: 365),
                                       ),
@@ -497,8 +504,8 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                           if (formKey.currentState!.validate()) {
                             setState(() => isLoading = true);
                             try {
-                              // FIX: Async i�lem s�ras�nda selectedRoomNumber null'a d�nebilir (stream update y�z�nden).
-                              // O y�zden de�eri i�lem ba�lamadan �nce yerel de�i�kene al�yoruz.
+                              // FIX: Async işlem sırasında selectedRoomNumber null'a dönebilir (stream update yüzünden).
+                              // O yüzden değeri işlem başlamadan önce yerel değişkene alıyoruz.
                               final roomToBook = selectedRoomNumber!;
 
                               final pnr = await DatabaseService()
@@ -603,7 +610,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
           child: StreamBuilder<Map<String, dynamic>?>(
             stream: DatabaseService().getHotelInfo(widget.hotelName),
             builder: (context, infoSnapshot) {
-              int totalRooms = 20; // Varsay�lan
+              int totalRooms = 20; // Varsayılan
               if (infoSnapshot.hasData && infoSnapshot.data != null) {
                 totalRooms = infoSnapshot.data!['totalRooms'] ?? 20;
               }
@@ -757,7 +764,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                   guestName,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text('Room: $roomNum  �  PNR: $pnr'),
+                subtitle: Text('Room: $roomNum  •  PNR: $pnr'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   _showHistoryDetails(context, res);
@@ -804,7 +811,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
   ) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Kullan�c� bilerek kapatmal�
+      barrierDismissible: false, // Kullanıcı bilerek kapatmalı
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -824,7 +831,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4), // A��k ye�il arka plan
+                  color: const Color(0xFFF0FDF4), // Açık yeşil arka plan
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Colors.green.withValues(alpha: 0.3),
@@ -898,7 +905,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
     final fmt = DateFormat('dd MMM yyyy', 'tr_TR');
     final pnr = res['pnr'] ?? '-';
 
-    // CLAIMED NAME LOGIC (History i�in de ge�erli olabilir)
+    // CLAIMED NAME LOGIC (History için de geçerli olabilir)
     final String? claimedName = res['claimedGuestName'];
     final String displayName = (claimedName != null && claimedName.isNotEmpty)
         ? claimedName
@@ -1566,21 +1573,21 @@ class _RoomGridCard extends StatelessWidget {
     final bool isOccupied = status == 'Occupied';
 
     // Daha Keskin/Vivid Renkler
-    Color accentColor = const Color(0xFF10B981); // Canl� Ye�il (Emerald)
+    Color accentColor = const Color(0xFF10B981); // Canlı Yeşil (Emerald)
     Color bgColor = Colors.white;
     IconData statusIcon = Icons.check_circle;
     String statusText = 'Available';
 
     if (isOccupied) {
-      accentColor = const Color(0xFFF59E0B); // Canl� Turuncu (Amber)
+      accentColor = const Color(0xFFF59E0B); // Canlı Turuncu (Amber)
       statusIcon = Icons.person;
       statusText = 'Occupied';
     } else if (status == 'Cleaning') {
-      accentColor = const Color(0xFF3B82F6); // Canl� Mavi
+      accentColor = const Color(0xFF3B82F6); // Canlı Mavi
       statusIcon = Icons.cleaning_services;
       statusText = 'Cleaning';
     } else if (status == 'Maintenance') {
-      accentColor = const Color(0xFFEF4444); // Canl� K�rm�z�
+      accentColor = const Color(0xFFEF4444); // Canlı Kırmızı
       statusIcon = Icons.build;
       statusText = 'Maintenance';
     }
@@ -1592,16 +1599,16 @@ class _RoomGridCard extends StatelessWidget {
           color: bgColor,
           borderRadius: BorderRadius.circular(
             12,
-          ), // Biraz daha az yuvarlat�lm��
+          ), // Biraz daha az yuvarlatılmış
           border: Border.all(
             color: accentColor,
             width: 2,
-          ), // Kal�n, belirgin �er�eve
+          ), // Kalın, belirgin çerçeve
           boxShadow: [
             BoxShadow(
               color: accentColor.withValues(
                 alpha: 0.15,
-              ), // G�lge rengi stat�yle e�le�sin
+              ), // Gölge rengi statüyle eşleşsin
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -1611,14 +1618,14 @@ class _RoomGridCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Oda No + �kon (Solid header efekti)
+            // Header: Oda No + İkon (Solid header efekti)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: accentColor, // Ba�l�k tamamen renkli
+                color: accentColor, // Başlık tamamen renkli
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(9),
-                ), // �� border uyumu i�in
+                ), // İç border uyumu için
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1628,7 +1635,7 @@ class _RoomGridCard extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
-                      color: Colors.white, // Beyaz yaz�
+                      color: Colors.white, // Beyaz yazı
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -1650,7 +1657,7 @@ class _RoomGridCard extends StatelessWidget {
               ),
             ),
 
-            // Content: �sim veya Durum
+            // Content: İsim veya Durum
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -1659,8 +1666,8 @@ class _RoomGridCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // 1. Misafir �smi
-                          // E�er ger�ek kullan�c� giri� yapm��sa onun ad�n� g�ster
+                          // 1. Misafir İsmi
+                          // Eğer gerçek kullanıcı giriş yapmışsa onun adını göster
                           Builder(
                             builder: (context) {
                               final String? claimedName = room['data'] != null
@@ -1733,7 +1740,7 @@ class _RoomGridCard extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // E�er stat�s� 'used' ise (M��teri PNR girmis)
+                              // Eğer statüsü 'used' ise (Müşteri PNR girmiş)
                               if (room['data'] != null &&
                                   room['data']['status'] == 'used')
                                 Container(
@@ -1796,7 +1803,7 @@ class _RoomGridCard extends StatelessWidget {
                           ),
                           const Spacer(),
 
-                          // 3. Tarih Bilgisi (Giri� - ��k��)
+                          // 3. Tarih Bilgisi (Giriş - Çıkış)
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
@@ -1845,7 +1852,7 @@ class _RoomGridCard extends StatelessWidget {
                           statusText.toUpperCase(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 22, // B�y�t�ld� (18 -> 22)
+                            fontSize: 22, // Büyütüldü (18 -> 22)
                             fontWeight: FontWeight.w900,
                             color: accentColor,
                             letterSpacing: 1.2,

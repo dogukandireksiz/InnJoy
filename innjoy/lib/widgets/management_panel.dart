@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 /// Management Panel that slides in from the left side
 /// Used in admin home screen for quick navigation
@@ -118,7 +118,7 @@ class ManagementPanel extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           const Text(
-            'v2.4.0 � Innjoy Management',
+            'v2.4.0 • Innjoy Management',
             style: TextStyle(color: Colors.black38, fontSize: 11),
           ),
         ],

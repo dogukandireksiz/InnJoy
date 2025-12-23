@@ -15,6 +15,11 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
   final DatabaseService _dbService = DatabaseService();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+
   Widget build(BuildContext context) {
     const bgLight = Color(0xFFF6F7F8);
 
@@ -128,10 +133,11 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                   ),
                   const SizedBox(height: 16),
                   
+                  
                   // Service Grid
                   StreamBuilder<List<Map<String, dynamic>>>(
-                    stream: _dbService.getSpaMenu(widget.hotelName),
-                    builder: (context, snapshot) {
+                      stream: _dbService.getSpaMenu(widget.hotelName),
+                      builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       }

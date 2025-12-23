@@ -58,10 +58,15 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   bool _dataLoaded = false;
 
+  // PageView State
+  int _selectedIndex = 0;
+  late PageController _pageController;
+
   @override
   void initState() {
     super.initState();
-    // Eğer parametre geldiyse direkt onu kullan (Gecikme olmaz)
+    _pageController = PageController();
+    // Ežğer parametre geldiyse direkt onu kullan (Gecikme olmaz)
     // Gelmediyse varsayılan false ve asenkron kontrol
     _isAdmin = widget.isAdmin ?? false;
     _hotelName = widget.hotelName;
@@ -157,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (mounted) {
         setState(() {
-          // Eğer admin parametresi geldiyse onu ezme, sadece hotelName al
+          // Ežğer admin parametresi geldiyse onu ezme, sadece hotelName al
           if (widget.isAdmin == null) _isAdmin = role == 'admin';
           _hotelName ??= hotel;
           _roomNumber = room ?? _roomNumber;
@@ -191,10 +196,107 @@ class _HomeScreenState extends State<HomeScreen> {
     await _checkUserRole();
   }
 
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
+    _pageController.jumpToPage(index);
+  }
+
+  void _onPageChanged(int index) {
+    if (index != _selectedIndex) {
+      if (mounted) {
+        setState(() => _selectedIndex = index);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true, // Transparent bottom bar
       backgroundColor: const Color(0xFFF6F7FB),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: SizedBox(
+        height: 52,
+        width: 52,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const EmergencyScreen()));
+          },
+          backgroundColor: Colors.red,
+          elevation: 4,
+          child: const Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.white,
+            size: 26,
+          ),
+        ),
+      ),
+      bottomNavigationBar: _CustomBottomBar(
+        selectedIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        physics: const ClampingScrollPhysics(),
+        children: [
+          // 0: Home Page
+          _HomeDashboard(
+            userName:
+                _userName ?? (widget.userName.isEmpty ? 'Guest' : widget.userName),
+            isAdmin: _isAdmin,
+            hotelName: _hotelName,
+            roomNumber: _roomNumber,
+            checkIn: _checkIn,
+            checkOut: _checkOut,
+            qrCodeData: _qrCodeData,
+            onRefresh: _forceRefreshData,
+            onNavigateToProfile: () => _onItemTapped(3),
+          ),
+          // 1: Map Page
+          const MapScreen(
+            selectedLocation: LatLng(37.21597166446968, 28.3524471232014584),
+            isTabView: true,
+          ),
+          // 2: Services Page
+          ServiceScreen(hotelName: _hotelName, isTabView: true),
+          // 3: Profile Page
+          const ProfileScreen(isTabView: true),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeDashboard extends StatelessWidget {
+  final String userName;
+  final bool isAdmin;
+  final String? hotelName;
+  final String? roomNumber;
+  final DateTime? checkIn;
+  final DateTime? checkOut;
+  final String? qrCodeData;
+  final Future<void> Function() onRefresh;
+  final VoidCallback onNavigateToProfile;
+
+  const _HomeDashboard({
+    required this.userName,
+    required this.isAdmin,
+    this.hotelName,
+    this.roomNumber,
+    this.checkIn,
+    this.checkOut,
+    this.qrCodeData,
+    required this.onRefresh,
+    required this.onNavigateToProfile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent, // Background handled by outer page/scaffold or set here
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFFF6F7FB),
@@ -202,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         // PreTripScreen'e geri dönüş butonu (login_page projesinden korundu)
-        leading: _isAdmin
+        leading: isAdmin
             ? null
             : IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.grey),
@@ -217,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 tooltip: 'Back',
               ),
         actions: [
-          if (_isAdmin)
+          if (isAdmin)
             Padding(
               padding: const EdgeInsets.only(right: 12, top: 16),
               child: AdminActionBar(
@@ -251,9 +353,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 },
               ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: GestureDetector(
+                onTap: onNavigateToProfile,
+                child: StreamBuilder<User?>(
+                  stream: FirebaseAuth.instance.userChanges(),
+                  builder: (context, snapshot) {
+                    final user = snapshot.data;
+                    return Container(
+                      width: 45,
+                      height: 45,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFE3F2FD),
+                        image: DecorationImage(
+                          image: user?.photoURL != null
+                              ? (user!.photoURL!.startsWith('assets/')
+                                  ? AssetImage(user.photoURL!) as ImageProvider
+                                  : NetworkImage(user.photoURL!))
+                              : const AssetImage(
+                                  'assets/avatars/default_avatar.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: null,
+                    );
+                  },
+                ),
+              ),
             ),
         ],
-        title: _isAdmin
+        title: isAdmin
             ? null
             : Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -268,10 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(color: Colors.black54, fontSize: 14),
                         ),
                         Text(
-                          _userName ??
-                              (widget.userName.isEmpty
-                                  ? 'Guest'
-                                  : widget.userName),
+                          userName,
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 22,
@@ -285,21 +415,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
       ),
       body: RefreshIndicator(
-        onRefresh: _forceRefreshData,
+        onRefresh: onRefresh,
         color: const Color(0xFF0057FF),
         child: SingleChildScrollView(
           physics:
               const AlwaysScrollableScrollPhysics(), // Enable pull even when content is short
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 90),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _HotelCard(
-                hotelName: _hotelName ?? 'InnJoy Hotel',
-                roomNumber: _roomNumber,
-                checkIn: _checkIn,
-                checkOut: _checkOut,
-                qrCodeData: _qrCodeData,
+                hotelName: hotelName ?? 'InnJoy Hotel',
+                roomNumber: roomNumber,
+                checkIn: checkIn,
+                checkOut: checkOut,
+                qrCodeData: qrCodeData,
               ),
               const SizedBox(height: 16),
 
@@ -374,7 +504,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => CustomerRequestsScreen(
-                        hotelName: _hotelName ?? 'InnJoy Hotel',
+                        hotelName: hotelName ?? 'InnJoy Hotel',
                       ),
                     ),
                   );
@@ -467,11 +597,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             .push(
                               MaterialPageRoute(
                                 builder: (_) => RoomServiceScreen(
-                                  hotelName: _hotelName ?? 'InnJoy Hotel',
+                                  hotelName: hotelName ?? 'InnJoy Hotel',
                                 ),
                               ),
                             )
-                            .then((_) => setState(() {}));
+                            .then((_) => onRefresh());
                       },
                     ),
                   ),
@@ -491,7 +621,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => EventsActivitiesScreen(
-                            hotelName: _hotelName ?? 'InnJoy Hotel',
+                            hotelName: hotelName ?? 'InnJoy Hotel',
                           ),
                         ),
                       );
@@ -513,10 +643,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 160,
-                child: _hotelName == null
+                child: hotelName == null
                     ? const Center(child: CircularProgressIndicator())
                     : StreamBuilder<List<Map<String, dynamic>>>(
-                        stream: DatabaseService().getHotelEvents(_hotelName!),
+                        stream: DatabaseService().getHotelEvents(hotelName!),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -641,7 +771,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     MaterialPageRoute(
                                       builder: (_) => EventDetailsScreen(
                                         event: e,
-                                        hotelName: _hotelName!,
+                                        hotelName: hotelName!,
                                       ),
                                     ),
                                   );
@@ -659,58 +789,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
-              _SpendingCard(hotelName: _hotelName),
+              _SpendingCard(hotelName: hotelName),
               const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: SizedBox(
-        height: 52,
-        width: 52,
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const EmergencyScreen()));
-          },
-          backgroundColor: Colors.red,
-          elevation: 4,
-          child: const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.white,
-            size: 26,
-          ),
-        ),
-      ),
-      bottomNavigationBar: _CustomBottomBar(
-        onTap: (item) {
-          if (item == _BottomItem.services) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ServiceScreen(hotelName: _hotelName),
-              ),
-            );
-          } else if (item == _BottomItem.profile) {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const ProfileScreen()))
-                .then(
-                  (_) => _forceRefreshData(),
-                ); // Refresh data after profile changes
-          } else if (item == _BottomItem.map) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const MapScreen(
-                  selectedLocation: LatLng(
-                    37.21597166446968,
-                    28.3524471232014584,
-                  ),
-                ),
-              ),
-            );
-          }
-        },
       ),
     );
   }
@@ -1477,14 +1560,20 @@ class _SpendingCard extends StatelessWidget {
   }
 }
 
-enum _BottomItem { home, map, services, profile }
+
 
 /// Çâ€œzel Alt Navigasyon Çubuğu (Custom Bottom Bar)
 ///
 /// Saydam (yarı opak) ve blur efektli bir görünüme sahiptir.
 class _CustomBottomBar extends StatelessWidget {
-  final ValueChanged<_BottomItem>? onTap;
-  const _CustomBottomBar({this.onTap});
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  const _CustomBottomBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1493,6 +1582,15 @@ class _CustomBottomBar extends StatelessWidget {
       color: Colors.black87,
       height: 1.1,
     );
+
+    // Helper to determine color based on selection
+    Color getColor(int index) {
+      return selectedIndex == index ? const Color(0xFF0057FF) : Colors.black54;
+    }
+
+    FontWeight getWeight(int index) {
+      return selectedIndex == index ? FontWeight.bold : FontWeight.normal;
+    }
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -1518,16 +1616,21 @@ class _CustomBottomBar extends StatelessWidget {
                           icon: Icons.home,
                           label: 'Home',
                           labelStyle: labelStyle.copyWith(
-                            color: const Color(0xFF0057FF),
-                            fontWeight: FontWeight.bold,
+                            color: getColor(0),
+                            fontWeight: getWeight(0),
                           ),
-                          onTap: () => onTap?.call(_BottomItem.home),
+                          iconColor: getColor(0),
+                          onTap: () => onTap(0),
                         ),
                         _BottomBarItem(
                           icon: Icons.map,
                           label: 'Map',
-                          labelStyle: labelStyle,
-                          onTap: () => onTap?.call(_BottomItem.map),
+                          labelStyle: labelStyle.copyWith(
+                            color: getColor(1),
+                            fontWeight: getWeight(1),
+                          ),
+                          iconColor: getColor(1),
+                          onTap: () => onTap(1),
                         ),
                       ],
                     ),
@@ -1540,14 +1643,22 @@ class _CustomBottomBar extends StatelessWidget {
                         _BottomBarItem(
                           icon: Icons.apps,
                           label: 'Services',
-                          labelStyle: labelStyle,
-                          onTap: () => onTap?.call(_BottomItem.services),
+                          labelStyle: labelStyle.copyWith(
+                            color: getColor(2),
+                            fontWeight: getWeight(2),
+                          ),
+                          iconColor: getColor(2),
+                          onTap: () => onTap(2),
                         ),
                         _BottomBarItem(
                           icon: Icons.person,
                           label: 'Profile',
-                          labelStyle: labelStyle,
-                          onTap: () => onTap?.call(_BottomItem.profile),
+                          labelStyle: labelStyle.copyWith(
+                            color: getColor(3),
+                            fontWeight: getWeight(3),
+                          ),
+                          iconColor: getColor(3),
+                          onTap: () => onTap(3),
                         ),
                       ],
                     ),
@@ -1567,32 +1678,38 @@ class _BottomBarItem extends StatelessWidget {
   final String label;
   final TextStyle labelStyle;
   final VoidCallback onTap;
+  final Color? iconColor;
+
   const _BottomBarItem({
     required this.icon,
     required this.label,
     required this.labelStyle,
     required this.onTap,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isHome = icon == Icons.home;
-    final iconColor = isHome ? const Color(0xFF0057FF) : Colors.black87;
-
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+        padding: const EdgeInsets.all(4.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: iconColor, size: 26),
+            Icon(
+              icon,
+              color: iconColor ?? labelStyle.color,
+              size: 24,
+            ),
             const SizedBox(height: 2),
-            Text(label, style: labelStyle.copyWith(color: iconColor)),
+            Text(label, style: labelStyle),
           ],
         ),
       ),
     );
   }
 }
+
+

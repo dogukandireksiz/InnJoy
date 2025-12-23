@@ -83,7 +83,7 @@ class ManagementPanel extends StatelessWidget {
           TextButton.icon(
             onPressed: onSignOut,
             icon: const Icon(Icons.logout),
-            label: const Text('Sign Out'),
+            label: const Text('Log Out'),
           ),
           const SizedBox(height: 4),
           const Text('v2.4.0 • Innjoy Management', style: TextStyle(color: Colors.black38, fontSize: 11)),

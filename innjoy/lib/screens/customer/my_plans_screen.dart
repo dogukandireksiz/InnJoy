@@ -133,7 +133,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   }
 
   Widget _buildTimelineList() {
-    // Otel bilgisi y�klenene kadar bekle
+    // Otel bilgisi yüklenene kadar bekle
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -352,7 +352,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
   Widget _buildEventCard(Map<String, dynamic> data) {
     final title = data['eventTitle'] ?? data['title'] ?? 'Event';
     final location = data['eventLocation'] ?? data['location'] ?? '';
-    final time = data['time'] ?? ''; // Saat bilgisi (�rn: "14:00")
+    final time = data['time'] ?? ''; // Saat bilgisi (örn: "14:00")
     final imageUrl = data['imageAsset'] ?? data['imageUrl'];
 
     // Tarih bilgisini al
@@ -363,7 +363,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
       eventDate = (data['eventDate'] as Timestamp).toDate();
     }
 
-    // Saat bilgisi: time alan�ndan veya tarihten ��kar
+    // Saat bilgisi: time alanından veya tarihten çıkar
     String timeStr = time.isNotEmpty
         ? time
         : (eventDate != null ? DateFormat('HH:mm').format(eventDate) : '');

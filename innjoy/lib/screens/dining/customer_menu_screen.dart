@@ -102,7 +102,7 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
             if (_selectedCategory == 'Starters' &&
                 (item.category == 'Appetizers' ||
                     item.category == 'Starters' ||
-                    item.category == 'Ba�lang��lar')) {
+                    item.category == 'Başlangıçlar')) {
               return true;
             }
             return item.category == _selectedCategory;

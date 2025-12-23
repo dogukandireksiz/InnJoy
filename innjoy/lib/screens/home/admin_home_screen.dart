@@ -30,14 +30,17 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   final user = FirebaseAuth.instance.currentUser;
   String? _hotelName;
-  
+
   // Data caching flags to prevent flicker on navigation back
   bool _isLoading = true;
   bool _dataLoaded = false;
+  
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
     // Temporarily seed Urban Joy Hotel data as requested
     DatabaseService().seedDefaultServices('Urban Joy Hotel');
     _fetchHotelName();
@@ -51,7 +54,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       }
       return;
     }
-    
+
     if (user == null) {
       if (mounted) {
         setState(() {
@@ -61,7 +64,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       }
       return;
     }
-    
+
     final doc = await FirebaseFirestore.instance
         .collection('users')
         .doc(user!.uid)
@@ -100,48 +103,27 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   int _selectedIndex = 0;
-  final List<int> _navigationHistory = [0]; // Stack to track navigation history
 
   void _onItemTapped(int index) {
-    if (index == _selectedIndex) return; // Don't add to history if same tab
-    
-    if (index == 0) {
-      setState(() {
-        _selectedIndex = 0;
-        _navigationHistory.clear();
-        _navigationHistory.add(0);
-      });
-    } else if (index == 1) {
-      if (_hotelName != null) {
-        setState(() {
-          _navigationHistory.add(index);
-          _selectedIndex = 1;
-        });
-      } else {
-        _showComingSoonDialog(context, 'Loading hotel info...');
-      }
-    } else if (index == 2) {
-      // All Requests - show as tab (like Rooms)
-      if (_hotelName != null) {
-        setState(() {
-          _navigationHistory.add(index);
-          _selectedIndex = 2;
-        });
-      } else {
-        _showComingSoonDialog(context, 'Loading hotel info...');
-      }
-    } else if (index == 3) {
+    if (index == 3) {
       _openManagementPanel(context);
+      return;
     }
+    
+    // Prevent navigation if hotel name is not loaded for dependent tabs
+    if ((index == 1 || index == 2) && _hotelName == null) {
+       _showComingSoonDialog(context, 'Loading hotel info...');
+       return;
+    }
+
+    if (index == _selectedIndex) return;
+    
+    setState(() => _selectedIndex = index);
+    _pageController.jumpToPage(index);
   }
 
-  void _goBack() {
-    if (_navigationHistory.length > 1) {
-      _navigationHistory.removeLast(); // Remove current
-      setState(() {
-        _selectedIndex = _navigationHistory.last;
-      });
-    }
+  void _onPageChanged(int index) {
+      setState(() => _selectedIndex = index);
   }
 
   void _openManagementPanel(BuildContext context) {
@@ -155,10 +137,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         // Handle routes
         switch (route) {
           case 'dashboard':
-            setState(() => _selectedIndex = 0);
+            _onItemTapped(0);
             break;
           case 'rooms':
-            if (_hotelName != null) setState(() => _selectedIndex = 1);
+            if (_hotelName != null) _onItemTapped(1);
             break;
           case 'housekeeping':
             Navigator.push(
@@ -167,7 +149,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             );
             break;
           case 'requests':
-            if (_hotelName != null) setState(() => _selectedIndex = 2);
+            if (_hotelName != null) _onItemTapped(2);
             break;
           case 'edits':
             Navigator.push(
@@ -187,6 +169,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         }
       },
       onSignOut: () async {
+        // Close panel first to prevent visual glitch
+        Navigator.pop(context);
+        
         await Auth().signOut();
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
@@ -200,41 +185,39 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: _navigationHistory.length <= 1, // Only allow pop if at root (Dashboard)
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _navigationHistory.length > 1) {
-          _goBack();
-        }
-      },
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF3F4F6),
-        body: _buildBody(),
-        bottomNavigationBar: _ModernBottomNav(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-        ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF3F4F6),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        physics: const ClampingScrollPhysics(),
+        children: [
+          _buildDashboard(),
+          if (_hotelName != null)
+            AdminRoomManagementScreen(
+              hotelName: _hotelName!,
+              onBack: () => _onItemTapped(0),
+              isTabView: true,
+            )
+          else
+            const Center(child: CircularProgressIndicator()),
+          if (_hotelName != null)
+             AdminRequestsScreen(
+               hotelName: _hotelName!,
+             )
+          else
+             const Center(child: CircularProgressIndicator()),
+        ],
+      ),
+      bottomNavigationBar: _ModernBottomNav(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
 
-  Widget _buildBody() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildDashboard();
-      case 1:
-        return AdminRoomManagementScreen(
-          hotelName: _hotelName!,
-          onBack: () => _onItemTapped(0),
-        );
-      case 2:
-        return AdminRequestsScreen(
-          hotelName: _hotelName!,
-        );
-      default:
-        return _buildDashboard();
-    }
-  }
+  // Helper widget builder logic removed from here as it's now in main build
+
 
 
   Widget _buildDashboard() {
