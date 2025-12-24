@@ -30,13 +30,6 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to add order screen (to be implemented)
-        },
-        backgroundColor: const Color(0xFF137fec),
-        child: const Icon(Icons.add, size: 32, color: Colors.white),
-      ),
     );
   }
 
@@ -285,17 +278,27 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
           final status = data['status'] ?? 'Preparing';
           final timestamp = data['timestamp'] as Timestamp?;
           
-          // Always filter by date - default to today if no date selected
-          final filterDate = _selectedDate ?? DateTime.now();
-          
+          // Date filter logic - only apply if date is selected OR if not Active Orders
           if (timestamp == null) return false;
           final orderDate = timestamp.toDate();
-          final isSameDay = orderDate.year == filterDate.year && 
-                            orderDate.month == filterDate.month && 
-                            orderDate.day == filterDate.day;
           
-          // If not same day, exclude this order
-          if (!isSameDay) return false;
+          // For Active Orders without date selection, show ALL active orders (no date filter)
+          // For other filters or when date is selected, apply date filter
+          if (_selectedDate != null) {
+            final filterDate = _selectedDate!;
+            final isSameDay = orderDate.year == filterDate.year && 
+                              orderDate.month == filterDate.month && 
+                              orderDate.day == filterDate.day;
+            if (!isSameDay) return false;
+          } else if (_selectedFilter != 'Active Orders') {
+            // For Completed/Cancelled without date, default to today
+            final today = DateTime.now();
+            final isSameDay = orderDate.year == today.year && 
+                              orderDate.month == today.month && 
+                              orderDate.day == today.day;
+            if (!isSameDay) return false;
+          }
+          // If Active Orders and no date selected, show all (no date filter applied)
 
           // Status Filter
           if (_selectedFilter == 'Active Orders') {
@@ -373,6 +376,7 @@ class _OrderCard extends StatelessWidget {
     final items = (data['items'] as List<dynamic>?) ?? [];
     final timestamp = data['timestamp'] as Timestamp?;
     final timeStr = timestamp != null ? DateFormat('HH:mm').format(timestamp.toDate()) : '--:--';
+    final dateStr = timestamp != null ? DateFormat('dd MMM').format(timestamp.toDate()) : '';
 
     // Status Styling Map
     final statusStyles = {
@@ -502,18 +506,19 @@ class _OrderCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      // Time display
+                      // Date & Time display
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text(
-                            'Time',
-                            style: TextStyle(
-                              color: Color(0xFF9CA3AF),
+                          Text(
+                            dateStr,
+                            style: const TextStyle(
+                              color: Color(0xFF137fec),
                               fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             timeStr,
                             style: const TextStyle(
@@ -573,7 +578,7 @@ class _OrderCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '?${totalPrice.toStringAsFixed(0)}',
+                            '₺${totalPrice.toStringAsFixed(0)}',
                             style: const TextStyle(
                               color: Color(0xFF111827),
                               fontWeight: FontWeight.bold,
@@ -671,7 +676,7 @@ class _OrderCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '?${(price * quantity).toStringAsFixed(0)}',
+                          '₺${(price * quantity).toStringAsFixed(0)}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -720,7 +725,7 @@ class _OrderCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '?${totalPrice.toStringAsFixed(0)}',
+                      '₺${totalPrice.toStringAsFixed(0)}',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

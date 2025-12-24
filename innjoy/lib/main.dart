@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'services/database_service.dart';
 import 'dart:async';
 
@@ -27,6 +28,9 @@ class InnJoyHotelApp extends StatefulWidget {
 class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
+  // Emergency siren için AudioPlayer
+  final AudioPlayer _emergencyPlayer = AudioPlayer();
 
   // Etkinlik bildirimleri iÇin
   final Timestamp _appStartTime = Timestamp.now();
@@ -63,6 +67,7 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     _eventSubscription?.cancel();
     _userSubscription?.cancel();
     _authSubscription?.cancel();
+    _emergencyPlayer.dispose();
     super.dispose();
   }
 
@@ -370,10 +375,21 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     // Benzersiz bildirim ID'si (üst üste yazmasın)
     final int notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
+    // 🔊 ÖNCE SESİ ÇAL (audioplayers ile - notification channel'dan bağımsız)
+    try {
+      await _emergencyPlayer.stop(); // Önceki ses varsa durdur
+      await _emergencyPlayer.setReleaseMode(ReleaseMode.stop); // Tek sefer çal
+      await _emergencyPlayer.setVolume(1.0); // Maksimum ses
+      await _emergencyPlayer.play(AssetSource('sounds/emergency_siren.mp3'));
+      Logger.debug('🔊 Emergency siren çalınıyor!');
+    } catch (e) {
+      Logger.error('❌ Emergency siren çalınamadı: $e');
+    }
+
     // Android Bildirim Detayları - Varsayılan Alarm Sesi
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-          'emergency_alarm_channel', // Yeni kanal adı
+          'emergency_alarm_channel_v2', // Yeni kanal adı (eski kanalda ses çalışmıyorsa)
           'Acil Durum Alarmları',
           channelDescription: 'Yüksek öncelikli acil durum alarm bildirimleri',
           importance: Importance.max,

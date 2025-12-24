@@ -245,7 +245,8 @@ class _HomeScreenState extends State<HomeScreen> {
           // 0: Home Page
           _HomeDashboard(
             userName:
-                _userName ?? (widget.userName.isEmpty ? 'Guest' : widget.userName),
+                _userName ??
+                (widget.userName.isEmpty ? 'Guest' : widget.userName),
             isAdmin: _isAdmin,
             hotelName: _hotelName,
             roomNumber: _roomNumber,
@@ -296,7 +297,8 @@ class _HomeDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Background handled by outer page/scaffold or set here
+      backgroundColor: Colors
+          .transparent, // Background handled by outer page/scaffold or set here
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFFF6F7FB),
@@ -372,10 +374,12 @@ class _HomeDashboard extends StatelessWidget {
                         image: DecorationImage(
                           image: user?.photoURL != null
                               ? (user!.photoURL!.startsWith('assets/')
-                                  ? AssetImage(user.photoURL!) as ImageProvider
-                                  : NetworkImage(user.photoURL!))
+                                    ? AssetImage(user.photoURL!)
+                                          as ImageProvider
+                                    : NetworkImage(user.photoURL!))
                               : const AssetImage(
-                                  'assets/avatars/default_avatar.png'),
+                                  'assets/avatars/default_avatar.png',
+                                ),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -420,7 +424,12 @@ class _HomeDashboard extends StatelessWidget {
         child: SingleChildScrollView(
           physics:
               const AlwaysScrollableScrollPhysics(), // Enable pull even when content is short
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 90),
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 8,
+            bottom: 90,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -431,153 +440,58 @@ class _HomeDashboard extends StatelessWidget {
                 checkOut: checkOut,
                 qrCodeData: qrCodeData,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
-              // My Plans Button
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const MyPlansScreen()),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0057FF).withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.calendar_today,
-                          color: Color(0xFF0057FF),
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'My Plans',
-                            style: TextStyle(
-                              color: Color(0xFF0D141B),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+              // My Plans & My Requests - Card Style (like Housekeeping & Room Service)
+              Row(
+                children: [
+                  Expanded(
+                    child: _ServiceTile(
+                      icon: Icons.calendar_today,
+                      label: 'My Plans',
+                      color: const Color(0xFF90CAF9), // Very Light Sky Blue
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const MyPlansScreen(),
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            'View your itinerary',
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      const Icon(Icons.arrow_forward, color: Colors.grey),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // My Requests Button
-              InkWell(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => CustomerRequestsScreen(
-                        hotelName: hotelName ?? 'InnJoy Hotel',
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.receipt_long,
-                          color: Colors.orange,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'My Requests',
-                            style: TextStyle(
-                              color: Color(0xFF0D141B),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _ServiceTile(
+                      icon: Icons.receipt_long,
+                      label: 'My Requests',
+                      color: const Color(0xFFFFA726), // Orange
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => CustomerRequestsScreen(
+                              hotelName: hotelName ?? 'InnJoy Hotel',
                             ),
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Track your orders & requests',
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      const Icon(Icons.arrow_forward, color: Colors.grey),
-                    ],
+                        );
+                      },
+                    ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 4),
 
               const Text(
                 'Need Something?',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Expanded(
                     child: _ServiceTile(
                       icon: Icons.cleaning_services,
                       label: 'Housekeeping',
+                      color: const Color(0xFFB2EBF2), // Very Light Cyan
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -592,6 +506,7 @@ class _HomeDashboard extends StatelessWidget {
                     child: _ServiceTile(
                       icon: Icons.room_service,
                       label: 'Room Service',
+                      color: const Color(0xFFFFA726), // Orange
                       onTap: () {
                         Navigator.of(context)
                             .push(
@@ -607,7 +522,7 @@ class _HomeDashboard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 4),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -640,7 +555,7 @@ class _HomeDashboard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 3),
               SizedBox(
                 height: 160,
                 child: hotelName == null
@@ -782,13 +697,13 @@ class _HomeDashboard extends StatelessWidget {
                         },
                       ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 6),
 
               const Text(
                 'Spending Summary',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 6),
               _SpendingCard(hotelName: hotelName),
               const SizedBox(height: 24),
             ],
@@ -1264,35 +1179,58 @@ class _HotelCardState extends State<_HotelCard> {
 class _ServiceTile extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color color;
   final VoidCallback? onTap;
-  const _ServiceTile({required this.icon, required this.label, this.onTap});
+
+  const _ServiceTile({
+    required this.icon,
+    required this.label,
+    this.color = Colors.blueAccent,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 90,
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: Colors.blueAccent),
-              const SizedBox(height: 8),
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF111827),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
@@ -1560,11 +1498,10 @@ class _SpendingCard extends StatelessWidget {
   }
 }
 
-
-
 /// Çâ€œzel Alt Navigasyon Çubuğu (Custom Bottom Bar)
 ///
 /// Saydam (yarı opak) ve blur efektli bir görünüme sahiptir.
+
 class _CustomBottomBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
@@ -1698,11 +1635,7 @@ class _BottomBarItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: iconColor ?? labelStyle.color,
-              size: 24,
-            ),
+            Icon(icon, color: iconColor ?? labelStyle.color, size: 24),
             const SizedBox(height: 2),
             Text(label, style: labelStyle),
           ],
@@ -1711,5 +1644,3 @@ class _BottomBarItem extends StatelessWidget {
     );
   }
 }
-
-

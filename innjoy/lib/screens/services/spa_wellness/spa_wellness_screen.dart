@@ -332,7 +332,7 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            '?',
+                            '₺',
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 14,

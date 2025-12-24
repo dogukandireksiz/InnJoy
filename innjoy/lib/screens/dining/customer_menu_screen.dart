@@ -400,7 +400,7 @@ class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
                   ),
                   const SizedBox(height: 8), // mt-2
                   Text(
-                    '\$${item.price.toStringAsFixed(2)}',
+                    '₺${item.price.toStringAsFixed(2)}',
                     style: const TextStyle(
                       // text-slate-900
                       color: Color(0xFF0f172a),

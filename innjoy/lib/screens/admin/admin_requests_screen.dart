@@ -37,22 +37,25 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        children: [
-          _buildHeader(),
-          _buildTabBar(),
-          _buildDateAndFilterRow(),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildRoomServiceList(),
-                _buildHousekeepingList(),
-              ],
+    return Material(
+      color: const Color(0xFFF6F7FB),
+      child: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(),
+            _buildTabBar(),
+            _buildDateAndFilterRow(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildRoomServiceList(),
+                  _buildHousekeepingList(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -747,7 +750,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '?${totalPrice.toStringAsFixed(0)}',
+                        '₺${totalPrice.toStringAsFixed(0)}',
                         style: const TextStyle(
                           color: Color(0xFF137fec),
                           fontWeight: FontWeight.bold,
@@ -913,7 +916,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('$quantity x $name'),
-                    Text('?${(price * quantity).toStringAsFixed(0)}'),
+                    Text('₺${(price * quantity).toStringAsFixed(0)}'),
                   ],
                 ),
               );
@@ -927,7 +930,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 Text(
-                  '?${totalPrice.toStringAsFixed(0)}',
+                  '₺${totalPrice.toStringAsFixed(0)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,

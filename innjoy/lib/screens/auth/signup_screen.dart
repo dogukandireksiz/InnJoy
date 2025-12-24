@@ -462,14 +462,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     const SizedBox(height: 15),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Text(
-                          "Already have an account ?",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        const Text(
+                          "Already have an account ? ",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         TextButton(
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                           onPressed: () {
                             Navigator.pop(context); // Giriş ekranına döner
                           },
@@ -477,7 +483,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             "Sign In Now",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
                               decorationColor: Colors.white,

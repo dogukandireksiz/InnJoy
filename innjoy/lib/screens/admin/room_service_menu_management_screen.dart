@@ -392,7 +392,7 @@ class _RoomServiceMenuManagementScreenState
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
-                          '?${item.price.toStringAsFixed(2)}',
+                          '₺${item.price.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,

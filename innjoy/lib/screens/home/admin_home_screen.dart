@@ -277,7 +277,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         Expanded(
                           child: _QuickAccessCard(
                             icon: Icons.restaurant,
-                            label: 'Dining',
+                            label: 'Restaurant',
                             subtitle: 'Restaurant & Bar',
                             color: const Color(0xFF66BB6A), // Green 400
                             onTap: () {

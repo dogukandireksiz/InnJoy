@@ -159,7 +159,7 @@ class _MapScreenState extends State<MapScreen> {
           // --- 3. KONUMUMA GİT BUTONU ---
           Positioned(
             right: 20,
-            bottom: 80,
+            bottom: 120,
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               onPressed: _centerOnUser,

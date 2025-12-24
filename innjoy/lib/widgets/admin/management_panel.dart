@@ -75,7 +75,7 @@ class ManagementPanel extends StatelessWidget {
           _PanelItem(icon: Icons.bed, label: 'Rooms', onTap: () => onNavigate('rooms')),
           _PanelItem(icon: Icons.inbox, label: 'Requests', onTap: () => onNavigate('requests')),
           _PanelItem(icon: Icons.edit, label: 'Edits', onTap: () => onNavigate('edits')),
-          _PanelItem(icon: Icons.emergency_share, label: 'Acil Durumlar', onTap: () => onNavigate('emergency')),
+          _PanelItem(icon: Icons.emergency_share, label: 'Emergencies', onTap: () => onNavigate('emergency')),
           const Spacer(),
           const Divider(),
           _PanelItem(icon: Icons.settings, label: 'Settings', onTap: () => onNavigate('settings')),

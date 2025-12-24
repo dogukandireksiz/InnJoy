@@ -270,7 +270,7 @@ class _SpaManagementScreenState extends State<SpaManagementScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          '?',
+                          '₺',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 14,

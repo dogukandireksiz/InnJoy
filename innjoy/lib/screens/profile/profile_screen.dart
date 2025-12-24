@@ -300,79 +300,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               color: const Color(0xFFF6F7FB),
               padding: const EdgeInsets.only(bottom: 16, left: 24, right: 24),
-              child: Column(
-                children: [
-                  // Profil Fotoğrafı
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfileEditScreen(),
+              child: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.userChanges(),
+                builder: (context, snapshot) {
+                  final currentUser = snapshot.data ?? user;
+                  final displayName = currentUser?.displayName ?? 
+                      (currentUser?.email?.split('@').first ?? 'Guest');
+                  
+                  return Column(
+                    children: [
+                      // Profil Fotoğrafı
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ProfileEditScreen(),
+                            ),
+                          );
+                        },
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: currentUser?.photoURL != null
+                                      ? (currentUser!.photoURL!.startsWith('assets/')
+                                          ? AssetImage(currentUser.photoURL!) as ImageProvider
+                                          : NetworkImage(currentUser.photoURL!))
+                                      : const AssetImage('assets/avatars/default_avatar.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              child: null,
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: user?.photoURL != null
-                                ? (user!.photoURL!.startsWith('assets/')
-                                    ? AssetImage(user!.photoURL!) as ImageProvider
-                                    : NetworkImage(user!.photoURL!))
-                                : const AssetImage('assets/avatars/default_avatar.png'),
-                            fit: BoxFit.cover,
-                          ),
+                      ),
+                      const SizedBox(height: 2), // Minimized spacing heavily as requested
+                      // İsim
+                      Text(
+                        displayName,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
                         ),
-                        child: user?.photoURL != null
-                            ? Stack(
-                                children: [
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      width: 28,
-                                      height: 28,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1677FF),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                            color: Colors.white, width: 2),
-                                      ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        size: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 2), // Minimized spacing heavily as requested
-                  // İsim
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4), // Increased from 2 to 4
-                  // E-posta
-                  Text(
-                    user?.email ?? 'email@example.com',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                ],
+                      ),
+                      const SizedBox(height: 4), // Increased from 2 to 4
+                      // E-posta
+                      Text(
+                        currentUser?.email ?? 'email@example.com',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             // Kişisel Bilgiler

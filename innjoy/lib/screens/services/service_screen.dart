@@ -83,7 +83,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
           imagePath:
               restImage, // DB triggers asset load if string starts with assets/
           badgeText: 'Reservations Recommended',
-          category: 'Dining',
+          category: 'Restaurant',
           primaryAction: 'Menu',
           secondaryAction: 'Book Table',
           onCardTap: () {
@@ -177,7 +177,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
             automaticallyImplyLeading: !widget.isTabView,
           ),
           body: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: 100,
+            ),
             children: [
               _SearchBar(
                 controller: _searchController,
@@ -202,7 +207,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   onCardTap: s.onCardTap,
                   onPrimaryAction: () {
                     // Action Logic
-                    if (s.category == 'Dining' && s.primaryAction == 'Menu') {
+                    if (s.category == 'Restaurant' && s.primaryAction == 'Menu') {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => CustomerMenuScreen(
@@ -229,7 +234,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                     }
                   },
                   onSecondaryAction: () {
-                    if (s.category == 'Dining' &&
+                    if (s.category == 'Restaurant' &&
                         s.secondaryAction == 'Book Table') {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -321,7 +326,7 @@ class _CategoryChips extends StatelessWidget {
   const _CategoryChips({required this.selected, required this.onSelected});
   @override
   Widget build(BuildContext context) {
-    final categories = ['Dining', 'Spa & Wellness', 'Fitness', 'Recreation'];
+    final categories = ['Restaurant', 'Spa & Wellness', 'Fitness', 'Recreation'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(

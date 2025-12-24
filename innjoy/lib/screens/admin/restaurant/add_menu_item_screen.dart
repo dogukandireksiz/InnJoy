@@ -317,7 +317,7 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                         _buildTextField(
                           controller: _priceController,
                           hint: '0.00',
-                          suffixText: '?',
+                          suffixText: '₺',
                           keyboardType: TextInputType.number,
                         ),
                       ],

@@ -288,7 +288,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
           // --- 3. HARİTAYI ORTALA ---
           Positioned(
             right: 20,
-            bottom: 240,
+            bottom: 320,
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               onPressed: _fitBounds,

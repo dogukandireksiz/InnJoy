@@ -33,6 +33,7 @@ dependencies:
   qr_flutter: ^4.1.0
   timezone: ^0.10.0
   package_info_plus: ^8.1.2
+  audioplayers: ^6.1.0
 
 
 dev_dependencies:
@@ -55,3 +56,4 @@ flutter:
   assets:
     - assets/images/
     - assets/avatars/
+    - assets/sounds/
