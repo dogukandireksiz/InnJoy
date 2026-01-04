@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../../services/database_service.dart';
 
 /// Customer Requests Screen
-/// 
+///
 /// İsteklerin takip edildiği ekran - Housekeeping ve Room Service siparişleri
 /// gösterilir, tarih seÇimi ve durum filtreleme yapılabilir.
 class CustomerRequestsScreen extends StatefulWidget {
@@ -48,10 +48,7 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  _buildRoomServiceList(),
-                  _buildHousekeepingList(),
-                ],
+                children: [_buildRoomServiceList(), _buildHousekeepingList()],
               ),
             ),
           ],
@@ -114,7 +111,10 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey[600],
         labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
         padding: const EdgeInsets.all(4),
         tabs: const [
           Tab(
@@ -164,7 +164,11 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_month, color: Color(0xFF137fec), size: 18),
+                  const Icon(
+                    Icons.calendar_month,
+                    color: Color(0xFF137fec),
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     _isToday(_selectedDate)
@@ -179,8 +183,13 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
                   if (!_isToday(_selectedDate)) ...[
                     const SizedBox(width: 4),
                     GestureDetector(
-                      onTap: () => setState(() => _selectedDate = DateTime.now()),
-                      child: const Icon(Icons.close, size: 16, color: Color(0xFF137fec)),
+                      onTap: () =>
+                          setState(() => _selectedDate = DateTime.now()),
+                      child: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: Color(0xFF137fec),
+                      ),
                     ),
                   ],
                 ],
@@ -200,7 +209,10 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
                   color: isSelected ? const Color(0xFF137fec) : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: isSelected ? const Color(0xFF137fec) : const Color(0xFFE5E7EB)),
+                    color: isSelected
+                        ? const Color(0xFF137fec)
+                        : const Color(0xFFE5E7EB),
+                  ),
                 ),
                 child: Text(
                   filter,
@@ -219,11 +231,15 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    final now = DateTime.now();
+    // Ensure initialDate is not after lastDate
+    final initialDate = _selectedDate.isAfter(now) ? now : _selectedDate;
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate,
+      initialDate: initialDate,
       firstDate: DateTime(2023),
-      lastDate: DateTime.now(),
+      lastDate: now,
     );
     if (picked != null && picked != _selectedDate) {
       setState(() => _selectedDate = picked);
@@ -232,7 +248,9 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
 
   bool _isToday(DateTime date) {
     final now = DateTime.now();
-    return date.year == now.year && date.month == now.month && date.day == now.day;
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
@@ -241,24 +259,48 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
 
   // --- HOUSEKEEPING LIST ---
   Widget _buildHousekeepingList() {
+    debugPrint(
+      '🏨 _buildHousekeepingList: Building for hotel ${widget.hotelName}',
+    );
     return StreamBuilder<List<Map<String, dynamic>>>(
       stream: _db.getMyHousekeepingRequests(widget.hotelName),
       builder: (context, snapshot) {
+        debugPrint(
+          '🏨 _buildHousekeepingList: ConnectionState = ${snapshot.connectionState}',
+        );
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
+          debugPrint('🏨 _buildHousekeepingList: ERROR = ${snapshot.error}');
           return Center(
-            child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.grey[600])),
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
           );
         }
 
         final requests = snapshot.data ?? [];
+        debugPrint(
+          '🏨 _buildHousekeepingList: Got ${requests.length} requests from Firestore',
+        );
+        debugPrint(
+          '🏨 _buildHousekeepingList: Selected date = $_selectedDate, isToday = ${_isToday(_selectedDate)}',
+        );
+
         final filtered = _filterByDateAndStatus(requests);
+        debugPrint(
+          '🏨 _buildHousekeepingList: After filter = ${filtered.length} requests',
+        );
 
         if (filtered.isEmpty) {
-          return _buildEmptyState('No housekeeping requests', Icons.cleaning_services);
+          return _buildEmptyState(
+            'No housekeeping requests',
+            Icons.cleaning_services,
+          );
         }
 
         return ListView.separated(
@@ -276,21 +318,40 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
 
   // --- ROOM SERVICE LIST ---
   Widget _buildRoomServiceList() {
+    debugPrint(
+      '🍽️ _buildRoomServiceList: Building for hotel ${widget.hotelName}',
+    );
     return StreamBuilder<List<Map<String, dynamic>>>(
       stream: _db.getMyRoomServiceOrders(widget.hotelName),
       builder: (context, snapshot) {
+        debugPrint(
+          '🍽️ _buildRoomServiceList: ConnectionState = ${snapshot.connectionState}',
+        );
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
+          debugPrint('🍽️ _buildRoomServiceList: ERROR = ${snapshot.error}');
           return Center(
-            child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.grey[600])),
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
           );
         }
 
         final orders = snapshot.data ?? [];
+        debugPrint(
+          '🍽️ _buildRoomServiceList: Got ${orders.length} orders from Firestore',
+        );
+        debugPrint('🍽️ _buildRoomServiceList: Selected date = $_selectedDate');
+
         final filtered = _filterByDateAndStatus(orders);
+        debugPrint(
+          '🍽️ _buildRoomServiceList: After filter = ${filtered.length} orders',
+        );
 
         if (filtered.isEmpty) {
           return _buildEmptyState('No room service orders', Icons.room_service);
@@ -309,12 +370,26 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
     );
   }
 
-  List<Map<String, dynamic>> _filterByDateAndStatus(List<Map<String, dynamic>> items) {
+  List<Map<String, dynamic>> _filterByDateAndStatus(
+    List<Map<String, dynamic>> items,
+  ) {
     return items.where((item) {
       // Date filter
       final timestamp = item['timestamp'] as Timestamp?;
-      if (timestamp == null) return false;
-      final itemDate = timestamp.toDate();
+      DateTime itemDate;
+
+      if (timestamp == null) {
+        // Newly created items may have null timestamp (serverTimestamp not yet populated)
+        // Treat them as today's items only if we're viewing today
+        if (_isToday(_selectedDate)) {
+          itemDate = DateTime.now();
+        } else {
+          return false;
+        }
+      } else {
+        itemDate = timestamp.toDate();
+      }
+
       if (!_isSameDay(itemDate, _selectedDate)) return false;
 
       // Status filter
@@ -325,7 +400,10 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen>
 
       // Active = pending, active, in progress, preparing (beklemede olan herşey)
       if (filterLower == 'active') {
-        return status == 'active' || status == 'pending' || status == 'in progress' || status == 'preparing';
+        return status == 'active' ||
+            status == 'pending' ||
+            status == 'in progress' ||
+            status == 'preparing';
       }
       if (filterLower == 'completed') return status == 'completed';
       if (filterLower == 'cancelled') return status == 'cancelled';
@@ -375,9 +453,10 @@ class _HousekeepingCard extends StatelessWidget {
         ? DateFormat('HH:mm').format(timestamp.toDate())
         : '--:--';
     final requestId = data['id'] ?? '';
-    final isActive = status.toLowerCase() == 'active' || 
-                     status.toLowerCase() == 'pending' || 
-                     status.toLowerCase() == 'in progress';
+    final isActive =
+        status.toLowerCase() == 'active' ||
+        status.toLowerCase() == 'pending' ||
+        status.toLowerCase() == 'in progress';
 
     final style = _getStatusStyle(status);
 
@@ -429,7 +508,11 @@ class _HousekeepingCard extends StatelessWidget {
                 // Request type
                 Row(
                   children: [
-                    Icon(Icons.cleaning_services, size: 20, color: Colors.grey[600]),
+                    Icon(
+                      Icons.cleaning_services,
+                      size: 20,
+                      color: Colors.grey[600],
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       requestType,
@@ -445,10 +528,7 @@ class _HousekeepingCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     details,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -460,7 +540,11 @@ class _HousekeepingCard extends StatelessWidget {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () => _cancelRequest(context, requestId),
-                      icon: const Icon(Icons.close, size: 16, color: Colors.red),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: Colors.red,
+                      ),
                       label: const Text('Cancel Request'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
@@ -486,7 +570,9 @@ class _HousekeepingCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Cancel Request'),
-        content: const Text('Are you sure you want to cancel this housekeeping request?'),
+        content: const Text(
+          'Are you sure you want to cancel this housekeeping request?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -500,17 +586,21 @@ class _HousekeepingCard extends StatelessWidget {
                   .doc(hotelName)
                   .collection('housekeeping_requests')
                   .doc(requestId)
-                  .update({'status': 'Cancelled'}).then((_) {
-                Navigator.pop(ctx);
-                messenger.showSnackBar(
-                  const SnackBar(
-                    content: Text('Request cancelled'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              });
+                  .update({'status': 'Cancelled'})
+                  .then((_) {
+                    Navigator.pop(ctx);
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Request cancelled'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  });
             },
-            child: const Text('Yes, Cancel', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -602,9 +692,10 @@ class _RoomServiceCard extends StatelessWidget {
         ? DateFormat('HH:mm').format(timestamp.toDate())
         : '--:--';
     final orderId = data['id'] ?? '';
-    final isActive = status.toLowerCase() == 'active' || 
-                     status.toLowerCase() == 'pending' || 
-                     status.toLowerCase() == 'preparing';
+    final isActive =
+        status.toLowerCase() == 'active' ||
+        status.toLowerCase() == 'pending' ||
+        status.toLowerCase() == 'preparing';
 
     final style = _getStatusStyle(status);
     final itemNames = items.map((i) => i['name']).join(', ');
@@ -660,7 +751,11 @@ class _RoomServiceCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.restaurant_menu, size: 20, color: Colors.grey[600]),
+                      Icon(
+                        Icons.restaurant_menu,
+                        size: 20,
+                        color: Colors.grey[600],
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -682,10 +777,7 @@ class _RoomServiceCard extends StatelessWidget {
                     children: [
                       Text(
                         '${items.length} item${items.length != 1 ? 's' : ''}',
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: Colors.grey[500], fontSize: 13),
                       ),
                       Text(
                         '₺${totalPrice.toStringAsFixed(0)}',
@@ -704,7 +796,11 @@ class _RoomServiceCard extends StatelessWidget {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         onPressed: () => _cancelOrder(context, orderId),
-                        icon: const Icon(Icons.close, size: 16, color: Colors.red),
+                        icon: const Icon(
+                          Icons.close,
+                          size: 16,
+                          color: Colors.red,
+                        ),
                         label: const Text('Cancel Order'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.red,
@@ -731,7 +827,9 @@ class _RoomServiceCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Cancel Order'),
-        content: const Text('Are you sure you want to cancel this room service order?'),
+        content: const Text(
+          'Are you sure you want to cancel this room service order?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -747,17 +845,21 @@ class _RoomServiceCard extends StatelessWidget {
                   .doc('orders')
                   .collection('items')
                   .doc(orderId)
-                  .update({'status': 'Cancelled'}).then((_) {
-                Navigator.pop(ctx);
-                messenger.showSnackBar(
-                  const SnackBar(
-                    content: Text('Order cancelled'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              });
+                  .update({'status': 'Cancelled'})
+                  .then((_) {
+                    Navigator.pop(ctx);
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Order cancelled'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  });
             },
-            child: const Text('Yes, Cancel', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -861,7 +963,10 @@ class _RoomServiceCard extends StatelessWidget {
             // Status
             Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: _getStatusStyle(status)['bg'] as Color,
                   borderRadius: BorderRadius.circular(20),
@@ -951,12 +1056,3 @@ class _RoomServiceCard extends StatelessWidget {
     }
   }
 }
-
-
-
-
-
-
-
-
-

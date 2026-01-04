@@ -10,11 +10,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'services/database_service.dart';
+import 'services/notification_service.dart';
 import 'dart:async';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // NotificationService'i başlat (zamanlanmış bildirimler için gerekli)
+  await NotificationService().initialize();
+
   runApp(const InnJoyHotelApp());
 }
 
@@ -92,21 +97,60 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     await _notificationsPlugin.initialize(settings);
   }
 
+  // Zaten bildirim gönderilen emergency ID'leri
+  final Set<String> _notifiedEmergencyIds = {};
+
   // 2. Firestore'u Dinle (GLOBAL DİNLEYİCİ)
   void _listenForEmergencies() {
-    // Sadece şu andan sonraki alarmları dinle (Eskiler bildirim yapmasın)
-    final Timestamp startTime = Timestamp.now();
+    // Uygulama başlama zamanı
+    final appStartTime = DateTime.now();
+    Logger.debug(
+      "🚨 _listenForEmergencies başlatılıyor, appStartTime: $appStartTime",
+    );
 
     FirebaseFirestore.instance
         .collection('emergency_alerts')
-        .where('timestamp', isGreaterThan: startTime)
+        .where('status', isEqualTo: 'active')
         .snapshots()
         .listen((snapshot) {
+          final now = DateTime.now(); // Her snapshot için güncel zamanı al
+
           for (var change in snapshot.docChanges) {
             if (change.type == DocumentChangeType.added) {
+              final docId = change.doc.id;
               final data = change.doc.data();
+
+              // Zaten bildirilmişse atla
+              if (_notifiedEmergencyIds.contains(docId)) {
+                Logger.debug("🚨 Emergency $docId zaten bildirildi, atlanıyor");
+                continue;
+              }
+
               if (data != null) {
-                _showEmergencyNotification(data);
+                // Timestamp kontrolü - SADECE SON 60 SANİYE içinde oluşturulanları al
+                final timestamp = data['timestamp'] as Timestamp?;
+                if (timestamp != null) {
+                  final alertTime = timestamp.toDate();
+                  final secondsSinceAlert = now.difference(alertTime).inSeconds;
+
+                  Logger.debug(
+                    "🚨 Emergency $docId: alertTime=$alertTime, now=$now, secondsSinceAlert=$secondsSinceAlert",
+                  );
+
+                  // Sadece son 60 saniye içinde oluşturulan alert'leri kabul et
+                  // (gelecek tarihli veya eski tarihli alert'ler reddedilir)
+                  if (secondsSinceAlert >= 0 && secondsSinceAlert <= 60) {
+                    Logger.debug(
+                      "🚨 YENİ Emergency algılandı: $docId (${secondsSinceAlert}s önce)",
+                    );
+                    _notifiedEmergencyIds.add(docId);
+                    _showEmergencyNotification(data);
+                  } else {
+                    Logger.debug(
+                      "🚨 ESKİ/GELECEKTEKİ Emergency atlanıyor: $docId (secondsSinceAlert: $secondsSinceAlert)",
+                    );
+                  }
+                }
               }
             }
           }
@@ -118,7 +162,9 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
   void _listenForInterestEvents() {
     final user = FirebaseAuth.instance.currentUser;
-    Logger.debug("?? DEBUG: _listenForInterestEvents başladı, user: ${user?.uid}");
+    Logger.debug(
+      "?? DEBUG: _listenForInterestEvents başladı, user: ${user?.uid}",
+    );
 
     if (user == null) {
       Logger.debug("? DEBUG: User null, bildirim dinleyicisi başlatılamadı!");
@@ -153,7 +199,9 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
             // Eğer ilgi alanı veya otel yoksa Çık
             if (interests.isEmpty) {
-              Logger.debug("?? DEBUG: İlgi alanları boş, dinleyici başlatılmadı!");
+              Logger.debug(
+                "?? DEBUG: İlgi alanları boş, dinleyici başlatılmadı!",
+              );
               return;
             }
 
@@ -198,26 +246,26 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
                         if (data != null && data.containsKey('createdAt')) {
                           final createdAt = data['createdAt'] as Timestamp?;
                           Logger.debug(
-                            "? DEBUG: createdAt: $createdAt, appStartTime: $_appStartTime",
+                            "⏱ DEBUG: createdAt: $createdAt, appStartTime: $_appStartTime",
                           );
 
-                          // Sadece uygulama aÇıldıktan SONRA eklenenleri al
-                          if (createdAt == null ||
+                          // Sadece uygulama açıldıktan SONRA oluşturulanları al
+                          // createdAt > appStartTime olmalı (yani createdAt daha büyük/sonra olmalı)
+                          if (createdAt != null &&
                               createdAt.compareTo(_appStartTime) > 0) {
                             Logger.debug(
-                              "?? DEBUG: Yeni etkinlik bulundu, bildirim gönderiliyor: $eventId",
+                              "✅ DEBUG: Yeni etkinlik bulundu (appStart sonrası), bildirim gönderiliyor: $eventId",
                             );
                             _fetchEventDetailsAndNotify(hotelName, eventId);
                           } else {
                             Logger.debug(
-                              "?? DEBUG: Eski etkinlik, bildirim gönderilmiyor (appStart öncesi)",
+                              "⏭️ DEBUG: Eski etkinlik (appStart öncesi veya null), bildirim gönderilmiyor",
                             );
                           }
                         } else {
                           Logger.debug(
-                            "?? DEBUG: createdAt yok, yine de bildirim gönderiliyor",
+                            "⏭️ DEBUG: createdAt yok, eski etkinlik olarak kabul ediliyor - bildirim gönderilmiyor",
                           );
-                          _fetchEventDetailsAndNotify(hotelName, eventId);
                         }
                       }
                     }
@@ -273,26 +321,29 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
       }
 
       final data = detailsDoc.data();
-      Logger.debug("?? DEBUG: Details data: $data");
+      Logger.debug("📋 DEBUG: Details data: $data");
 
       if (data == null) {
-        Logger.debug("? DEBUG: Details data null!");
+        Logger.debug("❌ DEBUG: Details data null!");
         return;
       }
 
       // createdAt kontrolü (Detaylarda da)
       final createdAt = data['createdAt'] as Timestamp?;
       Logger.debug(
-        "? DEBUG: Details createdAt: $createdAt, appStartTime: $_appStartTime",
+        "⏱ DEBUG: Details createdAt: $createdAt, appStartTime: $_appStartTime",
       );
 
-      // Null ise veya başlangıÇtan sonraysa
-      if (createdAt == null || createdAt.compareTo(_appStartTime) > 0) {
-        Logger.debug("? DEBUG: Bildirim gönderilecek!");
+      // Sadece uygulama başladıktan SONRA oluşturulanları bildir
+      // createdAt != null VE createdAt > appStartTime olmalı
+      if (createdAt != null && createdAt.compareTo(_appStartTime) > 0) {
+        Logger.debug("✅ DEBUG: Bildirim gönderilecek! (appStart sonrası)");
         _notifiedEventIds.add(eventId);
         _showEventNotification(data);
       } else {
-        Logger.debug("?? DEBUG: createdAt appStart'tan önce, bildirim gönderilmedi");
+        Logger.debug(
+          "⏭️ DEBUG: createdAt appStart'tan önce veya null, bildirim gönderilmedi",
+        );
       }
     } catch (e) {
       Logger.debug('? DEBUG: Etkinlik detay hatası: $e');
@@ -346,6 +397,8 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
   // 3. Bildirimi Göster (ALARM SESLİ VE YÜKSEK ÖNCELİKLİ)
   Future<void> _showEmergencyNotification(Map<String, dynamic> data) async {
+    Logger.debug("🚨🚨🚨 _showEmergencyNotification ÇAĞRILDI! Data: $data");
+
     String type = data['type'] ?? 'Acil Durum';
     String room = data['room_number'] ?? 'Bilinmiyor';
     String location = data['location_context'] ?? 'Otel Alanı';
@@ -387,25 +440,25 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     }
 
     // Android Bildirim Detayları - Varsayılan Alarm Sesi
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-          'emergency_alarm_channel_v2', // Yeni kanal adı (eski kanalda ses çalışmıyorsa)
-          'Acil Durum Alarmları',
-          channelDescription: 'Yüksek öncelikli acil durum alarm bildirimleri',
-          importance: Importance.max,
-          priority: Priority.high,
-          color: Colors.red,
-          playSound: true,
-          sound: RawResourceAndroidNotificationSound(
-            'emergency_siren',
-          ), // Android özel ses (res/raw/emergency_siren.mp3)
-          enableVibration: true,
-          fullScreenIntent: true, // Ekran kilitliyken bile tam ekran göster
-          category: AndroidNotificationCategory.alarm, // Alarm kategorisi
-          visibility: NotificationVisibility.public, // Kilit ekranında görünsün
-          ongoing: false,
-          autoCancel: true,
-        );
+    const AndroidNotificationDetails
+    androidDetails = AndroidNotificationDetails(
+      'emergency_alarm_channel_v2', // Yeni kanal adı (eski kanalda ses çalışmıyorsa)
+      'Acil Durum Alarmları',
+      channelDescription: 'Yüksek öncelikli acil durum alarm bildirimleri',
+      importance: Importance.max,
+      priority: Priority.high,
+      color: Colors.red,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound(
+        'emergency_siren',
+      ), // Android özel ses (res/raw/emergency_siren.mp3)
+      enableVibration: true,
+      fullScreenIntent: true, // Ekran kilitliyken bile tam ekran göster
+      category: AndroidNotificationCategory.alarm, // Alarm kategorisi
+      visibility: NotificationVisibility.public, // Kilit ekranında görünsün
+      ongoing: false,
+      autoCancel: true,
+    );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
@@ -442,13 +495,3 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
