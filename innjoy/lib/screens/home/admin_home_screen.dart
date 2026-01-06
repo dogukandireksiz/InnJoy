@@ -163,9 +163,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               MaterialPageRoute(builder: (_) => const EmergencyAdminScreen()),
             );
             break;
-          case 'settings':
-            _showComingSoonDialog(context, 'Settings');
-            break;
         }
       },
       onSignOut: () async {

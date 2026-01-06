@@ -78,15 +78,12 @@ class ManagementPanel extends StatelessWidget {
           _PanelItem(icon: Icons.emergency_share, label: 'Emergencies', onTap: () => onNavigate('emergency')),
           const Spacer(),
           const Divider(),
-          _PanelItem(icon: Icons.settings, label: 'Settings', onTap: () => onNavigate('settings')),
           const SizedBox(height: 8),
           TextButton.icon(
             onPressed: onSignOut,
             icon: const Icon(Icons.logout),
             label: const Text('Log Out'),
           ),
-          const SizedBox(height: 4),
-          const Text('v2.4.0 • Innjoy Management', style: TextStyle(color: Colors.black38, fontSize: 11)),
         ],
       ),
     );

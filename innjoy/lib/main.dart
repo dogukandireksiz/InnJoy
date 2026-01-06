@@ -105,7 +105,7 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     // Uygulama başlama zamanı
     final appStartTime = DateTime.now();
     Logger.debug(
-      "🚨 _listenForEmergencies başlatılıyor, appStartTime: $appStartTime",
+      "🚨 _listenForEmergencies starting, appStartTime: $appStartTime",
     );
 
     FirebaseFirestore.instance
@@ -120,16 +120,25 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
               final docId = change.doc.id;
               final data = change.doc.data();
 
-              // Zaten bildirilmişse atla
+              // Already notified, skip
               if (_notifiedEmergencyIds.contains(docId)) {
-                Logger.debug("🚨 Emergency $docId zaten bildirildi, atlanıyor");
+                Logger.debug("🚨 Emergency $docId already notified, skipping");
                 continue;
               }
 
               if (data != null) {
-                // Timestamp kontrolü - SADECE SON 60 SANİYE içinde oluşturulanları al
+                // Timestamp check - ONLY accept alerts created in the last 60 seconds
                 final timestamp = data['timestamp'] as Timestamp?;
-                if (timestamp != null) {
+                
+                // If timestamp is null, this is a brand new alert (just written)
+                // Show notification immediately
+                if (timestamp == null) {
+                  Logger.debug(
+                    "🚨 NEW Emergency detected (null timestamp - brand new): $docId",
+                  );
+                  _notifiedEmergencyIds.add(docId);
+                  _showEmergencyNotification(data);
+                } else {
                   final alertTime = timestamp.toDate();
                   final secondsSinceAlert = now.difference(alertTime).inSeconds;
 
@@ -137,17 +146,17 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
                     "🚨 Emergency $docId: alertTime=$alertTime, now=$now, secondsSinceAlert=$secondsSinceAlert",
                   );
 
-                  // Sadece son 60 saniye içinde oluşturulan alert'leri kabul et
-                  // (gelecek tarihli veya eski tarihli alert'ler reddedilir)
+                  // Only accept alerts created in the last 60 seconds
+                  // (future or old alerts are rejected)
                   if (secondsSinceAlert >= 0 && secondsSinceAlert <= 60) {
                     Logger.debug(
-                      "🚨 YENİ Emergency algılandı: $docId (${secondsSinceAlert}s önce)",
+                      "🚨 NEW Emergency detected: $docId (${secondsSinceAlert}s ago)",
                     );
                     _notifiedEmergencyIds.add(docId);
                     _showEmergencyNotification(data);
                   } else {
                     Logger.debug(
-                      "🚨 ESKİ/GELECEKTEKİ Emergency atlanıyor: $docId (secondsSinceAlert: $secondsSinceAlert)",
+                      "🚨 OLD/FUTURE Emergency skipped: $docId (secondsSinceAlert: $secondsSinceAlert)",
                     );
                   }
                 }
@@ -389,8 +398,8 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
 
     await _notificationsPlugin.show(
       notificationId,
-      "?? Yeni Etkinlik: $title",
-      "?? $location • ? $time${category.isNotEmpty ? ' • $category' : ''}",
+      "🎉 New Event: $title",
+      "$location • $time${category.isNotEmpty ? ' • $category' : ''}",
       details,
     );
   }
@@ -403,23 +412,23 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     String room = data['room_number'] ?? 'Bilinmiyor';
     String location = data['location_context'] ?? 'Otel Alanı';
 
-    // Konum çevirisi (İngilizce key -> Türkçe)
+    // Location translation (English key -> English)
     String locationText;
     switch (location) {
       case 'my_room':
-        locationText = 'Oda $room';
+        locationText = 'Room $room';
         break;
       case 'restaurant':
-        locationText = 'Restoran';
+        locationText = 'Restaurant';
         break;
       case 'fitness':
-        locationText = 'Spor Salonu';
+        locationText = 'Fitness Center';
         break;
       case 'spa':
-        locationText = 'Spa Merkezi';
+        locationText = 'Spa Center';
         break;
       case 'reception':
-        locationText = 'Resepsiyon';
+        locationText = 'Reception';
         break;
       default:
         locationText = location;
@@ -474,9 +483,9 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
     );
 
     await _notificationsPlugin.show(
-      notificationId, // Benzersiz ID
-      "🚨 ACİL DURUM: $type",
-      "📍 Konum: $locationText",
+      notificationId, // Unique ID
+      "🚨 EMERGENCY: $type",
+      "📍 Location: $locationText",
       details,
     );
   }

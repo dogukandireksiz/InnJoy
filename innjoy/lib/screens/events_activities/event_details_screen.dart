@@ -96,7 +96,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               'event_1h',
             ),
             title: '🔔 Event in 1 Hour',
-            body: '${widget.event['title']} - ${widget.event['location']}',
+            body: '${widget.event['title']} • ${widget.event['location']} • ${widget.event['time']}',
             scheduledTime: reminderTime1h,
             type: 'event',
           );
@@ -111,7 +111,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               'event_30m',
             ),
             title: '🔔 Event in 30 Minutes',
-            body: '${widget.event['title']} - ${widget.event['location']}',
+            body: '${widget.event['title']} • ${widget.event['location']} • ${widget.event['time']}',
             scheduledTime: reminderTime30m,
             type: 'event',
           );

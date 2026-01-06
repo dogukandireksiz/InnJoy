@@ -19,7 +19,7 @@ class EmergencyService extends BaseDatabaseService {
         'type': emergencyType,
         'room_number': roomNumber,
         'user_uid': auth.currentUser?.uid,
-        'timestamp': FieldValue.serverTimestamp(),
+        'timestamp': Timestamp.now(), // Client-side timestamp for immediate availability
         'status': 'active',
         'location_context': locationContext,
       });

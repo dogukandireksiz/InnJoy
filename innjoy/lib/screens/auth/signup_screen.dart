@@ -32,6 +32,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isMandatoryAccepted = false;
   bool _isOptionalAccepted = false;
 
+  // Password strength indicators
+  bool _hasMinLength = false;
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _hasDigit = false;
+  bool _hasSpecialChar = false;
+
   @override
   void dispose() {
     // Controller'ları temizle - memory leak önleme
@@ -42,6 +49,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  // Şifre güçlülük kontrolü
+  void _validatePassword(String password) {
+    setState(() {
+      _hasMinLength = password.length >= 8;
+      _hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      _hasLowercase = password.contains(RegExp(r'[a-z]'));
+      _hasDigit = password.contains(RegExp(r'[0-9]'));
+      _hasSpecialChar = password.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
+    });
+  }
+
+  // Şifrenin tüm kriterleri karşılayıp karşılamadığını kontrol eder
+  bool _isPasswordValid() {
+    return _hasMinLength && _hasUppercase && _hasLowercase && _hasDigit && _hasSpecialChar;
+  }
+
   // Firebase Authentication ile yeni kullanıcı oluşturma fonksiyonu
   Future<void> createUser() async{
     // Onay kontrolü
@@ -50,6 +73,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
          errorMessage = "Please accept the User Agreement and Privacy Policy.";
       });
       CustomSnackBar.show(context, message: "Please accept the User Agreement and Privacy Policy.");
+      return;
+    }
+
+    // Şifre güvenlik kriterlerini kontrol et
+    if (!_isPasswordValid()) {
+      setState(() {
+        errorMessage = "Password does not meet security requirements.";
+      });
+      CustomSnackBar.show(context, message: "Please ensure your password meets all security requirements.");
       return;
     }
 
@@ -208,6 +240,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     TextField(
                       controller: _passwordController,
                       obscureText: _isPasswordHidden2,
+                      onChanged: _validatePassword,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
@@ -232,6 +265,56 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                     ),
+
+                    // Password strength indicators
+                    if (_passwordController.text.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Password Requirements:",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildPasswordCriterion(
+                              "At least 8 characters",
+                              _hasMinLength,
+                            ),
+                            _buildPasswordCriterion(
+                              "One uppercase letter (A-Z)",
+                              _hasUppercase,
+                            ),
+                            _buildPasswordCriterion(
+                              "One lowercase letter (a-z)",
+                              _hasLowercase,
+                            ),
+                            _buildPasswordCriterion(
+                              "One number (0-9)",
+                              _hasDigit,
+                            ),
+                            _buildPasswordCriterion(
+                              "One special character (!@#\$%^&*)",
+                              _hasSpecialChar,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
 
                     SizedBox(height: 20),
 
@@ -498,6 +581,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ],
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper widget to show password criterion with check/x mark
+  Widget _buildPasswordCriterion(String text, bool isMet) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.cancel,
+            color: isMet ? Colors.lightGreenAccent : Colors.redAccent,
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: isMet ? Colors.white : Colors.white60,
+              fontSize: 12,
             ),
           ),
         ],

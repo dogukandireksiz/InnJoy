@@ -24,6 +24,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool _obscureNew = true;
   bool _obscureConfirm = true;
 
+  // Password strength indicators
+  bool _hasMinLength = false;
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _hasDigit = false;
+  bool _hasSpecialChar = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,8 +44,30 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
+  // Şifre güçlülük kontrolü
+  void _validatePassword(String password) {
+    setState(() {
+      _hasMinLength = password.length >= 8;
+      _hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      _hasLowercase = password.contains(RegExp(r'[a-z]'));
+      _hasDigit = password.contains(RegExp(r'[0-9]'));
+      _hasSpecialChar = password.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
+    });
+  }
+
+  // Şifrenin tüm kriterleri karşılayıp karşılamadığını kontrol eder
+  bool _isPasswordValid() {
+    return _hasMinLength && _hasUppercase && _hasLowercase && _hasDigit && _hasSpecialChar;
+  }
+
   Future<void> _changePassword() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Şifre güvenlik kriterlerini kontrol et
+    if (!_isPasswordValid()) {
+      CustomSnackBar.show(context, message: "Please ensure your new password meets all security requirements.");
+      return;
+    }
     
     setState(() => _isLoading = true);
 
@@ -124,7 +153,59 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 hint: 'Enter new password',
                 obscureText: _obscureNew,
                 onToggleVisibility: () => setState(() => _obscureNew = !_obscureNew),
+                onChanged: _validatePassword,
               ),
+
+              // Password strength indicators
+              if (_newPasswordController.text.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.grey[300]!,
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Password Requirements:",
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildPasswordCriterion(
+                        "At least 8 characters",
+                        _hasMinLength,
+                      ),
+                      _buildPasswordCriterion(
+                        "One uppercase letter (A-Z)",
+                        _hasUppercase,
+                      ),
+                      _buildPasswordCriterion(
+                        "One lowercase letter (a-z)",
+                        _hasLowercase,
+                      ),
+                      _buildPasswordCriterion(
+                        "One number (0-9)",
+                        _hasDigit,
+                      ),
+                      _buildPasswordCriterion(
+                        "One special character (!@#\$%^&*)",
+                        _hasSpecialChar,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               const SizedBox(height: 20),
 
               // Confirm Password
@@ -179,6 +260,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     required bool obscureText,
     required VoidCallback onToggleVisibility,
     String? Function(String?)? validator,
+    void Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,6 +280,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           controller: controller,
           obscureText: obscureText,
           validator: validator,
+          onChanged: onChanged,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: Colors.grey[400]),
@@ -227,6 +310,30 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // Helper widget to show password criterion with check/x mark
+  Widget _buildPasswordCriterion(String text, bool isMet) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.cancel,
+            color: isMet ? Colors.green : Colors.red,
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: isMet ? Colors.grey[800] : Colors.grey[600],
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

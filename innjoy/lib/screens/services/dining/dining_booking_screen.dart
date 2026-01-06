@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../services/database_service.dart';
+import '../../../services/notification_service.dart';
 import 'package:flutter/cupertino.dart';
 
 class DiningBookingScreen extends StatefulWidget {
@@ -159,6 +160,39 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
+      // Schedule reminder notifications
+      // 1 hour before reminder
+      final reminderTime1h = reservationDateTime.subtract(
+        const Duration(hours: 1),
+      );
+      await NotificationService().scheduleReminderNotification(
+        id: NotificationService.generateNotificationId(
+          reservationDateTime,
+          'restaurant_1h',
+        ),
+        title: '🔔 Restaurant Reservation in 1 Hour',
+        body: '${widget.restaurantName} - Table ${result['tableNumber']}',
+        scheduledTime: reminderTime1h,
+        type: 'restaurant',
+      );
+
+      // 30 minutes before reminder
+      final reminderTime30m = reservationDateTime.subtract(
+        const Duration(minutes: 30),
+      );
+      await NotificationService().scheduleReminderNotification(
+        id: NotificationService.generateNotificationId(
+          reservationDateTime,
+          'restaurant_30m',
+        ),
+        title: '🔔 Restaurant Reservation in 30 Minutes',
+        body: '${widget.restaurantName} - Table ${result['tableNumber']}',
+        scheduledTime: reminderTime30m,
+        type: 'restaurant',
+      );
+
+      if (!mounted) return;
+
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -194,7 +228,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Your table is ready for you.',
+                  'Your table is ready! 🔔 Reminders set: 1h & 30min before',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
