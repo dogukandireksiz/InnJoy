@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
+import '../../utils/responsive_utils.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> event;
@@ -169,14 +170,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16))),
         title: const Text(
           'Event Full',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo),
         ),
-        content: const Text(
+        content: Text(
           'This event is fully booked. Would you like to check out similar events?',
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16)),
         ),
         actions: [
           TextButton(
@@ -184,9 +185,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back to Event List
             },
-            child: const Text(
+            child: Text(
               'Browse',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -225,24 +226,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         children: [
           // Scrollable Content
           SingleChildScrollView(
-            padding: const EdgeInsets.only(
+            padding: EdgeInsets.only(
               bottom: 100,
             ), // Space for bottom button
             child: Column(
               children: [
-                const SizedBox(height: kToolbarHeight + 20),
+                SizedBox(height: kToolbarHeight + 20),
 
                 // Content Container
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                   child: Column(
                     children: [
                       // Image Card
                       Container(
-                        height: 256,
+                        height: ResponsiveUtils.hp(context, 256 / 844),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(32),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 32)),
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
@@ -252,7 +253,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(32),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 32)),
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
@@ -286,15 +287,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                       // Info Container
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(24),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.05),
@@ -307,14 +308,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           children: [
                             if (isFull)
                               Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
+                                margin: EdgeInsets.only(
+                                  bottom: ResponsiveUtils.spacing(context, 12),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: ResponsiveUtils.spacing(context, 12),
+                                  vertical: ResponsiveUtils.spacing(context, 6),
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.red.shade100,
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                   border: Border.all(
                                     color: Colors.red.shade300,
                                   ),
@@ -329,13 +332,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               ),
                             Text(
                               title,
-                              style: const TextStyle(
-                                fontSize: 24,
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.sp(context, 24),
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF111827),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                             // Display Category if available
                             if (category != null && category.isNotEmpty) ...[
@@ -344,38 +347,38 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   color: _getCategoryColor(
                                     category,
                                   ).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                   border: Border.all(
                                     color: _getCategoryColor(
                                       category,
                                     ).withValues(alpha: 0.3),
                                   ),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: ResponsiveUtils.spacing(context, 12),
+                                  vertical: ResponsiveUtils.spacing(context, 8),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
                                       _getCategoryIcon(category),
-                                      size: 18,
+                                      size: ResponsiveUtils.iconSize(context) * (18 / 24),
                                       color: _getCategoryColor(category),
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                     Text(
                                       category,
                                       style: TextStyle(
                                         color: _getCategoryColor(category),
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 13,
+                                        fontSize: ResponsiveUtils.sp(context, 13),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                             ],
 
                             // Date/Time/Loc Rows
@@ -383,17 +386,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               icon: Icons.calendar_today,
                               label: 'Date: $dateStr',
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                             _InfoRow(
                               icon: Icons.schedule,
                               label: 'Time: $time',
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                             _InfoRow(
                               icon: Icons.place,
                               label: 'Location: $location',
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                             // Capacity
                             _InfoRow(
                               icon: Icons.people,
@@ -403,24 +406,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               color: isFull ? Colors.red : null,
                             ),
 
-                            const SizedBox(height: 20),
-                            const Divider(color: Color(0xFFE5E7EB)),
-                            const SizedBox(height: 20),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 20)),
+                            Divider(color: Color(0xFFE5E7EB)),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
-                            const Text(
+                            Text(
                               'Description',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: ResponsiveUtils.sp(context, 18),
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF111827),
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                             Text(
                               description,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                height: 1.6,
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.sp(context, 14),
+                                height: ResponsiveUtils.hp(context, 1.6 / 844),
                                 color: Color(0xFF4B5563),
                               ),
                             ),
@@ -460,15 +463,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     child: Text(
                       title,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtils.sp(context, 18),
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF111827),
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 40),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 40)),
                 ],
               ),
             ),
@@ -480,7 +483,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
               color: const Color(0xFFF3F4F6),
               child: SizedBox(
                 width: double.infinity,
@@ -500,16 +503,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         ? Colors.grey
                         : const Color(0xFF1D8CF8),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(9999),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 9999)),
                     ),
                     elevation: 4,
                   ),
                   child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
+                      ? SizedBox(
+                          width: ResponsiveUtils.wp(context, 24 / 375),
+                          height: ResponsiveUtils.hp(context, 24 / 844),
                           child: CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2,
@@ -519,8 +522,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           _isAdmin
                               ? 'Admins Cannot Register'
                               : (isFull ? 'Event Full' : 'Book Session'),
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 16),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -611,15 +614,15 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color ?? const Color(0xFF9CA3AF), size: 24),
-        const SizedBox(width: 12),
+        Icon(icon, color: color ?? const Color(0xFF9CA3AF), size: ResponsiveUtils.iconSize(context) * (24 / 24)),
+        SizedBox(width: ResponsiveUtils.spacing(context, 12)),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(top: 2.0),
+            padding: EdgeInsets.only(top: 2.0),
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: ResponsiveUtils.sp(context, 14),
                 fontWeight: FontWeight.w500,
                 color: color ?? const Color(0xFF4B5563),
               ),

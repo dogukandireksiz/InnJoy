@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:login_page/services/logger_service.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../utils/responsive_utils.dart';
 
 // Acil Çıkış Kapısı Modeli
 class _EmergencyExit {
@@ -143,7 +144,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
       _mapController.fitCamera(
         CameraFit.coordinates(
           coordinates: [displayUserLocation, widget.selectedLocation],
-          padding: const EdgeInsets.all(80),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 80)),
         ),
       );
       // Haritayı yeniden render etmesi için küçük bir animasyon tetikle
@@ -198,8 +199,8 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.oteluygulamasi.app',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
               ),
               PolylineLayer(
                 polylines: [
@@ -216,12 +217,12 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                   // Kullanıcı konumu (Mavi)
                   Marker(
                     point: displayUserLocation,
-                    width: 60,
-                    height: 60,
-                    child: const Icon(
+                    width: ResponsiveUtils.wp(context, 60 / 375),
+                    height: ResponsiveUtils.hp(context, 60 / 844),
+                    child: Icon(
                       Icons.person_pin_circle,
                       color: Colors.blue,
-                      size: 55,
+                      size: ResponsiveUtils.iconSize(context) * (55 / 24),
                     ),
                   ),
                   // Tüm acil çıkış kapıları
@@ -236,33 +237,36 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                       point: exit.location,
                       width: isNearest ? 80 : 60,
                       height: isNearest ? 80 : 60,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.exit_to_app,
-                            color: isNearest ? Colors.green : Colors.orange,
-                            size: isNearest ? 50 : 40,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.exit_to_app,
                               color: isNearest ? Colors.green : Colors.orange,
-                              borderRadius: BorderRadius.circular(4),
+                              size: isNearest ? 50 : 40,
                             ),
-                            child: Text(
-                              isNearest ? 'NEAREST' : exit.name.split(' ')[0],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isNearest ? Colors.green : Colors.orange,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                isNearest ? 'NEAREST' : exit.name.split(' ')[0],
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   }),
@@ -305,10 +309,10 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
             left: 20,
             right: 20,
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
               decoration: BoxDecoration(
                 color: const Color(0xFF1E1E1E).withValues(alpha: 0.95),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                 boxShadow: [
                   const BoxShadow(
                     color: Colors.black45,
@@ -323,29 +327,29 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                   // Konum Adı ve Mesafe
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.directions_run,
                         color: Colors.redAccent,
-                        size: 32,
+                        size: ResponsiveUtils.iconSize(context) * (32 / 24),
                       ),
-                      const SizedBox(width: 15),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 15)),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               widget.locationName ?? "Emergency Exit Point",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: ResponsiveUtils.sp(context, 18),
                               ),
                             ),
                             Text(
                               "Distance: $distanceText", // CALCULATED DISTANCE HERE
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 16,
+                                fontSize: ResponsiveUtils.sp(context, 16),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -354,7 +358,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                       ),
                     ],
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Divider(color: Colors.white24),
                   ),
@@ -362,10 +366,10 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                   // DİNAMİK YÖNERGE METNİ
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
                     decoration: BoxDecoration(
                       color: Colors.white10,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
                       border: Border.all(
                         color: instructionColor.withValues(alpha: 0.5),
                       ),
@@ -375,7 +379,7 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: instructionColor,
-                        fontSize: 15,
+                        fontSize: ResponsiveUtils.sp(context, 15),
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
                       ),
@@ -385,13 +389,15 @@ class _FullScreenMapPageState extends State<FullScreenMapPage> {
                   // Ek Not (Varsa)
                   if (widget.noteInfo != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(
+                        top: ResponsiveUtils.spacing(context, 10),
+                      ),
                       child: Text(
                         widget.noteInfo!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white38,
-                          fontSize: 12,
+                          fontSize: ResponsiveUtils.sp(context, 12),
                         ),
                       ),
                     ),

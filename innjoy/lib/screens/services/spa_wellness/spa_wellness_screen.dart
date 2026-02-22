@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../services/database_service.dart';
 import 'spa_booking_screen.dart';
+import '../../../utils/responsive_utils.dart';
 
 class SpaWellnessScreen extends StatefulWidget {
   final String hotelName;
@@ -20,6 +21,7 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
   }
 
 
+  @override
   Widget build(BuildContext context) {
     const bgLight = Color(0xFFF6F7F8);
 
@@ -43,9 +45,9 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: Colors.grey[300],
-                      child: const Icon(
+                      child: Icon(
                         Icons.spa,
-                        size: 64,
+                        size: ResponsiveUtils.iconSize(context) * (64 / 24),
                         color: Colors.grey,
                       ),
                     ),
@@ -73,26 +75,26 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Spa & Wellness',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 32,
+                            fontSize: ResponsiveUtils.sp(context, 32),
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF101922),
                             letterSpacing: -0.5,
-                            height: 1.1,
+                            height: ResponsiveUtils.hp(context, 1.1 / 844),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
+                        SizedBox(height: ResponsiveUtils.spacing(context, 8)),
+                        Text(
                           'Relax, rejuvenate, and restore your balance.',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 15,
+                            fontSize: ResponsiveUtils.sp(context, 15),
                             fontWeight: FontWeight.w500,
                             color: Color(0xFF475569),
-                            height: 1.4,
+                            height: ResponsiveUtils.hp(context, 1.4 / 844),
                           ),
                         ),
                       ],
@@ -102,7 +104,7 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
               ),
             ),
             leading: Container(
-              margin: const EdgeInsets.all(8),
+              margin: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.8),
                 shape: BoxShape.circle,
@@ -117,21 +119,21 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
           // Content
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
+                  Text(
                     'Our Services',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 20,
+                      fontSize: ResponsiveUtils.sp(context, 20),
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF0d141b),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                   
                   
                   // Service Grid
@@ -154,10 +156,10 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                       return GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
+                          crossAxisSpacing: ResponsiveUtils.spacing(context, 16),
+                          mainAxisSpacing: ResponsiveUtils.spacing(context, 16),
                           childAspectRatio: 0.68,
                         ),
                         itemCount: services.length,
@@ -167,7 +169,7 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 80),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 80)),
                 ],
               ),
             ),
@@ -181,8 +183,8 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
     return Center(
       child: Column(
         children: [
-          Icon(Icons.spa_outlined, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
+          Icon(Icons.spa_outlined, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[300]),
+          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           Text(
             "No services available yet.",
             style: TextStyle(color: Colors.grey[500]),
@@ -214,7 +216,7 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -242,21 +244,21 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 10), vertical: ResponsiveUtils.spacing(context, 6)),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.access_time, size: 12, color: Colors.white),
-                        const SizedBox(width: 4),
+                        Icon(Icons.access_time, size: ResponsiveUtils.iconSize(context) * (12 / 24), color: Colors.white),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                         Text(
                           '$duration min',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 11,
+                            fontSize: ResponsiveUtils.sp(context, 11),
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
@@ -269,7 +271,7 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 6)),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.95),
                       shape: BoxShape.circle,
@@ -277,14 +279,14 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                          BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6),
                       ]
                     ),
-                    child: const Icon(Icons.arrow_forward, size: 16, color: Color(0xFF137fec)),
+                    child: Icon(Icons.arrow_forward, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Color(0xFF137fec)),
                   ),
                 ),
               ],
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 14)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -296,26 +298,26 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                           name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 15,
+                            fontSize: ResponsiveUtils.sp(context, 15),
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF0d141b),
-                            height: 1.2,
+                            height: ResponsiveUtils.hp(context, 1.2 / 844),
                           ),
                         ),
                         if (description.isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                           Text(
                             description,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 11,
+                              fontSize: ResponsiveUtils.sp(context, 11),
                               fontWeight: FontWeight.w400,
                               color: Colors.grey[600],
-                              height: 1.3,
+                              height: ResponsiveUtils.hp(context, 1.3 / 844),
                             ),
                           ),
                         ],
@@ -323,32 +325,36 @@ class _SpaWellnessScreenState extends State<SpaWellnessScreen> {
                     ),
                     // Price section
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 10), vertical: ResponsiveUtils.spacing(context, 6)),
                       decoration: BoxDecoration(
                         color: const Color(0xFF137fec).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
+                          Text(
                             '₺',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 14,
+                              fontSize: ResponsiveUtils.sp(context, 14),
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF137fec),
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                          const SizedBox(width: 2),
+                          SizedBox(width: ResponsiveUtils.spacing(context, 2)),
                           Text(
                             price.toStringAsFixed(0),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF137fec),
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),

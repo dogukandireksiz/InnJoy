@@ -7,6 +7,7 @@ import '../admin/room_service/room_service_management_screen.dart';
 import '../admin/admin_housekeeping_screen.dart';
 import '../admin/admin_room_management_screen.dart';
 import '../admin/admin_requests_screen.dart';
+import '../../utils/responsive_utils.dart';
 
 class ChoseEditScreen extends StatelessWidget {
   final String? hotelName;
@@ -83,26 +84,26 @@ class ChoseEditScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Select an area to update',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 6),
-            const Text(
+            SizedBox(height: ResponsiveUtils.spacing(context, 6)),
+            Text(
               'Choose a category below to manage.',
               style: TextStyle(color: Colors.black54),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: ResponsiveUtils.spacing(context, 20)),
             Expanded(
               child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 16, // Increased spacing
-                  mainAxisSpacing: 16,
+                  crossAxisSpacing: ResponsiveUtils.spacing(context, 16),
+                  mainAxisSpacing: ResponsiveUtils.spacing(context, 16),
                   childAspectRatio: 1.1, // Adjusted aspect ratio
                 ),
                 itemCount: items.length,
@@ -165,10 +166,10 @@ class _EditCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
              BoxShadow(
@@ -183,30 +184,30 @@ class _EditCard extends StatelessWidget {
           // Removed MainAxisAlignment.center to ensure top alignment like Quick Access
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: ResponsiveUtils.wp(context, 40 / 375),
+              height: ResponsiveUtils.hp(context, 40 / 844),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: ResponsiveUtils.iconSize(context) * (22 / 24)),
             ),
-            const SizedBox(height: 16), // Changed from 12 to 16 to match Quick Access
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)), // Changed from 12 to 16 to match Quick Access
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 15,
+              style: TextStyle(
+                fontSize: ResponsiveUtils.sp(context, 15),
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF111827),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2), // Changed from 4 to 2 to match Quick Access
+            SizedBox(height: ResponsiveUtils.spacing(context, 2)), // Changed from 4 to 2 to match Quick Access
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: ResponsiveUtils.sp(context, 12),
                 color: Colors.grey.shade500,
                 fontWeight: FontWeight.w500,
               ),

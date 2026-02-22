@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart';
 
 /// Admin Requests Screen
 /// 
@@ -62,18 +63,18 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 20), vertical: ResponsiveUtils.spacing(context, 16)),
       decoration: const BoxDecoration(
         color: Color(0xFFF6F7FB),
         border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Text(
             'All Requests',
             style: TextStyle(
               color: Color(0xFF111827),
-              fontSize: 20,
+              fontSize: ResponsiveUtils.sp(context, 20),
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter',
             ),
@@ -85,10 +86,10 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
 
   Widget _buildTabBar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -100,22 +101,22 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
           color: const Color(0xFF137fec),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey[600],
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-        padding: const EdgeInsets.all(4),
-        tabs: const [
+        labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: ResponsiveUtils.sp(context, 14)),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: ResponsiveUtils.sp(context, 14)),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 4)),
+        tabs: [
           Tab(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.room_service, size: 18),
-                SizedBox(width: 8),
+                Icon(Icons.room_service, size: ResponsiveUtils.iconSize(context) * (18 / 24)),
+                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                 Text('Room Service'),
               ],
             ),
@@ -124,8 +125,8 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.cleaning_services, size: 18),
-                SizedBox(width: 8),
+                Icon(Icons.cleaning_services, size: ResponsiveUtils.iconSize(context) * (18 / 24)),
+                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                 Text('Housekeeping'),
               ],
             ),
@@ -139,9 +140,9 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
     final filters = ['All', 'Active', 'Completed', 'Cancelled'];
 
     return SizedBox(
-      height: 56,
+      height: ResponsiveUtils.hp(context, 56 / 844),
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
         scrollDirection: Axis.horizontal,
         children: [
           // Calendar Button
@@ -149,31 +150,31 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
             onTap: () => _selectDate(context),
             child: Container(
               margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: const Color(0xFF137fec).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                 border: Border.all(color: const Color(0xFF137fec)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calendar_month, color: Color(0xFF137fec), size: 18),
-                  const SizedBox(width: 6),
+                  Icon(Icons.calendar_month, color: Color(0xFF137fec), size: ResponsiveUtils.iconSize(context) * (18 / 24)),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                   Text(
                     _isToday(_selectedDate)
                         ? 'Today'
                         : DateFormat('dd MMM').format(_selectedDate),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF137fec),
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: ResponsiveUtils.sp(context, 13),
                     ),
                   ),
                   if (!_isToday(_selectedDate)) ...[
-                    const SizedBox(width: 4),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                     GestureDetector(
                       onTap: () => setState(() => _selectedDate = DateTime.now()),
-                      child: const Icon(Icons.close, size: 16, color: Color(0xFF137fec)),
+                      child: Icon(Icons.close, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Color(0xFF137fec)),
                     ),
                   ],
                 ],
@@ -186,12 +187,12 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
             return GestureDetector(
               onTap: () => setState(() => _selectedFilter = filter),
               child: Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                margin: EdgeInsets.only(right: 8),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 14)),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFF137fec) : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                   border: Border.all(
                       color: isSelected ? const Color(0xFF137fec) : const Color(0xFFE5E7EB)),
                 ),
@@ -200,7 +201,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
                   style: TextStyle(
                     color: isSelected ? Colors.white : Colors.grey[700],
                     fontWeight: FontWeight.w500,
-                    fontSize: 13,
+                    fontSize: ResponsiveUtils.sp(context, 13),
                   ),
                 ),
               ),
@@ -255,9 +256,9 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
           itemCount: filtered.length,
-          separatorBuilder: (_, e) => const SizedBox(height: 12),
+          separatorBuilder: (_, e) => SizedBox(height: ResponsiveUtils.spacing(context, 12)),
           itemBuilder: (context, index) => _AdminHousekeepingCard(
             data: filtered[index],
             hotelName: widget.hotelName,
@@ -290,9 +291,9 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
           itemCount: filtered.length,
-          separatorBuilder: (_, e) => const SizedBox(height: 12),
+          separatorBuilder: (_, e) => SizedBox(height: ResponsiveUtils.spacing(context, 12)),
           itemBuilder: (context, index) => _AdminRoomServiceCard(
             data: filtered[index],
             hotelName: widget.hotelName,
@@ -332,18 +333,18 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
+          Icon(icon, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[300]),
+          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           Text(
             message,
-            style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+            style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), color: Colors.grey[500]),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: ResponsiveUtils.spacing(context, 8)),
           Text(
             _isToday(_selectedDate)
                 ? 'for today'
                 : 'for ${DateFormat('dd MMM yyyy').format(_selectedDate)}',
-            style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+            style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey[400]),
           ),
         ],
       ),
@@ -377,7 +378,7 @@ class _AdminHousekeepingCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -394,11 +395,11 @@ class _AdminHousekeepingCard extends StatelessWidget {
             left: 0,
             top: 0,
             bottom: 0,
-            width: 4,
+            width: ResponsiveUtils.wp(context, 4 / 375),
             child: Container(color: style['color'] as Color),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -408,19 +409,19 @@ class _AdminHousekeepingCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        _buildStatusBadge(style),
-                        const SizedBox(width: 8),
+                        _buildStatusBadge(context, style),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 8), vertical: ResponsiveUtils.spacing(context, 4)),
                           decoration: BoxDecoration(
                             color: Colors.orange.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           ),
                           child: Text(
                             'Room $roomNumber',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.orange,
-                              fontSize: 12,
+                              fontSize: ResponsiveUtils.sp(context, 12),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -429,52 +430,52 @@ class _AdminHousekeepingCard extends StatelessWidget {
                     ),
                     Text(
                       timeStr,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFF6B7280),
-                        fontSize: 13,
+                        fontSize: ResponsiveUtils.sp(context, 13),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                 // Request type
                 Row(
                   children: [
-                    Icon(Icons.cleaning_services, size: 20, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
+                    Icon(Icons.cleaning_services, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: Colors.grey[600]),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                     Text(
                       requestType,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtils.sp(context, 16),
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF111827),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 // Guest name
                 Row(
                   children: [
-                    Icon(Icons.person, size: 16, color: Colors.grey[500]),
-                    const SizedBox(width: 6),
+                    Icon(Icons.person, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Colors.grey[500]),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                     Text(
                       guestName,
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 13,
+                        fontSize: ResponsiveUtils.sp(context, 13),
                       ),
                     ),
                   ],
                 ),
                 if (details.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                   Text(
                     details,
                     style: TextStyle(
                       color: Colors.grey[600],
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -482,7 +483,7 @@ class _AdminHousekeepingCard extends StatelessWidget {
                 ],
                 // Action buttons
                 if (requestId.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   Row(
                     children: [
                       if (status.toLowerCase() != 'completed' && status.toLowerCase() != 'cancelled')
@@ -493,7 +494,7 @@ class _AdminHousekeepingCard extends StatelessWidget {
                               foregroundColor: Colors.green,
                               side: const BorderSide(color: Colors.green),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 10),
                             ),
@@ -501,7 +502,7 @@ class _AdminHousekeepingCard extends StatelessWidget {
                           ),
                         ),
                       if (status.toLowerCase() != 'completed' && status.toLowerCase() != 'cancelled')
-                        const SizedBox(width: 8),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                       if (status.toLowerCase() != 'cancelled')
                         Expanded(
                           child: OutlinedButton(
@@ -510,7 +511,7 @@ class _AdminHousekeepingCard extends StatelessWidget {
                               foregroundColor: Colors.red,
                               side: const BorderSide(color: Colors.red),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 10),
                             ),
@@ -545,30 +546,30 @@ class _AdminHousekeepingCard extends StatelessWidget {
     });
   }
 
-  Widget _buildStatusBadge(Map<String, dynamic> style) {
+  Widget _buildStatusBadge(BuildContext context, Map<String, dynamic> style) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 10), vertical: ResponsiveUtils.spacing(context, 4)),
       decoration: BoxDecoration(
         color: style['bg'] as Color,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6,
-            height: 6,
+            width: ResponsiveUtils.wp(context, 6 / 375),
+            height: ResponsiveUtils.hp(context, 6 / 844),
             decoration: BoxDecoration(
               color: style['color'] as Color,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: ResponsiveUtils.spacing(context, 6)),
           Text(
             style['label'] as String,
             style: TextStyle(
               color: style['text'] as Color,
-              fontSize: 12,
+              fontSize: ResponsiveUtils.sp(context, 12),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -642,7 +643,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -659,11 +660,11 @@ class _AdminRoomServiceCard extends StatelessWidget {
               left: 0,
               top: 0,
               bottom: 0,
-              width: 4,
+              width: ResponsiveUtils.wp(context, 4 / 375),
               child: Container(color: style['color'] as Color),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -673,19 +674,19 @@ class _AdminRoomServiceCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _buildStatusBadge(style),
-                          const SizedBox(width: 8),
+                          _buildStatusBadge(context, style),
+                          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 8), vertical: ResponsiveUtils.spacing(context, 4)),
                             decoration: BoxDecoration(
                               color: Colors.orange.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                             ),
                             child: Text(
                               'Room $roomNumber',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.orange,
-                                fontSize: 12,
+                                fontSize: ResponsiveUtils.sp(context, 12),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -694,26 +695,26 @@ class _AdminRoomServiceCard extends StatelessWidget {
                       ),
                       Text(
                         timeStr,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xFF6B7280),
-                          fontSize: 13,
+                          fontSize: ResponsiveUtils.sp(context, 13),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   // Order items
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.restaurant_menu, size: 20, color: Colors.grey[600]),
-                      const SizedBox(width: 8),
+                      Icon(Icons.restaurant_menu, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: Colors.grey[600]),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                       Expanded(
                         child: Text(
                           itemNames.isNotEmpty ? itemNames : 'No items',
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 14),
                             color: Color(0xFF374151),
                           ),
                           maxLines: 2,
@@ -722,22 +723,22 @@ class _AdminRoomServiceCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                   // Guest name
                   Row(
                     children: [
-                      Icon(Icons.person, size: 16, color: Colors.grey[500]),
-                      const SizedBox(width: 6),
+                      Icon(Icons.person, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Colors.grey[500]),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                       Text(
                         guestName,
                         style: TextStyle(
                           color: Colors.grey[600],
-                          fontSize: 13,
+                          fontSize: ResponsiveUtils.sp(context, 13),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   // Total
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -746,22 +747,22 @@ class _AdminRoomServiceCard extends StatelessWidget {
                         '${items.length} item${items.length != 1 ? 's' : ''}',
                         style: TextStyle(
                           color: Colors.grey[500],
-                          fontSize: 13,
+                          fontSize: ResponsiveUtils.sp(context, 13),
                         ),
                       ),
                       Text(
                         '₺${totalPrice.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xFF137fec),
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: ResponsiveUtils.sp(context, 16),
                         ),
                       ),
                     ],
                   ),
                   // Action buttons
                   if (orderId.isNotEmpty) ...[
-                    const SizedBox(height: 12),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                     Row(
                       children: [
                         if (status.toLowerCase() != 'completed' && status.toLowerCase() != 'cancelled')
@@ -772,7 +773,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
                                 foregroundColor: Colors.green,
                                 side: const BorderSide(color: Colors.green),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                 ),
                                 padding: const EdgeInsets.symmetric(vertical: 10),
                               ),
@@ -780,7 +781,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
                             ),
                           ),
                         if (status.toLowerCase() != 'completed' && status.toLowerCase() != 'cancelled')
-                          const SizedBox(width: 8),
+                          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                         if (status.toLowerCase() != 'cancelled')
                           Expanded(
                             child: OutlinedButton(
@@ -789,7 +790,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
                                 foregroundColor: Colors.red,
                                 side: const BorderSide(color: Colors.red),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                 ),
                                 padding: const EdgeInsets.symmetric(vertical: 10),
                               ),
@@ -845,7 +846,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -853,10 +854,10 @@ class _AdminRoomServiceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Order Details',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: ResponsiveUtils.sp(context, 20),
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF111827),
                   ),
@@ -867,15 +868,15 @@ class _AdminRoomServiceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
             // Room & Guest Info
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 6)),
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                   ),
                   child: Text(
                     'Room $roomNumber',
@@ -885,27 +886,27 @@ class _AdminRoomServiceCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                 Text(
                   guestName,
                   style: TextStyle(
                     color: Colors.grey[600],
-                    fontSize: 14,
+                    fontSize: ResponsiveUtils.sp(context, 14),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
             Text('Status: $status', style: TextStyle(color: Colors.grey[600])),
             Text('Date: $dateStr', style: TextStyle(color: Colors.grey[500])),
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+            Divider(),
+            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
+            Text(
               'Items',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 16)),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
             ...items.map((item) {
               final name = item['name'] ?? 'Unknown';
               final quantity = item['quantity'] ?? 1;
@@ -921,56 +922,55 @@ class _AdminRoomServiceCard extends StatelessWidget {
                 ),
               );
             }),
-            const Divider(),
+            Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Total',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 18)),
                 ),
                 Text(
                   '₺${totalPrice.toStringAsFixed(0)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: ResponsiveUtils.sp(context, 18),
                     color: Color(0xFF137fec),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusBadge(Map<String, dynamic> style) {
+  Widget _buildStatusBadge(BuildContext context, Map<String, dynamic> style) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 10), vertical: ResponsiveUtils.spacing(context, 4)),
       decoration: BoxDecoration(
         color: style['bg'] as Color,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6,
-            height: 6,
+            width: ResponsiveUtils.wp(context, 6 / 375),
+            height: ResponsiveUtils.hp(context, 6 / 844),
             decoration: BoxDecoration(
               color: style['color'] as Color,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: ResponsiveUtils.spacing(context, 6)),
           Text(
             style['label'] as String,
             style: TextStyle(
               color: style['text'] as Color,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+              fontSize: ResponsiveUtils.sp(context, 14),
             ),
           ),
         ],
@@ -1013,6 +1013,7 @@ class _AdminRoomServiceCard extends StatelessWidget {
     }
   }
 }
+
 
 
 

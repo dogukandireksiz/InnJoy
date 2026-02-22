@@ -4,6 +4,7 @@ import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
 import '../../map/map_screen.dart';
 import 'package:latlong2/latlong.dart';
+import '../../utils/responsive_utils.dart';
 
 /// Help & Support Screen
 /// 
@@ -43,28 +44,28 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         ),
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: const Color(0xFF1677FF).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.info_outline,
                 color: Color(0xFF1677FF),
-                size: 24,
+                size: ResponsiveUtils.iconSize(context) * (24 / 24),
               ),
             ),
-            const SizedBox(width: 12),
-            const Expanded(
+            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
+            Expanded(
               child: Text(
                 'Coming Soon',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: ResponsiveUtils.sp(context, 18),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -73,7 +74,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         ),
         content: Text(
           '$feature will be available in a future update.',
-          style: const TextStyle(fontSize: 15),
+          style: TextStyle(fontSize: ResponsiveUtils.sp(context, 15)),
         ),
         actions: [
           TextButton(
@@ -95,25 +96,25 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        tilePadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 4)),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         leading: Container(
-          width: 32,
-          height: 32,
+          width: ResponsiveUtils.wp(context, 32 / 375),
+          height: ResponsiveUtils.hp(context, 32 / 844),
           decoration: BoxDecoration(
             color: const Color(0xFFE3F2FD),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.help_outline,
             color: Color(0xFF1677FF),
-            size: 18,
+            size: ResponsiveUtils.iconSize(context) * (18 / 24),
           ),
         ),
         title: Text(
           question,
-          style: const TextStyle(
-            fontSize: 15,
+          style: TextStyle(
+            fontSize: ResponsiveUtils.sp(context, 15),
             fontWeight: FontWeight.w600,
             color: Color(0xFF1C1C1E),
           ),
@@ -124,9 +125,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             child: Text(
               answer,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: ResponsiveUtils.sp(context, 14),
                 color: Colors.grey[700],
-                height: 1.5,
+                height: ResponsiveUtils.hp(context, 1.5 / 844),
               ),
             ),
           ),
@@ -147,26 +148,26 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Help & Support',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontSize: ResponsiveUtils.sp(context, 18),
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // FAQ Section
-            const Text(
+            Text(
               'Frequently Asked Questions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
             _FAQCard(
               children: [
                 _buildFAQItem(
@@ -208,12 +209,12 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   'How do I cancel my order/request?',
                   'Go to My Requests → Select the active order → Tap Cancel Order button.',
                 ),
-                const Divider(height: 1),
+                Divider(height: 1),
                 _buildFAQItem(
                   'Can I change my profile picture?',
                   'Yes! Profile → Tap on your photo → Choose from gallery, URL, or default avatars.',
                 ),
-                const Divider(height: 1),
+                Divider(height: 1),
                 _buildFAQItem(
                   'How do I reset my password?',
                   'Profile → Change Password → Enter current and new password.',
@@ -221,14 +222,14 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               ],
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Quick Actions Section
-            const Text(
+            Text(
               'Quick Actions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
             _QuickActionsCard(
               children: [
                 _QuickActionItem(
@@ -263,7 +264,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     );
                   },
                 ),
-                const Divider(height: 1),
+                Divider(height: 1),
                 _QuickActionItem(
                   icon: Icons.menu_book_outlined,
                   label: 'User Guide',
@@ -272,14 +273,14 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               ],
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Important Links Section
-            const Text(
+            Text(
               'Important Links',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
             _ImportantLinksCard(
               children: [
                 _ImportantLinkItem(
@@ -335,15 +336,15 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     );
                   },
                 ),
-                const Divider(height: 1),
+                Divider(height: 1),
                 _ImportantLinkItem(
                   icon: Icons.info_outline,
                   label: 'App Version & Updates',
                   trailing: Text(
                     'v$_appVersion',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF6B7280),
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -352,7 +353,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                       context: context,
                       builder: (context) => AlertDialog(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                         ),
                         title: const Text('App Information'),
                         content: Column(
@@ -360,9 +361,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Version: $_appVersion'),
-                            const SizedBox(height: 8),
-                            const Text('InnJoy - Hotel Guest Experience'),
-                            const SizedBox(height: 8),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
+                            Text('InnJoy - Hotel Guest Experience'),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                             Text(
                               'You are using the latest version.',
                               style: TextStyle(
@@ -375,7 +376,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text(
+                            child: Text(
                               'OK',
                               style: TextStyle(color: Color(0xFF1677FF)),
                             ),
@@ -388,7 +389,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
               ],
             ),
 
-            const SizedBox(height: 32),
+            SizedBox(height: ResponsiveUtils.spacing(context, 32)),
           ],
         ),
       ),
@@ -406,7 +407,7 @@ class _FAQCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -430,7 +431,7 @@ class _QuickActionsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -454,7 +455,7 @@ class _ImportantLinksCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -484,24 +485,24 @@ class _QuickActionItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: ResponsiveUtils.wp(context, 40 / 375),
+              height: ResponsiveUtils.hp(context, 40 / 844),
               decoration: BoxDecoration(
                 color: const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
               ),
-              child: Icon(icon, color: const Color(0xFF1677FF), size: 20),
+              child: Icon(icon, color: const Color(0xFF1677FF), size: ResponsiveUtils.iconSize(context) * (20 / 24)),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 15),
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF1C1C1E),
                 ),
@@ -536,31 +537,29 @@ class _ImportantLinkItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: ResponsiveUtils.wp(context, 40 / 375),
+              height: ResponsiveUtils.hp(context, 40 / 844),
               decoration: BoxDecoration(
                 color: const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
               ),
-              child: Icon(icon, color: const Color(0xFF1677FF), size: 20),
+              child: Icon(icon, color: const Color(0xFF1677FF), size: ResponsiveUtils.iconSize(context) * (20 / 24)),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF1C1C1E),
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 14),
                 ),
               ),
             ),
             if (trailing != null) trailing!,
-            const SizedBox(width: 8),
+            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
             const Icon(
               Icons.chevron_right,
               color: Colors.grey,
@@ -571,3 +570,4 @@ class _ImportantLinkItem extends StatelessWidget {
     );
   }
 }
+

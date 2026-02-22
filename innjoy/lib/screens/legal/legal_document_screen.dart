@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../utils/responsive_utils.dart';
 
 class LegalDocumentScreen extends StatefulWidget {
   final String titleTr;
@@ -29,8 +30,8 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
       appBar: AppBar(
         title: Text(
           isTurkish ? widget.titleTr : widget.titleEn, 
-          style: const TextStyle(
-            fontSize: 16, // Uzun başlıklar iÇin biraz küÇülttük
+          style: TextStyle(
+            fontSize: ResponsiveUtils.sp(context, 16), // Uzun başlıklar iÇin biraz küÇülttük
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -53,12 +54,12 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
               },
               style: TextButton.styleFrom(
                 backgroundColor: Colors.white.withValues(alpha: 0.2),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 4)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20))),
               ),
               child: Text(
                 isTurkish ? "EN" : "TR",
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -87,11 +88,11 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
           // 3. İÇerik Kartı
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16.0)),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.2),
@@ -101,14 +102,13 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24.0)),
                     child: Text(
                       isTurkish ? widget.contentTr : widget.contentEn,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        height: 1.6,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtils.sp(context, 14),
                         color: Colors.black87,
                         fontFamily: 'Roboto',
                       ),
@@ -123,6 +123,7 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
     );
   }
 }
+
 
 
 

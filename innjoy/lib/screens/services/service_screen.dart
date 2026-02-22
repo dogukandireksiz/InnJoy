@@ -6,6 +6,7 @@ import '../dining/customer_menu_screen.dart';
 import 'spa_wellness/spa_wellness_screen.dart';
 import 'fitness/details/fitness_details_screen.dart';
 import '../../services/database_service.dart';
+import '../../../utils/responsive_utils.dart';
 
 class ServiceScreen extends StatefulWidget {
   final String? hotelName;
@@ -177,7 +178,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
             automaticallyImplyLeading: !widget.isTabView,
           ),
           body: ListView(
-            padding: const EdgeInsets.only(
+            padding: EdgeInsets.only(
               left: 16,
               right: 16,
               top: 16,
@@ -188,13 +189,13 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 controller: _searchController,
                 onChanged: (_) => setState(() {}),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
               _CategoryChips(
                 selected: _selectedCategory,
                 onSelected: (value) =>
                     setState(() => _selectedCategory = value),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: ResponsiveUtils.spacing(context, 16)),
               for (final s in filteredServices) ...[
                 _ServiceCard(
                   title: s.title,
@@ -258,7 +259,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                     }
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
               ],
               if (filteredServices.isEmpty)
                 const Padding(
@@ -312,7 +313,7 @@ class _SearchBar extends StatelessWidget {
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           borderSide: BorderSide.none,
         ),
       ),
@@ -335,19 +336,19 @@ class _CategoryChips extends StatelessWidget {
             GestureDetector(
               onTap: () => onSelected(selected == c ? null : c),
               child: Container(
-                height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: ResponsiveUtils.hp(context, 40 / 844),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: selected == c
                       ? const Color(0xFF137fec) // Primary Blue
                       : const Color(0xFFe2e8f0), // Slate-200
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                 ),
                 child: Text(
                   c,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: ResponsiveUtils.sp(context, 14),
                     fontWeight: FontWeight.w500,
                     color: selected == c
                         ? Colors.white
@@ -356,7 +357,7 @@ class _CategoryChips extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           ],
         ],
       ),
@@ -396,7 +397,7 @@ class _ServiceCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.06),
@@ -412,7 +413,7 @@ class _ServiceCard extends StatelessWidget {
             if (imagePath.startsWith('http'))
               Image.network(
                 imagePath,
-                height: 160,
+                height: ResponsiveUtils.hp(context, 160 / 844),
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
@@ -423,12 +424,12 @@ class _ServiceCard extends StatelessWidget {
             else
               Image.asset(
                 imagePath,
-                height: 160,
+                height: ResponsiveUtils.hp(context, 160 / 844),
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -437,38 +438,44 @@ class _ServiceCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           title,
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 18),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.green.shade200),
-                        ),
-                        child: Text(
-                          badgeText,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.green,
+                      Flexible(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ResponsiveUtils.spacing(context, 8),
+                            vertical: ResponsiveUtils.spacing(context, 4),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
+                            border: Border.all(color: Colors.green.shade200),
+                          ),
+                          child: Text(
+                            badgeText,
+                            style: TextStyle(
+                              fontSize: ResponsiveUtils.sp(context, 12),
+                              color: Colors.green,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                   Text(
                     description,
-                    style: const TextStyle(color: Colors.black87),
+                    style: TextStyle(color: Colors.black87),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   Row(
                     children: [
                       if (primaryAction != null)
@@ -481,9 +488,11 @@ class _ServiceCard extends StatelessWidget {
                               ).withValues(alpha: 0.1),
                               foregroundColor: const Color(0xFF137fec),
                               elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: EdgeInsets.symmetric(
+                                vertical: ResponsiveUtils.spacing(context, 14),
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                               ),
                               splashFactory: InkRipple.splashFactory,
                               overlayColor: const Color(
@@ -493,12 +502,12 @@ class _ServiceCard extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.info_outline, size: 18),
-                                const SizedBox(width: 8),
+                                Icon(Icons.info_outline, size: ResponsiveUtils.iconSize(context) * (18 / 24)),
+                                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                 Text(
                                   primaryAction!,
-                                  style: const TextStyle(
-                                    fontSize: 15,
+                                  style: TextStyle(
+                                    fontSize: ResponsiveUtils.sp(context, 15),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -507,7 +516,7 @@ class _ServiceCard extends StatelessWidget {
                           ),
                         ),
                       if (secondaryAction != null) ...[
-                        const SizedBox(width: 12),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                         Expanded(
                           child: ElevatedButton(
                             onPressed: onSecondaryAction,
@@ -517,9 +526,11 @@ class _ServiceCard extends StatelessWidget {
                               ).withValues(alpha: 0.1),
                               foregroundColor: const Color(0xFF137fec),
                               elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: EdgeInsets.symmetric(
+                                vertical: ResponsiveUtils.spacing(context, 14),
+                              ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                               ),
                               splashFactory: InkRipple.splashFactory,
                               overlayColor: const Color(
@@ -528,13 +539,12 @@ class _ServiceCard extends StatelessWidget {
                             ),
                             child: Text(
                               secondaryAction!,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.sp(context, 14),
                             ),
                           ),
                         ),
+                      ),
                       ],
                     ],
                   ),
@@ -607,6 +617,7 @@ class StreamBuilderCombiner {
     return controller.stream;
   }
 }
+
 
 
 

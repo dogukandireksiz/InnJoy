@@ -25,7 +25,6 @@ dependencies:
   firebase_storage: ^13.0.5
   rxdart: ^0.28.0
   connectivity_plus: ^6.1.4
-  google_maps_flutter: ^2.14.0
   geolocator: ^10.1.0
   flutter_map: ^8.2.2
   latlong2: ^0.9.1

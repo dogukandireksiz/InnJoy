@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import '../../utils/responsive_utils.dart';
 
 class AdminHousekeepingScreen extends StatefulWidget {
   final String hotelName;
@@ -41,12 +42,12 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Housekeeping Management',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontSize: ResponsiveUtils.sp(context, 18),
           ),
         ),
       ),
@@ -64,9 +65,9 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
     final filters = ['Active', 'Completed', 'Cancelled'];
     
     return SizedBox(
-      height: 60,
+      height: ResponsiveUtils.hp(context, 60 / 844),
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
         scrollDirection: Axis.horizontal,
         children: [
           // Calendar Button
@@ -74,10 +75,10 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
             onTap: () => _selectDate(context),
             child: Container(
               margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: _selectedDate != null ? const Color(0xFF137fec).withValues(alpha: 0.1) : Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                 border: Border.all(
                   color: _selectedDate != null ? const Color(0xFF137fec) : const Color(0xFFE5E7EB)
                 ),
@@ -87,22 +88,22 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
                   Icon(
                     Icons.calendar_month,
                     color: _selectedDate != null ? const Color(0xFF137fec) : Colors.grey[600],
-                    size: 20
+                    size: ResponsiveUtils.iconSize(context) * (20 / 24)
                   ),
                   if (_selectedDate != null) ...[
-                    const SizedBox(width: 6),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                     Text(
                       DateFormat('dd MMM').format(_selectedDate!),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFF137fec),
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: ResponsiveUtils.sp(context, 12),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                     GestureDetector(
                       onTap: () => setState(() => _selectedDate = null),
-                      child: const Icon(Icons.close, size: 16, color: Color(0xFF137fec)),
+                      child: Icon(Icons.close, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Color(0xFF137fec)),
                     ),
                   ],
                 ],
@@ -117,12 +118,12 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
             return GestureDetector(
               onTap: () => setState(() => _selectedFilter = filter),
               child: Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                margin: EdgeInsets.only(right: 8),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFF137fec) : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                   border: Border.all(color: isSelected ? const Color(0xFF137fec) : const Color(0xFFE5E7EB)),
                   boxShadow: isSelected ? [
                     BoxShadow(color: const Color(0xFF137fec).withValues(alpha: 0.3), blurRadius: 4, offset: const Offset(0, 2))
@@ -133,7 +134,7 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
                   style: TextStyle(
                     color: isSelected ? Colors.white : Colors.grey[700],
                     fontWeight: FontWeight.w500,
-                    fontSize: 14,
+                    fontSize: ResponsiveUtils.sp(context, 14),
                   ),
                 ),
               ),
@@ -177,11 +178,11 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                const SizedBox(height: 16),
+                Icon(Icons.error_outline, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.red[300]),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 Text(
                   'Error loading requests',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -195,16 +196,16 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.cleaning_services, size: 64, color: Colors.grey[300]),
-                const SizedBox(height: 16),
+                Icon(Icons.cleaning_services, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[300]),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 Text(
                   'No housekeeping requests',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 Text(
                   'Requests from guests will appear here',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+                  style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey[400]),
                 ),
               ],
             ),
@@ -239,8 +240,8 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.filter_list_off, size: 64, color: Colors.grey[300]),
-                const SizedBox(height: 16),
+                Icon(Icons.filter_list_off, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[300]),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 Text('No requests match these criteria.', style: TextStyle(color: Colors.grey[500])),
               ],
             ),
@@ -248,9 +249,9 @@ class _AdminHousekeepingScreenState extends State<AdminHousekeepingScreen> {
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
           itemCount: filteredRequests.length,
-          separatorBuilder: (_, e) => const SizedBox(height: 16),
+          separatorBuilder: (_, e) => SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           itemBuilder: (context, index) {
             final request = filteredRequests[index];
             return _RequestCard(
@@ -305,7 +306,7 @@ class _RequestCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -322,7 +323,7 @@ class _RequestCard extends StatelessWidget {
               left: 0,
               top: 0,
               bottom: 0,
-              width: 4,
+              width: ResponsiveUtils.wp(context, 4 / 375),
               child: Container(
                 decoration: BoxDecoration(
                   color: statusColor,
@@ -334,7 +335,7 @@ class _RequestCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -351,13 +352,13 @@ class _RequestCard extends StatelessWidget {
                               children: [
                                 Text(
                                   'Room $roomNumber',
-                                  style: const TextStyle(
-                                    fontSize: 18,
+                                  style: TextStyle(
+                                    fontSize: ResponsiveUtils.sp(context, 18),
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF111827),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                 // Do Not Disturb Badge (check room status)
                                 StreamBuilder<DocumentSnapshot>(
                                   stream: FirebaseFirestore.instance
@@ -373,21 +374,21 @@ class _RequestCard extends StatelessWidget {
                                       
                                       if (doNotDisturb) {
                                         return Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 8), vertical: ResponsiveUtils.spacing(context, 4)),
                                           decoration: BoxDecoration(
                                             color: Colors.red[50],
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                             border: Border.all(color: Colors.red[300]!),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(Icons.do_not_disturb, size: 14, color: Colors.red[700]),
-                                              const SizedBox(width: 4),
+                                              Icon(Icons.do_not_disturb, size: ResponsiveUtils.iconSize(context) * (14 / 24), color: Colors.red[700]),
+                                              SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                               Text(
                                                 'DND',
                                                 style: TextStyle(
-                                                  fontSize: 11,
+                                                  fontSize: ResponsiveUtils.sp(context, 11),
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.red[700],
                                                 ),
@@ -402,12 +403,12 @@ class _RequestCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                             Text(
                               guestName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Color(0xFF6B7280),
-                                fontSize: 14,
+                                fontSize: ResponsiveUtils.sp(context, 14),
                               ),
                             ),
                           ],
@@ -415,56 +416,56 @@ class _RequestCard extends StatelessWidget {
                       ),
                       // Status Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 6)),
                         decoration: BoxDecoration(
                           color: statusBg,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                         ),
                         child: Text(
                           status == 'Pending' || status == 'In Progress' ? 'Active' : status,
                           style: TextStyle(
                             color: statusColor,
-                            fontSize: 12,
+                            fontSize: ResponsiveUtils.sp(context, 12),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   Divider(color: Colors.grey[200]),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   
                   // Request Details Preview
                   Text(
                     details.split('\n').first,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF374151),
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   
                   // Footer
                   Row(
                     children: [
-                      Icon(Icons.access_time, size: 16, color: Colors.grey[400]),
-                      const SizedBox(width: 4),
+                      Icon(Icons.access_time, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Colors.grey[400]),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                       Text(
                         timeStr,
                         style: TextStyle(
                           color: Colors.grey[600],
-                          fontSize: 12,
+                          fontSize: ResponsiveUtils.sp(context, 12),
                         ),
                       ),
-                      const Spacer(),
+                      Spacer(),
                       Text(
                         'Tap for details',
                         style: TextStyle(
                           color: Colors.grey[400],
-                          fontSize: 12,
+                          fontSize: ResponsiveUtils.sp(context, 12),
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -492,9 +493,9 @@ class _RequestCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20))),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
           constraints: const BoxConstraints(maxWidth: 500),
           child: SingleChildScrollView(
             child: Column(
@@ -505,10 +506,10 @@ class _RequestCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Request Details',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: ResponsiveUtils.sp(context, 22),
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF111827),
                       ),
@@ -519,33 +520,33 @@ class _RequestCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 
                 // Info Rows
-                _buildInfoRow('Room Number', roomNumber),
-                _buildInfoRow('Guest Name', guestName),
-                _buildInfoRow('Date & Time', dateStr),
-                _buildInfoRow('Status', status),
+                _buildInfoRow(context, 'Room Number', roomNumber),
+                _buildInfoRow(context, 'Guest Name', guestName),
+                _buildInfoRow(context, 'Date & Time', dateStr),
+                _buildInfoRow(context, 'Status', status),
                 
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                Divider(),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 
                 // Full Details
-                const Text(
+                Text(
                   'Request Details',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF111827),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                     border: Border.all(color: Colors.grey[200]!),
                   ),
                   child: Column(
@@ -559,17 +560,17 @@ class _RequestCard extends StatelessWidget {
                           final value = parts.sublist(1).join(':').trim();
                           
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
+                            padding: EdgeInsets.only(bottom: 8),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 SizedBox(
-                                  width: 120,
+                                  width: ResponsiveUtils.wp(context, 120 / 375),
                                   child: Text(
                                     label,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Color(0xFF6B7280),
-                                      fontSize: 14,
+                                      fontSize: ResponsiveUtils.sp(context, 14),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -577,9 +578,9 @@ class _RequestCard extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     value,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Color(0xFF111827),
-                                      fontSize: 14,
+                                      fontSize: ResponsiveUtils.sp(context, 14),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -590,13 +591,13 @@ class _RequestCard extends StatelessWidget {
                         } else {
                           // Lines without colon (like notes)
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
+                            padding: EdgeInsets.only(bottom: 8),
                             child: Text(
                               line,
-                              style: const TextStyle(
-                                fontSize: 14,
+                              style: TextStyle(
+                                fontSize: ResponsiveUtils.sp(context, 14),
                                 color: Color(0xFF374151),
-                                height: 1.5,
+                                height: ResponsiveUtils.hp(context, 1.5 / 844),
                               ),
                             ),
                           );
@@ -606,7 +607,7 @@ class _RequestCard extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 24),
+                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                 
                 // Action Buttons (only show if not completed or cancelled)
                 if (status != 'Completed' && status != 'Cancelled')
@@ -622,22 +623,22 @@ class _RequestCard extends StatelessWidget {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              padding: EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Mark Completed',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: ResponsiveUtils.sp(context, 16),
                               ),
                             ),
                           ),
                         ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
@@ -646,18 +647,18 @@ class _RequestCard extends StatelessWidget {
                             Navigator.pop(ctx);
                           },
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: EdgeInsets.symmetric(vertical: 14),
                             side: const BorderSide(color: Colors.red),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Cancel Request',
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                             ),
                           ),
                         ),
@@ -672,19 +673,19 @@ class _RequestCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
+            width: ResponsiveUtils.wp(context, 120 / 375),
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Color(0xFF6B7280),
-                fontSize: 14,
+                fontSize: ResponsiveUtils.sp(context, 14),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -692,12 +693,11 @@ class _RequestCard extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Color(0xFF111827),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+                fontSize: ResponsiveUtils.sp(context, 14),
             ),
+          ),
           ),
         ],
       ),
@@ -732,6 +732,7 @@ class _RequestCard extends StatelessWidget {
     });
   }
 }
+
 
 
 

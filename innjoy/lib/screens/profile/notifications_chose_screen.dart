@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart';
 
 class NotificationsChoseScreen extends StatefulWidget {
   const NotificationsChoseScreen({super.key});
@@ -94,19 +95,19 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Notifications',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontSize: ResponsiveUtils.sp(context, 18),
           ),
         ),
       ),
       body: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
         itemCount: 7,
-        separatorBuilder: (_, e) => const SizedBox(height: 12),
+        separatorBuilder: (_, e) => SizedBox(height: ResponsiveUtils.spacing(context, 12)),
         itemBuilder: (context, i) {
           if (i == 0) {
             return _CardBlock(
@@ -149,9 +150,9 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: SizedBox(
-                height: 48,
+                height: ResponsiveUtils.hp(context, 48 / 844),
                 child: ElevatedButton(
                   onPressed: hasAnyOn
                       ? () async {
@@ -168,7 +169,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
 
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text('Preferences saved ✅'),
                               ),
                             );
@@ -180,7 +181,7 @@ class _NotificationsChoseScreenState extends State<NotificationsChoseScreen> {
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                     ),
                   ),
                   child: const Text('Save'),
@@ -225,10 +226,10 @@ class _CardBlock extends StatelessWidget {
         ? const Color(0xFF7E57C2)
         : Colors.blue;
     return Container(
-      height: 96,
+      height: ResponsiveUtils.hp(context, 96 / 844),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -237,20 +238,20 @@ class _CardBlock extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 14), vertical: ResponsiveUtils.spacing(context, 12)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: ResponsiveUtils.wp(context, 48 / 375),
+            height: ResponsiveUtils.hp(context, 48 / 844),
             decoration: BoxDecoration(
               color: badgeColor,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: iconColor),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,27 +259,27 @@ class _CardBlock extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.black87,
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                 Text(
                   subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFF7A7F87),
-                    fontSize: 12.5,
+                    fontSize: ResponsiveUtils.sp(context, 12.5),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -290,10 +291,10 @@ class _CardBlock extends StatelessWidget {
                     end: value ? activeColor : const Color(0xFFB0B4BB),
                   ),
                   builder: (context, color, _) =>
-                      Icon(Icons.notifications_none, size: 16, color: color),
+                      Icon(Icons.notifications_none, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: color),
                 )
               else
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
               const Spacer(),
               _Toggle(
                 value: value,
@@ -325,29 +326,29 @@ class _Toggle extends StatelessWidget {
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
-        width: 58,
-        height: 32,
+        width: ResponsiveUtils.wp(context, 58 / 375),
+        height: ResponsiveUtils.hp(context, 32 / 844),
         decoration: BoxDecoration(
           color: value
               ? (purpleTheme ? const Color(0xFFDAD4FF) : Colors.blue.shade200)
               : const Color(0xFFE9E5EF),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
           border: Border.all(
             color: value
                 ? (purpleTheme ? const Color(0xFF7E57C2) : Colors.blue)
                 : const Color(0xFF8E8A98),
-            width: 2,
+            width: ResponsiveUtils.wp(context, 2 / 375),
           ),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 220),
           alignment: value ? Alignment.centerRight : Alignment.centerLeft,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 7),
+            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 7)),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 220),
-              width: 18,
-              height: 18,
+              width: ResponsiveUtils.wp(context, 18 / 375),
+              height: ResponsiveUtils.hp(context, 18 / 844),
               decoration: BoxDecoration(
                 color: value
                     ? (purpleTheme ? const Color(0xFF7E57C2) : Colors.blue)

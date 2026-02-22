@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../services/database_service.dart';
 import '../../../services/notification_service.dart';
 import 'package:flutter/cupertino.dart';
+import '../../../utils/responsive_utils.dart';
 
 class DiningBookingScreen extends StatefulWidget {
   final String hotelName;
@@ -89,12 +90,12 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
     showCupertinoModalPopup(
       context: context,
       builder: (_) => Container(
-        height: 300,
+        height: ResponsiveUtils.hp(context, 300 / 844),
         color: Colors.white,
         child: Column(
           children: [
             SizedBox(
-              height: 200,
+              height: ResponsiveUtils.hp(context, 200 / 844),
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.time,
                 use24hFormat: true,
@@ -114,9 +115,9 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
             ),
             // Close button
             CupertinoButton(
-              child: const Text('OK', style: TextStyle(
+              child: Text('OK', style: TextStyle(
                 color: Color(0xFF137fec), 
-                fontSize: 18, 
+                fontSize: ResponsiveUtils.sp(context, 18), 
                 fontWeight: FontWeight.bold
               )),
               onPressed: () => Navigator.of(context).pop(),
@@ -197,74 +198,76 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
         context: context,
         barrierDismissible: false,
         builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20))),
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.check_rounded, color: Colors.green.shade600, size: 40),
+                  child: Icon(Icons.check_rounded, color: Colors.green.shade600, size: ResponsiveUtils.iconSize(context) * (40 / 24)),
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                Text(
                   'Reservation Confirmed!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: ResponsiveUtils.sp(context, 20),
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF101922),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 Text(
                   'Your table is ready! 🔔 Reminders set: 1h & 30min before',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                 
                 // Details Card
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF6F7FB),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: Column(
                     children: [
                       _buildDetailRow(Icons.restaurant, widget.restaurantName),
-                      const SizedBox(height: 12),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                       _buildDetailRow(Icons.calendar_today, _formatDate(_selectedDate)),
-                      const SizedBox(height: 12),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                       _buildDetailRow(Icons.access_time, _formatTime(_selectedTime)),
-                      const SizedBox(height: 12),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                       _buildDetailRow(Icons.people, '$_guestCount Guests'),
-                      const Divider(height: 24),
+                      Divider(height: 24),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                          vertical: ResponsiveUtils.spacing(context, 8),
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF137fec).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           border: Border.all(color: const Color(0xFF137fec).withValues(alpha: 0.2)),
                         ),
                         child: Text(
                           'Table ${result['tableNumber']}',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16, 
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 16), 
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF137fec),
                           ),
@@ -274,7 +277,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -284,11 +287,11 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF137fec),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12))),
                       elevation: 0,
                     ),
-                    child: const Text('Done', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: Text('Done', style: TextStyle(color: Colors.white, fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -310,13 +313,13 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
   Widget _buildDetailRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Colors.grey[600]),
-        const SizedBox(width: 12),
+        Icon(icon, size: ResponsiveUtils.iconSize(context) * (18 / 24), color: Colors.grey[600]),
+        SizedBox(width: ResponsiveUtils.spacing(context, 12)),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 15,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.sp(context, 15),
               fontWeight: FontWeight.w500,
               color: Color(0xFF101922),
             ),
@@ -338,7 +341,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
     if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
       final isNetwork = widget.imageUrl!.startsWith('http');
       return Container(
-        height: 200,
+        height: ResponsiveUtils.hp(context, 200 / 844),
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
@@ -364,7 +367,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
         if (dynamicUrl != null && dynamicUrl.isNotEmpty) {
           final isNetwork = dynamicUrl.startsWith('http');
           return Container(
-            height: 200,
+            height: ResponsiveUtils.hp(context, 200 / 844),
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
@@ -394,14 +397,14 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Book a Table',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: ResponsiveUtils.sp(context, 18)),
         ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -410,7 +413,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -424,23 +427,23 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                 children: [
                   _buildHeaderImage(),
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           widget.restaurantName,
-                          style: const TextStyle(
-                            fontSize: 20,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 20),
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF101922),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
+                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
+                        Text(
                           'Exclusive Dining Experience',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: ResponsiveUtils.sp(context, 14),
                             color: Colors.grey,
                           ),
                         ),
@@ -451,7 +454,7 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
               ),
             ),
             
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Date & Guests Row
             Row(
@@ -461,28 +464,28 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Date',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
+                        style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black54),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                       GestureDetector(
                         onTap: _selectDate,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                             border: Border.all(color: Colors.grey[300]!),
                           ),
                           child: Row(
                             children: [
                               Text(
                                 _formatDate(_selectedDate),
-                                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: ResponsiveUtils.sp(context, 15)),
                               ),
-                              const Spacer(),
-                              Icon(Icons.calendar_today_outlined, color: Colors.grey[600], size: 20),
+                              Spacer(),
+                              Icon(Icons.calendar_today_outlined, color: Colors.grey[600], size: ResponsiveUtils.iconSize(context) * (20 / 24)),
                             ],
                           ),
                         ),
@@ -490,21 +493,21 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                 // Guest Counter
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Guests',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
+                      style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black54),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 8)),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         border: Border.all(color: Colors.grey[300]!),
                       ),
                       child: Row(
@@ -514,21 +517,21 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                               if (_guestCount > 1) setState(() => _guestCount--);
                             },
                             child: Container(
-                              width: 32,
-                              height: 32,
+                              width: ResponsiveUtils.wp(context, 32 / 375),
+                              height: ResponsiveUtils.hp(context, 32 / 844),
                               decoration: BoxDecoration(
                                 color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                               ),
-                              child: const Icon(Icons.remove, size: 18),
+                              child: Icon(Icons.remove, size: ResponsiveUtils.iconSize(context) * (18 / 24)),
                             ),
                           ),
                           SizedBox(
-                            width: 40,
+                            width: ResponsiveUtils.wp(context, 40 / 375),
                             child: Text(
                               _guestCount.toString(),
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: ResponsiveUtils.sp(context, 16)),
                             ),
                           ),
                           GestureDetector(
@@ -536,13 +539,13 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                               if (_guestCount < 20) setState(() => _guestCount++);
                             },
                             child: Container(
-                              width: 32,
-                              height: 32,
+                              width: ResponsiveUtils.wp(context, 32 / 375),
+                              height: ResponsiveUtils.hp(context, 32 / 844),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF137fec),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                               ),
-                              child: const Icon(Icons.add, size: 18, color: Colors.white),
+                              child: Icon(Icons.add, size: ResponsiveUtils.iconSize(context) * (18 / 24), color: Colors.white),
                             ),
                           ),
                         ],
@@ -553,22 +556,22 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
               ],
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Time Selection (Fixed)
-            const Text(
+            Text(
               'Time',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black54),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
             GestureDetector(
               onTap: _selectTime,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
                   color: const Color(0xFF137fec),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF137fec).withValues(alpha: 0.4), // Stronger shadow
@@ -580,13 +583,13 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.access_time_filled, color: Colors.white, size: 24),
-                    const SizedBox(width: 10),
+                    Icon(Icons.access_time_filled, color: Colors.white, size: ResponsiveUtils.iconSize(context) * (24 / 24)),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 10)),
                     Text(
                       _formatTime(_selectedTime),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: ResponsiveUtils.sp(context, 20),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
@@ -595,26 +598,26 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            const Center(
+            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
+            Center(
               child: Text(
                 'Select your preferred seating time.',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                style: TextStyle(color: Colors.grey, fontSize: ResponsiveUtils.sp(context, 12)),
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Special Requests
-            const Text(
+            Text(
               'Special Requests (Optional)',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black54),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                 border: Border.all(color: Colors.grey[300]!),
               ),
               child: TextField(
@@ -622,19 +625,19 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   hintText: 'e.g. allergies, high chair needed, window seat...',
-                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: ResponsiveUtils.sp(context, 14)),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
+                  contentPadding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 ),
               ),
             ),
 
-            const SizedBox(height: 100),
+            SizedBox(height: ResponsiveUtils.spacing(context, 100)),
           ],
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -650,19 +653,21 @@ class _DiningBookingScreenState extends State<DiningBookingScreen> {
             onPressed: _isLoading ? null : _confirmReservation,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF137fec),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveUtils.spacing(context, 16),
+              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12))),
             ),
             child: _isLoading 
-              ? const SizedBox(
-                  width: 24, height: 24, 
+              ? SizedBox(
+                  width: ResponsiveUtils.wp(context, 24 / 375), height: ResponsiveUtils.hp(context, 24 / 844), 
                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
                 )
-              : const Text(
+              : Text(
                   'Confirm Reservation',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     fontWeight: FontWeight.w600,
                   ),
                 ),

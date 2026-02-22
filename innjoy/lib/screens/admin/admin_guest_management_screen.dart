@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart';
 
 class AdminGuestManagementScreen extends StatefulWidget {
   final String hotelName;
@@ -54,13 +55,13 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -97,11 +98,11 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person_search, size: 80, color: Colors.grey[400]),
-                        const SizedBox(height: 16),
+                        Icon(Icons.person_search, size: ResponsiveUtils.iconSize(context) * (80 / 24), color: Colors.grey[400]),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                         Text(
                           _searchQuery.isEmpty ? 'No guests yet.' : 'No records found.',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                          style: TextStyle(color: Colors.grey[600], fontSize: ResponsiveUtils.sp(context, 16)),
                         ),
                       ],
                     ),
@@ -109,19 +110,19 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                 }
 
                 return ListView.separated(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   itemCount: reservations.length,
-                  separatorBuilder: (_, e) => const SizedBox(height: 12),
+                  separatorBuilder: (_, e) => SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   itemBuilder: (context, index) {
                     final res = reservations[index];
                     final isUsed = res['status'] == 'used';
                     final checkOut = (res['checkOutDate'] as Timestamp).toDate();
 
                     return Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.04),
@@ -137,11 +138,11 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                         children: [
                           // Oda Numarası
                           Container(
-                            width: 60,
-                            height: 60,
+                            width: ResponsiveUtils.wp(context, 60 / 375),
+                            height: ResponsiveUtils.hp(context, 60 / 844),
                             decoration: BoxDecoration(
                               color: const Color(0xFFF0F2F5),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                               border: Border.all(color: Colors.grey.shade300),
                             ),
                             child: Column(
@@ -150,23 +151,23 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                                 Text(
                                   'Room',
                                   style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: ResponsiveUtils.sp(context, 10),
                                     color: Colors.grey[600],
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 Text(
                                   res['roomNumber'] ?? '-',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                                    fontSize: ResponsiveUtils.sp(context, 18),
                                     color: Color(0xFF2E5077),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                           
                           // Bilgiler
                           Expanded(
@@ -175,19 +176,19 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                               children: [
                                 Text(
                                   res['guestName'] ?? 'Unnamed',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                    fontSize: ResponsiveUtils.sp(context, 16),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                 Row(
                                   children: [
-                                    Icon(Icons.vpn_key, size: 14, color: Colors.grey[600]),
-                                    const SizedBox(width: 4),
+                                    Icon(Icons.vpn_key, size: ResponsiveUtils.iconSize(context) * (14 / 24), color: Colors.grey[600]),
+                                    SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                     Text(
                                       'PNR: ${res['pnr']}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF2E5077),
                                         letterSpacing: 1.0,
@@ -195,15 +196,15 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                 Row(
                                   children: [
-                                    Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
-                                    const SizedBox(width: 4),
+                                    Icon(Icons.calendar_today, size: ResponsiveUtils.iconSize(context) * (14 / 24), color: Colors.grey[600]),
+                                    SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                     Text(
                                       'Check-out: ${DateFormat('dd MMM yyyy').format(checkOut)}',
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: ResponsiveUtils.sp(context, 12),
                                         color: Colors.grey[700],
                                       ),
                                     ),
@@ -215,19 +216,19 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
 
                           // Durum Badge
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 10), vertical: ResponsiveUtils.spacing(context, 6)),
                             decoration: BoxDecoration(
                               color: isUsed ? Colors.green.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                             ),
                             child: Text(
                               isUsed ? 'Active' : 'Pending', // Used = Checked in, active at hotel
                               style: TextStyle(
                                 color: isUsed ? Colors.green : Colors.orange,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
+                                fontSize: ResponsiveUtils.sp(context, 14),
                             ),
+                          ),
                           ),
                         ],
                       ),
@@ -268,7 +269,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                     decoration: const InputDecoration(labelText: 'Guest Name'),
                     validator: (v) => v!.isEmpty ? 'Required' : null,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                   ListTile(
                     title: const Text('Check-out Date'),
                     subtitle: Text(DateFormat('dd MMM yyyy').format(_checkOutDate)),
@@ -311,7 +312,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                       );
                       navigator.pop();
                       messenger.showSnackBar(
-                        const SnackBar(content: Text('PNR created successfully')),
+                        SnackBar(content: Text('PNR created successfully')),
                       );
                     } catch (e) {
                       messenger.showSnackBar(
@@ -323,7 +324,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
                   }
                 },
                 child: _isLoading 
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                  ? SizedBox(width: ResponsiveUtils.wp(context, 20 / 375), height: ResponsiveUtils.hp(context, 20 / 844), child: CircularProgressIndicator(strokeWidth: 2)) 
                   : const Text('Create'),
               ),
             ],
@@ -333,6 +334,7 @@ class _AdminGuestManagementScreenState extends State<AdminGuestManagementScreen>
     );
   }
 }
+
 
 
 

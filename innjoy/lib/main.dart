@@ -448,19 +448,16 @@ class _InnJoyHotelAppState extends State<InnJoyHotelApp> {
       Logger.error('❌ Emergency siren çalınamadı: $e');
     }
 
-    // Android Bildirim Detayları - Varsayılan Alarm Sesi
+    // Android Bildirim Detayları - Ses Kapalı (audioplayers ile çalınıyor)
     const AndroidNotificationDetails
     androidDetails = AndroidNotificationDetails(
-      'emergency_alarm_channel_v2', // Yeni kanal adı (eski kanalda ses çalışmıyorsa)
+      'emergency_alarm_channel_v3', // Yeni kanal adı (ses kapalı)
       'Acil Durum Alarmları',
       channelDescription: 'Yüksek öncelikli acil durum alarm bildirimleri',
       importance: Importance.max,
       priority: Priority.high,
       color: Colors.red,
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound(
-        'emergency_siren',
-      ), // Android özel ses (res/raw/emergency_siren.mp3)
+      playSound: false, // Ses kapatıldı (audioplayers ile çalınıyor)
       enableVibration: true,
       fullScreenIntent: true, // Ekran kilitliyken bile tam ekran göster
       category: AndroidNotificationCategory.alarm, // Alarm kategorisi

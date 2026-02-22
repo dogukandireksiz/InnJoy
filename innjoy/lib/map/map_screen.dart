@@ -116,8 +116,8 @@ class _MapScreenState extends State<MapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.oteluygulamasi.app',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
               ),
 
               // NOT: PolylineLayer (Kırmızı Çizgi) buradan kaldırıldı.

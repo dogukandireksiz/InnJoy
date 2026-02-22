@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart';
 
 class SpendingTrackerScreen extends StatefulWidget {
   const SpendingTrackerScreen({super.key});
@@ -206,32 +207,32 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                               GestureDetector(
                                 onTap: () => Navigator.pop(context),
                                 child: Container(
-                                  width: 40,
-                                  height: 40,
+                                  width: ResponsiveUtils.wp(context, 40 / 375),
+                                  height: ResponsiveUtils.hp(context, 40 / 844),
                                   decoration: BoxDecoration(
                                     color: Colors.transparent,
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                                   ),
-                                  child: const Icon(Icons.arrow_back, color: Color(0xFF0d141b), size: 24),
+                                  child: Icon(Icons.arrow_back, color: Color(0xFF0d141b), size: ResponsiveUtils.iconSize(context) * (24 / 24)),
                                 ),
                               ),
-                              const Text(
+                              Text(
                                 'Spending',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: ResponsiveUtils.sp(context, 18),
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF0d141b),
                                   fontFamily: 'Plus Jakarta Sans',
                                 ),
                               ),
-                              const SizedBox(width: 40), // Spacer for centering
+                              SizedBox(width: ResponsiveUtils.spacing(context, 40)), // Spacer for centering
                             ],
                           ),
                         ),
 
                         Expanded(
                           child: SingleChildScrollView(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                             child: Column(
                               children: [
                                 // Gradient Balance Card
@@ -242,7 +243,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                       end: Alignment.bottomRight,
                                       colors: [Color(0xFF009688), Color(0xFF00BCD4)], // Teal to Cyan
                                     ),
-                                    borderRadius: BorderRadius.circular(24),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
                                     boxShadow: [
                                       BoxShadow(
                                         color: const Color(0xFF009688).withValues(alpha: 0.3),
@@ -251,7 +252,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                       ),
                                     ],
                                   ),
-                                  padding: const EdgeInsets.all(24),
+                                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
                                   child: Column(
                                     children: [
                                       Row(
@@ -265,41 +266,41 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                                 'Current Balance',
                                                 style: TextStyle(
                                                   color: Colors.white.withValues(alpha: 0.9),
-                                                  fontSize: 16,
+                                                  fontSize: ResponsiveUtils.sp(context, 16),
                                                   fontWeight: FontWeight.w500,
                                                 ),
                                               ),
-                                              const SizedBox(height: 4),
+                                              SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                               Text(
                                                 '₺${currentBalance.toStringAsFixed(2)}',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 36,
+                                                  fontSize: ResponsiveUtils.sp(context, 36),
                                                   fontWeight: FontWeight.bold,
                                                   letterSpacing: -1,
                                                 ),
                                               ),
-                                              const SizedBox(height: 8),
+                                              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                                               Text(
                                                 '$_guestName, Room $_roomNumber',
                                                 style: TextStyle(
                                                   color: Colors.white.withValues(alpha: 0.7),
-                                                  fontSize: 14,
+                                                  fontSize: ResponsiveUtils.sp(context, 14),
                                                 ),
                                               ),
                                             ],
                                           ),
                                           Container(
-                                            padding: const EdgeInsets.all(12),
+                                            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                                             decoration: BoxDecoration(
                                               color: Colors.white.withValues(alpha: 0.15),
                                               shape: BoxShape.circle,
                                             ),
-                                            child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),
+                                            child: Icon(Icons.account_balance_wallet, color: Colors.white, size: ResponsiveUtils.iconSize(context) * (28 / 24)),
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 24),
+                                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                                       ElevatedButton(
                                         onPressed: () {
                                           _showSettleDialog(context, currentBalance);
@@ -310,24 +311,24 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                           elevation: 4,
                                           shadowColor: Colors.black.withValues(alpha: 0.2),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                                           ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 24), vertical: ResponsiveUtils.spacing(context, 16)),
                                           minimumSize: const Size(double.infinity, 54),
                                         ),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            const Text(
+                                            Text(
                                               'Settle Full Bill',
                                               style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: ResponsiveUtils.sp(context, 16),
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: 'Plus Jakarta Sans',
                                               ),
                                             ),
-                                            const SizedBox(width: 8),
-                                            Icon(Icons.payment, size: 20, color: accentColor),
+                                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+                                            Icon(Icons.payment, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: accentColor),
                                           ],
                                         ),
                                       ),
@@ -335,7 +336,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                   ),
                                 ),
 
-                                const SizedBox(height: 24),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
                                 // Date Filter Chips
                                 SingleChildScrollView(
@@ -349,7 +350,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                         primaryColor,
                                         () => setState(() => _selectedDateFilter = 'all'),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                       _buildDateFilterChip(
                                         'Today',
                                         Icons.today,
@@ -357,7 +358,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                         primaryColor,
                                         () => setState(() => _selectedDateFilter = 'today'),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                       _buildDateFilterChip(
                                         'Last 7 Days',
                                         Icons.date_range,
@@ -365,7 +366,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                         primaryColor,
                                         () => setState(() => _selectedDateFilter = 'week'),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                       _buildDateFilterChip(
                                         _selectedDateFilter == 'custom' && _customStartDate != null
                                             ? '${DateFormat('MMM d').format(_customStartDate!)} - ${DateFormat('MMM d').format(_customEndDate!)}'
@@ -379,7 +380,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                   ),
                                 ),
 
-                                const SizedBox(height: 24),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
                                 // Section Header & View Toggle
                                 Row(
@@ -387,8 +388,8 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                   children: [
                                     Text(
                                       _isListView ? 'Recent Transactions' : 'Spending Breakdown',
-                                      style: const TextStyle(
-                                        fontSize: 18,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveUtils.sp(context, 18),
                                         fontWeight: FontWeight.bold,
                                         color: Color(0xFF0d141b),
                                         fontFamily: 'Plus Jakarta Sans',
@@ -397,9 +398,9 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                     Container(
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFE0E5EB),
-                                        borderRadius: BorderRadius.circular(24),
+                                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
                                       ),
-                                      padding: const EdgeInsets.all(4),
+                                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 4)),
                                       child: Row(
                                         children: [
                                           _buildViewToggleIcon(Icons.list, _isListView, primaryColor, () {
@@ -413,7 +414,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                                 // CONTENT AREA
                                 if (filteredExpenses.isEmpty)
@@ -434,7 +435,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                                     },
                                   ),
                                 
-                                const SizedBox(height: 40),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 40)),
                               ],
                             ),
                           ),
@@ -450,24 +451,24 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: ResponsiveUtils.hp(context, 40 / 844),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
         decoration: BoxDecoration(
           color: isSelected ? primary.withValues(alpha: 0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
           border: isSelected ? Border.all(color: primary.withValues(alpha: 0.3), width: 1.5) : Border.all(color: Colors.grey.shade300),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: isSelected ? primary : Colors.grey[600]),
-            const SizedBox(width: 6),
+            Icon(icon, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: isSelected ? primary : Colors.grey[600]),
+            SizedBox(width: ResponsiveUtils.spacing(context, 6)),
             Text(
               label,
               style: TextStyle(
                 color: isSelected ? primary : const Color(0xFF0d141b),
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 13,
+                fontSize: ResponsiveUtils.sp(context, 13),
               ),
             ),
           ],
@@ -515,32 +516,32 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
           children: [
             // Date Header
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 12),
+              padding: EdgeInsets.only(top: 8, bottom: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 6)),
                         decoration: BoxDecoration(
                           color: const Color(0xFF04336A).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         ),
                         child: Text(
                           displayDate,
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 13),
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF04336A),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                       Text(
                         '${dayExpenses.length} transaction${dayExpenses.length > 1 ? 's' : ''}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: ResponsiveUtils.sp(context, 12),
                           color: Colors.grey[500],
                         ),
                       ),
@@ -548,8 +549,8 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                   ),
                   Text(
                     '-₺${dayTotal.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: ResponsiveUtils.sp(context, 14),
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF4c739a),
                     ),
@@ -584,8 +585,8 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 36,
-        height: 36,
+        width: ResponsiveUtils.wp(context, 36 / 375),
+        height: ResponsiveUtils.hp(context, 36 / 844),
         decoration: BoxDecoration(
           color: isActive ? Colors.white : Colors.transparent,
           shape: BoxShape.circle,
@@ -593,7 +594,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
         ),
         child: Icon(
           icon,
-          size: 20,
+          size: ResponsiveUtils.iconSize(context) * (20 / 24),
           color: isActive ? activeColor : const Color(0xFF8B9CB0),
         ),
       ),
@@ -619,11 +620,11 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
     String? details = expense['items'] as String?;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
@@ -636,50 +637,50 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
       child: Row(
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: ResponsiveUtils.wp(context, 50 / 375),
+            height: ResponsiveUtils.hp(context, 50 / 844),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 25)),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: ResponsiveUtils.iconSize(context) * (24 / 24)),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: ResponsiveUtils.spacing(context, 16)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     color: Color(0xFF0d141b),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: ResponsiveUtils.spacing(context, 2)),
                 Row(
                   children: [
-                    Icon(Icons.access_time, size: 12, color: Colors.grey[400]),
-                    const SizedBox(width: 4),
+                    Icon(Icons.access_time, size: ResponsiveUtils.iconSize(context) * (12 / 24), color: Colors.grey[400]),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                     Text(
                       timeStr,
                       style: TextStyle(
                         color: Colors.grey[500],
-                        fontSize: 12,
+                        fontSize: ResponsiveUtils.sp(context, 12),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (details != null && details.isNotEmpty) ...[
-                      const SizedBox(width: 8),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                       Text('•', style: TextStyle(color: Colors.grey[400])),
-                      const SizedBox(width: 8),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                       Expanded(
                         child: Text(
                           details,
                           style: TextStyle(
                             color: Colors.grey[500],
-                            fontSize: 12,
+                            fontSize: ResponsiveUtils.sp(context, 12),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -695,16 +696,16 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
             children: [
               Text(
                 '-₺${amount.toStringAsFixed(2)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: ResponsiveUtils.sp(context, 16),
                   color: Color(0xFF0d141b),
                 ),
               ),
               Text(
                 _getCategoryName(category),
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: ResponsiveUtils.sp(context, 11),
                   color: color,
                   fontWeight: FontWeight.w500,
                 ),
@@ -722,42 +723,42 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
     return GestureDetector(
       onTap: () => _showCategoryDetails(categoryKey, data, allExpenses),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           border: Border.all(color: Colors.grey.shade200),
         ),
         child: Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: ResponsiveUtils.wp(context, 50 / 375),
+              height: ResponsiveUtils.hp(context, 50 / 844),
               decoration: BoxDecoration(
                 color: (data['color'] as Color).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 25)),
               ),
-              child: Icon(data['icon'], color: data['color'], size: 24),
+              child: Icon(data['icon'], color: data['color'], size: ResponsiveUtils.iconSize(context) * (24 / 24)),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: ResponsiveUtils.spacing(context, 16)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     data['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 16,
+                      fontSize: ResponsiveUtils.sp(context, 16),
                       color: Color(0xFF0d141b),
                     ),
                   ),
                   Text(
                     '${data['count']} transaction${(data['count'] as int) > 1 ? 's' : ''}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF4c739a),
-                      fontSize: 13,
+                      fontSize: ResponsiveUtils.sp(context, 13),
                     ),
                   ),
                 ],
@@ -767,13 +768,13 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
               children: [
                 Text(
                   '₺${(data['total'] as double).toStringAsFixed(2)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     color: Color(0xFF0d141b),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                 const Icon(Icons.chevron_right, color: Color(0xFF4c739a)),
               ],
             ),
@@ -807,38 +808,38 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
             children: [
               // Handle bar
               Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
+                margin: EdgeInsets.only(top: 12),
+                width: ResponsiveUtils.wp(context, 40 / 375),
+                height: ResponsiveUtils.hp(context, 4 / 844),
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 2)),
                 ),
               ),
               // Header
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
                 child: Row(
                   children: [
                     Container(
-                      width: 50,
-                      height: 50,
+                      width: ResponsiveUtils.wp(context, 50 / 375),
+                      height: ResponsiveUtils.hp(context, 50 / 844),
                       decoration: BoxDecoration(
                         color: (categoryData['color'] as Color).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 25)),
                       ),
-                      child: Icon(categoryData['icon'], color: categoryData['color'], size: 24),
+                      child: Icon(categoryData['icon'], color: categoryData['color'], size: ResponsiveUtils.iconSize(context) * (24 / 24)),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             categoryData['name'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: ResponsiveUtils.sp(context, 20),
                               color: Color(0xFF0d141b),
                             ),
                           ),
@@ -846,7 +847,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                             'Total: ₺${(categoryData['total'] as double).toStringAsFixed(2)}',
                             style: TextStyle(
                               color: categoryData['color'],
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -860,7 +861,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                   ],
                 ),
               ),
-              const Divider(height: 1),
+              Divider(height: 1),
               // Transactions list
               Expanded(
                 child: categoryExpenses.isEmpty
@@ -872,7 +873,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                       )
                     : ListView.builder(
                         controller: scrollController,
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                         itemCount: categoryExpenses.length,
                         itemBuilder: (context, index) {
                           return _buildTransactionCard(categoryExpenses[index]);
@@ -888,14 +889,14 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
 
   Widget _buildEmptyState() {
     return Padding(
-      padding: const EdgeInsets.all(40.0),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 40.0)),
       child: Column(
         children: [
-          Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
+          Icon(Icons.receipt_long_outlined, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[300]),
+          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           Text(
             "No expenses found.",
-            style: TextStyle(fontSize: 16, color: Colors.grey[500], fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), color: Colors.grey[500], fontWeight: FontWeight.w500),
           ),
           if (_selectedDateFilter != 'all')
             Padding(
@@ -914,19 +915,19 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16))),
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: const Color(0xFF009688).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
               ),
               child: const Icon(Icons.info_outline, color: Color(0xFF009688)),
             ),
-            const SizedBox(width: 12),
-            const Text('Payment Information'),
+            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
+            Text('Payment Information'),
           ],
         ),
         content: Column(
@@ -934,22 +935,22 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
               decoration: BoxDecoration(
                 color: const Color(0xFFF6F7F8),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Total Amount:',
-                    style: TextStyle(fontSize: 16, color: Color(0xFF4c739a)),
+                    style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), color: Color(0xFF4c739a)),
                   ),
                   Text(
                     '₺${amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 24,
+                    style: TextStyle(
+                      fontSize: ResponsiveUtils.sp(context, 24),
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF0d141b),
                     ),
@@ -957,12 +958,12 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: ResponsiveUtils.spacing(context, 20)),
             Row(
               children: [
-                Icon(Icons.construction, size: 20, color: Colors.orange[700]),
-                const SizedBox(width: 8),
-                const Expanded(
+                Icon(Icons.construction, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: Colors.orange[700]),
+                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+                Expanded(
                   child: Text(
                     'Online payment feature is under development.',
                     style: TextStyle(
@@ -973,13 +974,12 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            const Text(
+            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
+            Text(
               'For now, please visit the reception to complete your payment. Thank you for your understanding!',
               style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF4c739a),
-                height: 1.5,
+                fontSize: ResponsiveUtils.sp(context, 14),
+                height: ResponsiveUtils.hp(context, 1.5 / 844),
               ),
             ),
           ],
@@ -989,7 +989,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
             onPressed: () => Navigator.pop(ctx),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFF009688),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 24), vertical: ResponsiveUtils.spacing(context, 12)),
             ),
             child: const Text('Got it!', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
@@ -1026,6 +1026,7 @@ class _SpendingTrackerScreenState extends State<SpendingTrackerScreen> {
     }
   }
 }
+
 
 
 

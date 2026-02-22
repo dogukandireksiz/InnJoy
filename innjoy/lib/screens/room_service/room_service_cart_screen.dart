@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/database_service.dart';
 import '../../models/menu_item_model.dart';
+import '../../utils/responsive_utils.dart';
 
 class RoomServiceCartScreen extends StatefulWidget {
   final String hotelName;
@@ -118,7 +119,7 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
         ),
       ),
       body: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 100),
+              padding: EdgeInsets.only(bottom: 100),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -131,14 +132,14 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
                    if (_currentCart.isEmpty)
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(24),
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                        child: const Column(
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
+                        margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12))),
+                        child: Column(
                           children: [
-                             Icon(Icons.shopping_cart_outlined, size: 48, color: Colors.grey),
-                             SizedBox(height: 12),
-                             Text("Your cart is empty.", style: TextStyle(color: Colors.grey, fontSize: 16)),
+                             Icon(Icons.shopping_cart_outlined, size: ResponsiveUtils.iconSize(context) * (48 / 24), color: Colors.grey),
+                             SizedBox(height: ResponsiveUtils.spacing(context, 12)),
+                             Text("Your cart is empty.", style: TextStyle(color: Colors.grey, fontSize: ResponsiveUtils.sp(context, 16))),
                           ],
                         ),
                       )
@@ -166,12 +167,12 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           color: Color(0xFF0d141b),
-          fontSize: 18,
+          fontSize: ResponsiveUtils.sp(context, 18),
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -180,16 +181,16 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildDeliveryInfoCard() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
       ),
       child: Column(
         children: [
           _buildInfoRow(Icons.meeting_room, 'Room Number', _roomNumber),
-          const Divider(height: 1, indent: 60),
+          Divider(height: ResponsiveUtils.hp(context, 1 / 844), indent: 60),
           _buildInfoRow(Icons.person, 'Guest Name', _guestName),
         ],
       ),
@@ -198,17 +199,17 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
+            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8))),
             child: Icon(icon, color: const Color(0xFF0d141b)),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: ResponsiveUtils.spacing(context, 16)),
           Expanded(child: Text(label, style: const TextStyle(color: Colors.grey))),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 16))),
         ],
       ),
     );
@@ -216,21 +217,21 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildCartItem(MenuItem item, int qty) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 6)),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
       ),
       child: Row(
         children: [
           // Image
           Container(
-            width: 70, 
-            height: 70,
+            width: ResponsiveUtils.wp(context, 70 / 375), 
+            height: ResponsiveUtils.hp(context, 70 / 844),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
               image: item.imageUrl.isNotEmpty 
                   ? DecorationImage(image: NetworkImage(item.imageUrl), fit: BoxFit.cover)
                   : null,
@@ -238,17 +239,22 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
             ),
             child: item.imageUrl.isEmpty ? const Icon(Icons.fastfood, color: Colors.grey) : null,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           // Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 4),
+                Text(item.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 16))),
+                SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                 Text(
-                  '₺${item.price}', 
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0d141b)),
+                  '₺${item.price.toStringAsFixed(2)}', 
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    color: Color(0xFF0d141b),
+                    fontSize: ResponsiveUtils.sp(context, 14),
+                  ),
+                  overflow: TextOverflow.clip,
                 ),
               ],
             ),
@@ -257,7 +263,7 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
           Row(
             children: [
               _buildQtyBtn(Icons.remove, () => _updateQuantity(item, -1)),
-              SizedBox(width: 30, child: Center(child: Text('$qty', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)))),
+              SizedBox(width: ResponsiveUtils.wp(context, 30 / 375), child: Center(child: Text('$qty', style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 16))))),
               _buildQtyBtn(Icons.add, () => _updateQuantity(item, 1), isPrimary: true),
             ],
           ),
@@ -270,19 +276,19 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(6),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 6)),
         decoration: BoxDecoration(
           color: isPrimary ? const Color(0xFF137fec) : Colors.grey[100],
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 18, color: isPrimary ? Colors.white : Colors.black),
+        child: Icon(icon, size: ResponsiveUtils.iconSize(context) * (18 / 24), color: isPrimary ? Colors.white : Colors.black),
       ),
     );
   }
 
   Widget _buildNoteSection() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
       child: TextField(
         controller: _noteController,
         maxLines: 3,
@@ -291,8 +297,8 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
           hintStyle: TextStyle(color: Colors.grey[400]),
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-          contentPadding: const EdgeInsets.all(16),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)), borderSide: BorderSide.none),
+          contentPadding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         ),
       ),
     );
@@ -300,8 +306,8 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildPaymentMethodSection() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12))),
       child: Column(
         children: [
           _buildRadioOption('room_charge', Icons.receipt_long, 'Charge to Room', 'Will be added to your total bill at checkout.'),
@@ -312,16 +318,13 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildRadioOption(String value, IconData icon, String title, String subtitle) {
     // Only one option, so it's always selected (groupValue matches value)
-    return RadioListTile(
-      value: value,
-      groupValue: value, // Always selected
-      onChanged: null, // Read-only
-      activeColor: const Color(0xFF137fec),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
-      subtitle: Text(subtitle, style: const TextStyle(fontSize: 14, color: Colors.black87)),
-      secondary: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: const Color(0xFF137fec).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+    return ListTile(
+      leading: const Icon(Icons.radio_button_checked, color: Color(0xFF137fec)),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 16), color: Colors.black)),
+      subtitle: Text(subtitle, style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.black87)),
+      trailing: Container(
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
+        decoration: BoxDecoration(color: const Color(0xFF137fec).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8))),
         child: Icon(icon, color: const Color(0xFF137fec)),
       ),
     );
@@ -329,11 +332,11 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildWebSummaryCard() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
       ),
       child: Column(
         children: [
@@ -347,12 +350,30 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildSummaryRow(String label, double amount, {bool isTotal = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(
+        vertical: ResponsiveUtils.spacing(context, 4),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: isTotal ? 18 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, color: isTotal ? Colors.black : Colors.grey)),
-          Text('₺${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: isTotal ? 18 : 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, color: isTotal ? const Color(0xFF137fec) : Colors.black)),
+          Text(
+            label, 
+            style: TextStyle(
+              fontSize: ResponsiveUtils.sp(context, isTotal ? 18 : 14), 
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, 
+              color: isTotal ? Colors.black : Colors.grey
+            ),
+          ),
+          Text(
+            '₺${amount.toStringAsFixed(2)}', 
+            style: TextStyle(
+              fontSize: ResponsiveUtils.sp(context, isTotal ? 18 : 14), 
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w500, 
+              color: isTotal ? const Color(0xFF137fec) : Colors.black
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
         ],
       ),
     );
@@ -360,7 +381,7 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
 
   Widget _buildBottomBar() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))],
@@ -370,18 +391,29 @@ class _RoomServiceCartScreenState extends State<RoomServiceCartScreen> {
           onPressed: _currentCart.isEmpty || _isPlacingOrder ? null : _placeOrder,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF137fec),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            padding: EdgeInsets.symmetric(
+              vertical: ResponsiveUtils.spacing(context, 16),
+            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12))),
             elevation: 4,
           ),
           child: _isPlacingOrder 
               ? const CircularProgressIndicator(color: Colors.white)
-              : Text('Place Order • ₺${_totalPrice.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              : Text(
+                  'Place Order • ₺${_totalPrice.toStringAsFixed(2)}', 
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 14),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
         ),
       ),
     );
   }
 }
+
+
 
 
 

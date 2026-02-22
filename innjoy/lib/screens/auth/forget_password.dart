@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../utils/responsive_utils.dart';
 
 /// şifremi Unuttum Ekranı (ForgotPasswordScreen)
 ///
@@ -89,7 +90,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       backgroundColor: backgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
           // Klavye aÇıldığında taşma olmaması iÇin ScrollView kullanıldı
           child: SingleChildScrollView(
             child: Column(
@@ -117,7 +118,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     Text(
                       "Forgot Password",
                       style: GoogleFonts.poppins(
-                        fontSize: 30,
+                        fontSize: ResponsiveUtils.sp(context, 30),
                         fontWeight: FontWeight.bold,
                         color: textDark,
                       ),
@@ -127,7 +128,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       "Enter your email to receive a password reset link.",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: ResponsiveUtils.sp(context, 16),
                         color: textSubtle,
                       ),
                     ),
@@ -173,7 +174,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: Text(
                           "Send Reset Link",
                           style: GoogleFonts.poppins(
-                            fontSize: 18,
+                            fontSize: ResponsiveUtils.sp(context, 18),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -194,7 +195,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       "Remember your password? ",
                       style: GoogleFonts.poppins(
                         color: textSubtle,
-                        fontSize: 14,
+                        fontSize: ResponsiveUtils.sp(context, 14),
                       ),
                     ),
                     GestureDetector(
@@ -207,7 +208,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         style: GoogleFonts.poppins(
                           color: primaryColor,
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                          fontSize: ResponsiveUtils.sp(context, 14),
                         ),
                       ),
                     ),

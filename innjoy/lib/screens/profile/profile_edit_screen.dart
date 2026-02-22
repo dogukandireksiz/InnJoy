@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import '../../utils/responsive_utils.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -81,9 +82,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       await ref.putFile(image);
       return await ref.getDownloadURL();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error uploading image: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image: $e')),
+        );
+      }
       return null;
     }
   }
@@ -179,7 +182,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -188,14 +191,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     // Preview Area
                     Center(
                       child: Container(
-                        width: 120,
-                        height: 120,
+                        width: ResponsiveUtils.wp(context, 120 / 375),
+                        height: ResponsiveUtils.hp(context, 120 / 844),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: const Color(0xFFE3F2FD),
                           image: DecorationImage(
                             image: _getProfileImage() ??
-                                const AssetImage(
+                                AssetImage(
                                     'assets/avatars/default_avatar.png'),
                             fit: BoxFit.cover,
                           ),
@@ -203,7 +206,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         child: null,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
 
                     // Name Field
                     TextFormField(
@@ -212,7 +215,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         labelText: 'Display Name',
                         prefixIcon: const Icon(Icons.person_outline),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -224,27 +227,27 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
                     // Avatar Selection Label
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Change Profile Picture',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: ResponsiveUtils.sp(context, 16),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                     // Tabs
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
+                        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
                       ),
                       child: Row(
                         children: [
@@ -254,14 +257,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
                     // Tab Content
                     if (_selectedTab == 0) _buildDefaultTab(),
                     if (_selectedTab == 1) _buildGalleryTab(),
                     if (_selectedTab == 2) _buildLinkTab(),
 
-                    const SizedBox(height: 32),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
                     // Save Button
                     SizedBox(
@@ -271,15 +274,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1677FF),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Save Changes',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: ResponsiveUtils.sp(context, 16),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -298,10 +301,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       child: GestureDetector(
         onTap: () => setState(() => _selectedTab = index),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFFE3F2FD) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           ),
           child: Text(
             title,
@@ -320,10 +323,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+        crossAxisSpacing: ResponsiveUtils.spacing(context, 16),
+        mainAxisSpacing: ResponsiveUtils.spacing(context, 16),
       ),
       itemCount: _defaultAvatars.length,
       itemBuilder: (context, index) {
@@ -360,11 +363,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       children: [
         if (_pickedImage != null)
           Container(
-            height: 150,
+            height: ResponsiveUtils.hp(context, 150 / 844),
             width: double.infinity,
-            margin: const EdgeInsets.only(bottom: 16),
+            margin: EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               image: DecorationImage(
                 image: FileImage(_pickedImage!),
                 fit: BoxFit.cover,
@@ -376,9 +379,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           icon: const Icon(Icons.photo_library),
           label: const Text('Choose from Gallery'),
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            padding: EdgeInsets.symmetric(
+              vertical: ResponsiveUtils.spacing(context, 12),
+              horizontal: ResponsiveUtils.spacing(context, 24),
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
             ),
           ),
         ),
@@ -395,7 +401,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             labelText: 'Image URL',
             hintText: 'https://example.com/image.png',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
             ),
             prefixIcon: const Icon(Icons.link),
           ),

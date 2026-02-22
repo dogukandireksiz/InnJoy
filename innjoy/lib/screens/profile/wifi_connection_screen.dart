@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart';
 
 class WifiConnectionScreen extends StatelessWidget {
   final String hotelName;
@@ -12,9 +13,9 @@ class WifiConnectionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "WiFi Connection",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 18)),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -42,11 +43,11 @@ class WifiConnectionScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.wifi_off, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
+                  Icon(Icons.wifi_off, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[400]),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                   Text(
                     "No WiFi information available",
-                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    style: TextStyle(color: Colors.grey[600], fontSize: ResponsiveUtils.sp(context, 16)),
                   ),
                 ],
               ),
@@ -61,16 +62,16 @@ class WifiConnectionScreen extends StatelessWidget {
           final qrData = 'WIFI:S:$ssid;T:$encryption;P:$password;;';
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24.0)),
             child: Column(
               children: [
-                const SizedBox(height: 20),
+                SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                 // QR Code Card
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.05),
@@ -82,29 +83,29 @@ class WifiConnectionScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                         decoration: BoxDecoration(
                           color: const Color(0xFF0057FF).withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.wifi,
                           color: Color(0xFF0057FF),
-                          size: 32,
+                          size: ResponsiveUtils.iconSize(context) * (32 / 24),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                           border: Border.all(color: Colors.grey.shade200),
                         ),
                         child: QrImageView(
                           data: qrData,
                           version: QrVersions.auto,
-                          size: 200.0,
+                          size: ResponsiveUtils.iconSize(context) * (200.0 / 24),
                           eyeStyle: const QrEyeStyle(
                             eyeShape: QrEyeShape.square,
                             color: Color(0xFF0057FF),
@@ -115,35 +116,35 @@ class WifiConnectionScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       Text(
                         "Scan to Connect",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: ResponsiveUtils.sp(context, 20),
                           fontWeight: FontWeight.bold,
                           color: Colors.grey[800],
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                       Text(
                         "Point your camera at the QR code to connect to the WiFi automatically",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: ResponsiveUtils.sp(context, 14),
                           color: Colors.grey[500],
-                          height: 1.5,
+                          height: ResponsiveUtils.hp(context, 1.5 / 844),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                 // Details Card
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.05),
@@ -154,12 +155,12 @@ class WifiConnectionScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _buildInfoRow("Network Name", ssid, Icons.wifi),
+                      _buildInfoRow(context, "Network Name", ssid, Icons.wifi),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Divider(height: 1),
                       ),
-                      _buildInfoRow("Password", password, Icons.lock_outline),
+                      _buildInfoRow(context, "Password", password, Icons.lock_outline),
                     ],
                   ),
                 ),
@@ -171,18 +172,18 @@ class WifiConnectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, IconData icon) {
+  Widget _buildInfoRow(BuildContext context, String label, String value, IconData icon) {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           ),
-          child: Icon(icon, color: Colors.grey[600], size: 20),
+          child: Icon(icon, color: Colors.grey[600], size: ResponsiveUtils.iconSize(context) * (20 / 24)),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,16 +191,16 @@ class WifiConnectionScreen extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: ResponsiveUtils.sp(context, 13),
                   color: Colors.grey[500],
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: ResponsiveUtils.spacing(context, 4)),
               SelectableText(
                 value,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 16),
                   color: Color(0xFF1C1C1E),
                   fontWeight: FontWeight.w600,
                 ),
@@ -211,3 +212,5 @@ class WifiConnectionScreen extends StatelessWidget {
     );
   }
 }
+
+

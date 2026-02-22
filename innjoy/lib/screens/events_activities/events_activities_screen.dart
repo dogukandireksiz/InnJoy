@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
 import 'event_details_screen.dart';
+import '../../utils/responsive_utils.dart';
 
 class EventsActivitiesScreen extends StatefulWidget {
   final String hotelName;
@@ -158,7 +159,7 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
           }).toList();
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
             children: [
               _SearchBar(
                 controller: _searchController,
@@ -170,14 +171,14 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
               if (!searching) ...[
                 _DateScroller(
                   days: _days,
                   selectedIndex: _selectedDayIndex,
                   onSelected: (i) => setState(() => _selectedDayIndex = i),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
               ],
               if (filtered.isEmpty)
                 Container(
@@ -188,12 +189,12 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
                     children: [
                       Icon(
                         Icons.event_busy_rounded,
-                        size: 64,
+                        size: ResponsiveUtils.iconSize(context) * (64 / 24),
                         color: Colors.grey[300],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 40)),
                         child: Text(
                           searching
                               ? 'No events found matching your search.'
@@ -201,7 +202,7 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey[500],
-                            fontSize: 16,
+                            fontSize: ResponsiveUtils.sp(context, 16),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -233,14 +234,14 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
       final date = dateTs?.toDate() ?? DateTime.now();
 
       if (lastDate == null || !_isSameDay(lastDate, date)) {
-        if (lastDate != null) widgets.add(const SizedBox(height: 16));
+        if (lastDate != null) widgets.add(SizedBox(height: ResponsiveUtils.spacing(context, 16)));
         widgets.add(
           Text(
             _headerFor(date),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.w700),
           ),
         );
-        widgets.add(const SizedBox(height: 12));
+        widgets.add(SizedBox(height: ResponsiveUtils.spacing(context, 12)));
         lastDate = DateTime(date.year, date.month, date.day);
       }
       widgets.add(
@@ -263,7 +264,7 @@ class _EventsActivitiesScreenState extends State<EventsActivitiesScreen> {
           date: date,
         ),
       );
-      if (i != items.length - 1) widgets.add(const SizedBox(height: 10));
+      if (i != items.length - 1) widgets.add(SizedBox(height: ResponsiveUtils.spacing(context, 10)));
     }
     return widgets;
   }
@@ -303,7 +304,7 @@ class _DateScrollerState extends State<_DateScroller> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 70,
+      height: ResponsiveUtils.hp(context, 70 / 844),
       child: ListView.separated(
         key: const PageStorageKey('guest_events_date_scroll_v2'),
         controller: _controller,
@@ -314,13 +315,13 @@ class _DateScrollerState extends State<_DateScroller> {
           return GestureDetector(
             onTap: () => widget.onSelected(i),
             child: Container(
-              width: 64,
-              height: 64,
+              width: ResponsiveUtils.wp(context, 64 / 375),
+              height: ResponsiveUtils.hp(context, 64 / 844),
               decoration: BoxDecoration(
                 color: selected
                     ? (_isToday(d) ? Colors.green : const Color(0xFF137FEC))
                     : Colors.white,
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 32)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -343,11 +344,11 @@ class _DateScrollerState extends State<_DateScroller> {
                           : (_isToday(d)
                                 ? Colors.green
                                 : const Color(0xFF0D141B)),
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 2)),
                   Text(
                     d.day.toString(),
                     style: TextStyle(
@@ -356,15 +357,15 @@ class _DateScrollerState extends State<_DateScroller> {
                           : (_isToday(d)
                                 ? Colors.green
                                 : const Color(0xFF0D141B)),
-                      fontSize: 20,
+                      fontSize: ResponsiveUtils.sp(context, 20),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   if (_isToday(d))
                     Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      width: 4,
-                      height: 4,
+                      margin: EdgeInsets.only(top: 4),
+                      width: ResponsiveUtils.wp(context, 4 / 375),
+                      height: ResponsiveUtils.hp(context, 4 / 844),
                       decoration: BoxDecoration(
                         color: selected ? Colors.white : Colors.green,
                         shape: BoxShape.circle,
@@ -375,7 +376,7 @@ class _DateScrollerState extends State<_DateScroller> {
             ),
           );
         },
-        separatorBuilder: (_, e) => const SizedBox(width: 8),
+        separatorBuilder: (_, e) => SizedBox(width: ResponsiveUtils.spacing(context, 8)),
         itemCount: widget.days.length,
       ),
     );
@@ -462,19 +463,19 @@ class _EventItem extends StatelessWidget {
           ? Colors.grey[100]
           : (isFull ? Colors.grey[200] : Colors.white),
       surfaceTintColor: Colors.transparent, // No pink tint
-      margin: const EdgeInsets.only(bottom: 16), // Add margin if listed
+      margin: EdgeInsets.only(bottom: 16), // Add margin if listed
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         side: isPast ? BorderSide(color: Colors.grey[300]!) : BorderSide.none,
       ),
       child: InkWell(
         // Visual feedback!
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         child: Opacity(
           opacity: isPast ? 0.7 : 1.0,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
             child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -492,8 +493,8 @@ class _EventItem extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     title,
-                                    style: const TextStyle(
-                                      fontSize: 20,
+                                    style: TextStyle(
+                                      fontSize: ResponsiveUtils.sp(context, 20),
                                       fontWeight: FontWeight.w900,
                                       color: Color(0xFF0D141B),
                                     ),
@@ -501,100 +502,104 @@ class _EventItem extends StatelessWidget {
                                 ),
                                 if (isFull && !isPast)
                                   Container(
-                                    margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
+                                    margin: EdgeInsets.only(
+                                      left: ResponsiveUtils.spacing(context, 8),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: ResponsiveUtils.spacing(context, 8),
+                                      vertical: ResponsiveUtils.spacing(context, 4),
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.red,
-                                      borderRadius: BorderRadius.circular(4),
+                                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 4)),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'FULL',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 10,
+                                        fontSize: ResponsiveUtils.sp(context, 10),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
                                 if (isPast)
                                   Container(
-                                    margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
+                                    margin: EdgeInsets.only(
+                                      left: ResponsiveUtils.spacing(context, 8),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: ResponsiveUtils.spacing(context, 8),
+                                      vertical: ResponsiveUtils.spacing(context, 4),
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.grey[600],
-                                      borderRadius: BorderRadius.circular(4),
+                                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 4)),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'ENDED',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 10,
+                                        fontSize: ResponsiveUtils.sp(context, 10),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                             Row(
                               children: [
                                 Icon(
                                   Icons.schedule,
-                                  size: 22,
+                                  size: ResponsiveUtils.iconSize(context) * (22 / 24),
                                   color: Colors.blueGrey[700],
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                 Text(
                                   time,
                                   style: TextStyle(
                                     color: Colors.blueGrey[700],
-                                    fontSize: 16,
+                                    fontSize: ResponsiveUtils.sp(context, 16),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                             Row(
                               children: [
                                 Icon(
                                   Icons.location_on,
-                                  size: 22,
+                                  size: ResponsiveUtils.iconSize(context) * (22 / 24),
                                   color: Colors.blueGrey[700],
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                 Text(
                                   location,
                                   style: TextStyle(
                                     color: Colors.blueGrey[700],
-                                    fontSize: 16,
+                                    fontSize: ResponsiveUtils.sp(context, 16),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                             Row(
                               children: [
                                 Icon(
                                   Icons.people,
-                                  size: 22,
+                                  size: ResponsiveUtils.iconSize(context) * (22 / 24),
                                   color: Colors.blueGrey[700],
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                 Text(
                                   '$registered / $capacity Registered',
                                   style: TextStyle(
                                     color: isFull
                                         ? Colors.red
                                         : Colors.blueGrey[700],
-                                    fontSize: 14,
+                                    fontSize: ResponsiveUtils.sp(context, 14),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -602,18 +607,18 @@ class _EventItem extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                         // Button looking widget but just visual since whole card is InkWell
                         Container(
                           decoration: BoxDecoration(
                             color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 16,
+                          padding: EdgeInsets.symmetric(
+                            vertical: ResponsiveUtils.spacing(context, 10),
+                            horizontal: ResponsiveUtils.spacing(context, 16),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
@@ -621,13 +626,13 @@ class _EventItem extends StatelessWidget {
                                 style: TextStyle(
                                   color: Color(0xFF0D141B),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 14,
+                                  fontSize: ResponsiveUtils.sp(context, 14),
                                 ),
                               ),
-                              SizedBox(width: 6),
+                              SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                               Icon(
                                 Icons.arrow_forward,
-                                size: 18,
+                                size: ResponsiveUtils.iconSize(context) * (18 / 24),
                                 color: Color(0xFF0D141B),
                               ),
                             ],
@@ -636,25 +641,25 @@ class _EventItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                     child: (imageAsset.startsWith('http'))
                         ? Image.network(
                             imageAsset,
-                            width: 112,
-                            height: 120,
+                            width: ResponsiveUtils.wp(context, 112 / 375),
+                            height: ResponsiveUtils.hp(context, 120 / 844),
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                _buildErrorImage(),
+                                _buildErrorImage(context),
                           )
                         : Image.asset(
                             imageAsset,
-                            width: 112,
-                            height: 120,
+                            width: ResponsiveUtils.wp(context, 112 / 375),
+                            height: ResponsiveUtils.hp(context, 120 / 844),
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                _buildErrorImage(),
+                                _buildErrorImage(context),
                           ),
                   ),
                 ],
@@ -666,10 +671,10 @@ class _EventItem extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorImage() {
+  Widget _buildErrorImage(BuildContext context) {
     return Container(
-      width: 112,
-      height: 120,
+      width: ResponsiveUtils.wp(context, 112 / 375),
+      height: ResponsiveUtils.hp(context, 120 / 844),
       color: Colors.grey[300],
       child: const Icon(Icons.image, color: Colors.grey),
     );
@@ -700,12 +705,12 @@ class _SearchBar extends StatelessWidget {
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 12,
+        contentPadding: EdgeInsets.symmetric(
+          vertical: ResponsiveUtils.spacing(context, 12),
+          horizontal: ResponsiveUtils.spacing(context, 12),
         ),
       ),
       textInputAction: TextInputAction.search,

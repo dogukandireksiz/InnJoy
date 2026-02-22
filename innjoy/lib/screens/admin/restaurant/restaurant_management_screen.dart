@@ -3,6 +3,7 @@ import 'menu_management_screen.dart';
 import 'restaurant_settings_screen.dart';
 import 'admin_restaurant_reservations_screen.dart';
 import '../../../services/database_service.dart';
+import '../../../utils/responsive_utils.dart';
 
 class RestaurantManagementScreen extends StatelessWidget {
   final String hotelName;
@@ -13,43 +14,43 @@ class RestaurantManagementScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Colors from the design
     const primaryColor = Color(0xFF137fec);
-    const backgroundLight = Color(0xFFf6f7f8);
+
     // const backgroundDark = Color(0xFF101922); // Not using dark mode logic explicitly yet, adhering to system theme or light for now as per base file structure
 
     return Scaffold(
-      backgroundColor: backgroundLight,
+      backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        backgroundColor: backgroundLight,
+        backgroundColor: const Color(0xFFF6F7FB),
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
+          padding: EdgeInsets.only(left: 16.0),
           child: Center(
             child: InkWell(
               onTap: () => Navigator.of(context).pop(),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
               child: Container(
-                width: 48,
-                height: 48,
+                width: ResponsiveUtils.wp(context, 48 / 375),
+                height: ResponsiveUtils.hp(context, 48 / 844),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   // color: Colors.transparent, // hover effect handled by InkWell
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back,
                   color: Color(0xFF0d141b),
-                  size: 24,
+                  size: ResponsiveUtils.iconSize(context) * (24 / 24),
                 ),
               ),
             ),
           ),
         ),
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Restaurant Management',
           style: TextStyle(
             color: Color(0xFF0d141b),
-            fontSize: 18,
+            fontSize: ResponsiveUtils.sp(context, 18),
             fontWeight: FontWeight.bold,
             letterSpacing: -0.015,
           ),
@@ -57,34 +58,34 @@ class RestaurantManagementScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16.0), vertical: ResponsiveUtils.spacing(context, 8.0)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
-              const Text(
+              Text(
                 'Restaurant Operations',
                 style: TextStyle(
                   color: Color(0xFF0d141b),
-                  fontSize: 24,
+                  fontSize: ResponsiveUtils.sp(context, 24),
                   fontWeight: FontWeight.bold,
                   letterSpacing: -0.5, // tight tracking
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
 
-              const Text(
+              Text(
                 'Select a category to manage menus or reservations.',
                 style: TextStyle(
                   color: Color(0xFF4c739a),
-                  fontSize: 16,
+                  fontSize: ResponsiveUtils.sp(context, 16),
                   fontWeight: FontWeight.normal,
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
               // Vertical Cards Column
               StreamBuilder<List<Map<String, dynamic>>>(
@@ -116,7 +117,7 @@ class RestaurantManagementScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                       _MenuCard(
                         icon: Icons.table_restaurant,
                         title: 'Reservations',
@@ -139,18 +140,18 @@ class RestaurantManagementScreen extends StatelessWidget {
                             showModalBottomSheet(
                               context: context,
                               builder: (_) => Container(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Select Restaurant',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                        fontSize: ResponsiveUtils.sp(context, 18),
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                                     ...restaurants.map(
                                       (r) => ListTile(
                                         title: Text(r['name'] ?? r['id']),
@@ -175,7 +176,7 @@ class RestaurantManagementScreen extends StatelessWidget {
                           }
                         },
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                       _MenuCard(
                         icon: Icons.store,
                         title: 'Restaurant Settings',
@@ -196,18 +197,18 @@ class RestaurantManagementScreen extends StatelessWidget {
                             showModalBottomSheet(
                               context: context,
                               builder: (_) => Container(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Select Restaurant',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                        fontSize: ResponsiveUtils.sp(context, 18),
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                                     ...restaurants.map(
                                       (r) => ListTile(
                                         title: Text(r['name'] ?? r['id']),
@@ -239,7 +240,7 @@ class RestaurantManagementScreen extends StatelessWidget {
               ),
 
 
-              const SizedBox(height: 40),
+              SizedBox(height: ResponsiveUtils.spacing(context, 40)),
             ],
           ),
         ),
@@ -269,7 +270,7 @@ class _MenuCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16), // Rounded-2xl approx
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)), // Rounded-2xl approx
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -280,42 +281,42 @@ class _MenuCard extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 32)),
             child: Column(
               children: [
                 Container(
-                  width: 64,
-                  height: 64,
+                  width: ResponsiveUtils.wp(context, 64 / 375),
+                  height: ResponsiveUtils.hp(context, 64 / 844),
                   decoration: BoxDecoration(
                     color: primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                   ),
-                  child: Icon(icon, color: primaryColor, size: 32),
+                  child: Icon(icon, color: primaryColor, size: ResponsiveUtils.iconSize(context) * (32 / 24)),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFF0d141b),
-                    fontSize: 18,
+                    fontSize: ResponsiveUtils.sp(context, 18),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFF4c739a),
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                  ),
+                    fontSize: ResponsiveUtils.sp(context, 14),
                 ),
-              ],
+                  ),
+
+            ],
             ),
           ),
         ),
@@ -323,6 +324,8 @@ class _MenuCard extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

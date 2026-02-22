@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/database_service.dart';
 
 import 'home_screen.dart';
+import '../../utils/responsive_utils.dart';
 
 class HotelSelectionScreen extends StatefulWidget {
   const HotelSelectionScreen({super.key});
@@ -52,7 +53,7 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16.0)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -61,13 +62,13 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       children: [
                         TextSpan(
                           text: 'Inn',
                           style: TextStyle(
                             color: Color(0xFF5A67D8), // Indigo
-                            fontSize: 28,
+                            fontSize: ResponsiveUtils.sp(context, 28),
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins',
                           ),
@@ -76,7 +77,7 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
                           text: 'joy',
                           style: TextStyle(
                             color: Colors.orange,
-                            fontSize: 28,
+                            fontSize: ResponsiveUtils.sp(context, 28),
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins',
                           ),
@@ -90,13 +91,13 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
               // Search Bar
               Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                 ),
                 child: TextField(
                   onChanged: (value) {
@@ -115,7 +116,7 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
               // Hotel List (StreamBuilder)
               StreamBuilder<List<Map<String, dynamic>>>(
@@ -208,9 +209,9 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
                   }
 
                   if (filteredHotels.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Padding(
-                        padding: EdgeInsets.all(20.0),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20.0)),
                         child: Text(
                           'No hotels found',
                           style: TextStyle(color: Colors.grey),
@@ -281,10 +282,10 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
               // Debug info (Temporary - unseen but useful if we could see logs)
               if (_currentHotelName != null)
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8.0)),
                   child: Text(
                     "Current Hotel: $_currentHotelName",
-                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                    style: TextStyle(fontSize: ResponsiveUtils.sp(context, 10), color: Colors.grey),
                   ),
                 ),
             ],
@@ -308,10 +309,10 @@ class _HotelSelectionScreenState extends State<HotelSelectionScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Please enter the 6-digit PNR code you received from reception.',
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
             TextField(
               controller: pnrController,
               decoration: const InputDecoration(
@@ -402,10 +403,10 @@ class _HotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 240,
-      margin: const EdgeInsets.only(bottom: 24),
+      height: ResponsiveUtils.hp(context, 240 / 844),
+      margin: EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
         image: DecorationImage(
           image: imageUrl.startsWith('http')
               ? NetworkImage(imageUrl) as ImageProvider
@@ -425,7 +426,7 @@ class _HotelCard extends StatelessWidget {
           // Gradient Overlay
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -435,7 +436,7 @@ class _HotelCard extends StatelessWidget {
           ),
           // Content
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20.0)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -444,9 +445,9 @@ class _HotelCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 22, // Reduced slightly to fit badge if needed
+                        fontSize: ResponsiveUtils.sp(context, 22), // Reduced slightly to fit badge if needed
                         fontWeight: FontWeight.bold,
                         shadows: [
                           Shadow(
@@ -459,14 +460,16 @@ class _HotelCard extends StatelessWidget {
                     ),
                     if (isUserHotel)
                       Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                        margin: EdgeInsets.only(
+                          left: ResponsiveUtils.spacing(context, 8),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveUtils.spacing(context, 10),
+                          vertical: ResponsiveUtils.spacing(context, 4),
                         ),
                         decoration: BoxDecoration(
                           color: Colors.green,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
@@ -475,37 +478,37 @@ class _HotelCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: const Text(
+                        child: Text(
                           'Your Hotel',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: ResponsiveUtils.sp(context, 12),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                 GestureDetector(
                   onTap: onSelect,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveUtils.spacing(context, 20),
+                      vertical: ResponsiveUtils.spacing(context, 10),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                       border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
                       // Backdrop filter is hard in simple Container, usually needs ClipRect + BackdropFilter widget
                     ),
-                    child: const Text(
+                    child: Text(
                       'Select Hotel',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: ResponsiveUtils.sp(context, 14),
                       ),
                     ),
                   ),

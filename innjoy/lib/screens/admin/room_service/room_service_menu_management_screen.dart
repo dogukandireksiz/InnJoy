@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../services/database_service.dart';
 import '../../../models/menu_item_model.dart';
 import '../restaurant/add_menu_item_screen.dart';
+import '../../../utils/responsive_utils.dart';
 
 class RoomServiceMenuManagementScreen extends StatefulWidget {
   final String hotelName;
@@ -109,10 +110,10 @@ class _RoomServiceMenuManagementScreenState
                         children: [
                           Icon(
                             Icons.restaurant_menu,
-                            size: 64,
+                            size: ResponsiveUtils.iconSize(context) * (64 / 24),
                             color: Colors.grey[400],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                           Text(
                             'No items found',
                             style: TextStyle(color: Colors.grey[600]),
@@ -125,7 +126,7 @@ class _RoomServiceMenuManagementScreenState
                   // Group by category for 'All' view for better UX
                   if (_selectedCategory == 'All') {
                     return ListView(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                       children: _categories
                           .where(
                             (c) =>
@@ -145,13 +146,13 @@ class _RoomServiceMenuManagementScreenState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
+                                  padding: EdgeInsets.symmetric(
                                     vertical: 8,
                                   ),
                                   child: Text(
                                     cat['name'],
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: ResponsiveUtils.sp(context, 18),
                                       fontWeight: FontWeight.bold,
                                       color: isDarkMode
                                           ? Colors.white
@@ -177,10 +178,10 @@ class _RoomServiceMenuManagementScreenState
 
                   // Standard filtered list view
                   return ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                     itemCount: displayedItems.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     itemBuilder: (context, index) {
                       return _buildPremiumMenuItemCard(
                         displayedItems[index],
@@ -208,13 +209,13 @@ class _RoomServiceMenuManagementScreenState
 
   Widget _buildHeader(bool isDarkMode) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16.0)),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
                 shape: BoxShape.circle,
@@ -222,11 +223,11 @@ class _RoomServiceMenuManagementScreenState
               child: Icon(
                 Icons.arrow_back,
                 color: isDarkMode ? Colors.white : Colors.black,
-                size: 20,
+                size: ResponsiveUtils.iconSize(context) * (20 / 24),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: ResponsiveUtils.spacing(context, 16)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +235,7 @@ class _RoomServiceMenuManagementScreenState
                 Text(
                   'Room Service Menu',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: ResponsiveUtils.sp(context, 20),
                     fontWeight: FontWeight.bold,
                     color: isDarkMode ? Colors.white : textDarkColor,
                   ),
@@ -242,7 +243,7 @@ class _RoomServiceMenuManagementScreenState
                 Text(
                   'Manage ${widget.hotelName} Menu',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: ResponsiveUtils.sp(context, 12),
                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
@@ -256,12 +257,12 @@ class _RoomServiceMenuManagementScreenState
 
   Widget _buildCategoryFilter(bool isDarkMode) {
     return SizedBox(
-      height: 40,
+      height: ResponsiveUtils.hp(context, 40 / 844),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 10),
+        separatorBuilder: (context, index) => SizedBox(width: ResponsiveUtils.spacing(context, 10)),
         itemBuilder: (context, index) {
           final category = _categories[index];
           final catId = category['id'] as String;
@@ -271,12 +272,12 @@ class _RoomServiceMenuManagementScreenState
           return GestureDetector(
             onTap: () => setState(() => _selectedCategory = catId),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: isSelected
                     ? catColor
                     : (isDarkMode ? Colors.grey[800] : Colors.white),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                 border: Border.all(
                   color: isSelected
                       ? catColor
@@ -287,14 +288,14 @@ class _RoomServiceMenuManagementScreenState
                 children: [
                   Icon(
                     category['icon'],
-                    size: 16,
+                    size: ResponsiveUtils.iconSize(context) * (16 / 24),
                     color: isSelected ? Colors.white : catColor,
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                   Text(
                     category['name'],
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: ResponsiveUtils.sp(context, 13),
                       fontWeight: FontWeight.w600,
                       color: isSelected
                           ? Colors.white
@@ -312,13 +313,13 @@ class _RoomServiceMenuManagementScreenState
 
   Widget _buildPremiumMenuItemCard(MenuItem item, bool isDarkMode) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E2A38) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         border: Border.all(
           color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
-          width: 1,
+          width: ResponsiveUtils.wp(context, 1 / 375),
         ),
         boxShadow: isDarkMode
             ? null
@@ -335,14 +336,14 @@ class _RoomServiceMenuManagementScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 96,
-            height: 96,
+            width: ResponsiveUtils.wp(context, 96 / 375),
+            height: ResponsiveUtils.hp(context, 96 / 844),
             decoration: BoxDecoration(
               color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               child: Image.network(
                 item.imageUrl,
                 fit: BoxFit.cover,
@@ -351,7 +352,7 @@ class _RoomServiceMenuManagementScreenState
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: ResponsiveUtils.spacing(context, 14)),
           Expanded(
             child: SizedBox(
               child: Column(
@@ -364,12 +365,12 @@ class _RoomServiceMenuManagementScreenState
                       Text(
                         item.name,
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: ResponsiveUtils.sp(context, 15),
                           fontWeight: FontWeight.bold,
                           color: isDarkMode
                               ? Colors.white
                               : const Color(0xFF0f172a),
-                          height: 1.25,
+                          height: ResponsiveUtils.hp(context, 1.25 / 844),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -379,7 +380,7 @@ class _RoomServiceMenuManagementScreenState
                         child: Text(
                           item.description,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: ResponsiveUtils.sp(context, 12),
                             fontWeight: FontWeight.w400,
                             color: isDarkMode
                                 ? Colors.grey[400]
@@ -394,7 +395,7 @@ class _RoomServiceMenuManagementScreenState
                         child: Text(
                           '₺${item.price.toStringAsFixed(2)}',
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: ResponsiveUtils.sp(context, 15),
                             fontWeight: FontWeight.bold,
                             color: primaryColor,
                           ),
@@ -402,58 +403,58 @@ class _RoomServiceMenuManagementScreenState
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Status Badge removed
-                      const SizedBox.shrink(),
+                      SizedBox.shrink(),
                       Row(
                         children: [
                           InkWell(
                             onTap: () => _deleteItem(item),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                             child: Container(
-                              width: 32,
-                              height: 32,
+                              width: ResponsiveUtils.wp(context, 32 / 375),
+                              height: ResponsiveUtils.hp(context, 32 / 844),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                 color: Colors.transparent,
                               ),
                               child: Icon(
                                 Icons.delete,
-                                size: 20,
+                                size: ResponsiveUtils.iconSize(context) * (20 / 24),
                                 color: Colors.grey[400],
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                           InkWell(
                             onTap: () =>
                                 _navigateToAddEditScreen(context, item: item),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                             child: Container(
-                              height: 32,
+                              height: ResponsiveUtils.hp(context, 32 / 844),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                               ),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                 color: primaryColor.withValues(alpha: 0.1),
                               ),
                               child: Row(
                                 children: [
                                   Icon(
                                     Icons.edit,
-                                    size: 16,
+                                    size: ResponsiveUtils.iconSize(context) * (16 / 24),
                                     color: primaryColor,
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                   Text(
                                     'Düzenle',
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: ResponsiveUtils.sp(context, 13),
                                       fontWeight: FontWeight.w600,
                                       color: primaryColor,
                                     ),

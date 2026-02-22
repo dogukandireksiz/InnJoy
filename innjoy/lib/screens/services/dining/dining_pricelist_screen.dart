@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dining_booking_screen.dart';
+import '../../../utils/responsive_utils.dart';
 
 // Menü öğesi modeli
 class DiningMenuItem {
@@ -296,7 +297,7 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
             expandedHeight: 200,
             pinned: true,
             leading: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8.0)),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.9),
@@ -324,24 +325,28 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
           SliverToBoxAdapter(
             child: Container(
               color: Colors.white,
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     venue.name,
-                    style: const TextStyle(
-                      fontSize: 24,
+                    style: TextStyle(
+                      fontSize: ResponsiveUtils.sp(context, 24),
                       fontWeight: FontWeight.w700,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                   Text(
                     venue.description,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: ResponsiveUtils.sp(context, 15),
                       color: Colors.grey[600],
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
                   ),
                 ],
               ),
@@ -354,19 +359,19 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
               color: Colors.white,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
                 child: Row(
                   children: List.generate(categories.length, (index) {
                     final isSelected = index == _selectedCategoryIndex;
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: EdgeInsets.only(right: 8),
                       child: GestureDetector(
                         onTap: () => setState(() => _selectedCategoryIndex = index),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 20), vertical: ResponsiveUtils.spacing(context, 10)),
                           decoration: BoxDecoration(
                             color: isSelected ? const Color(0xFF1677FF) : Colors.white,
-                            borderRadius: BorderRadius.circular(25),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 25)),
                             border: Border.all(
                               color: isSelected ? const Color(0xFF1677FF) : Colors.grey[300]!,
                             ),
@@ -387,24 +392,24 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(child: SizedBox(height: ResponsiveUtils.spacing(context, 16))),
 
           // Category title
           if (selectedCategory != null)
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                 child: Text(
                   selectedCategory.name,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 20),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          SliverToBoxAdapter(child: SizedBox(height: ResponsiveUtils.spacing(context, 12))),
 
           // Menu items
           if (selectedCategory != null)
@@ -418,11 +423,11 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
               ),
             ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          SliverToBoxAdapter(child: SizedBox(height: ResponsiveUtils.spacing(context, 100))),
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -448,18 +453,18 @@ class _DiningPricelistScreenState extends State<DiningPricelistScreen> {
               );
             },
             icon: const Icon(Icons.calendar_today, color: Colors.white),
-            label: const Text(
+            label: Text(
               'Book a Table',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 16,
+                fontSize: ResponsiveUtils.sp(context, 16),
                 fontWeight: FontWeight.w600,
               ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12))),
             ),
           ),
         ),
@@ -476,11 +481,11 @@ class _MenuItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 6)),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -498,39 +503,45 @@ class _MenuItemCard extends StatelessWidget {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     fontWeight: FontWeight.w600,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                 Text(
                   item.description,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: ResponsiveUtils.sp(context, 13),
                     color: Colors.grey[600],
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 Text(
                   '₺${item.price.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 15),
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1677FF),
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ],
             ),
           ),
           if (item.imagePath != null) ...[
-            const SizedBox(width: 12),
+            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
               child: Image.asset(
                 item.imagePath!,
-                width: 80,
-                height: 80,
+                width: ResponsiveUtils.wp(context, 80 / 375),
+                height: ResponsiveUtils.hp(context, 80 / 844),
                 fit: BoxFit.cover,
               ),
             ),

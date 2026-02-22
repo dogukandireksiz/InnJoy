@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../services/database_service.dart';
 import 'admin_restaurant_reservations_screen.dart';
+import '../../../utils/responsive_utils.dart';
 
 class RestaurantSettingsScreen extends StatefulWidget {
   final String hotelName;
@@ -171,24 +172,24 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                     child: GestureDetector(
                       onTap: _pickImage,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                           border: Border.all(color: Colors.white70),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.camera_alt,
                               color: Colors.white,
-                              size: 20,
+                              size: ResponsiveUtils.iconSize(context) * (20 / 24),
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                             Text(
                               'Change Cover',
                               style: TextStyle(
@@ -213,37 +214,37 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
           // 2. Form Content
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16.0)),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Settings',
                       style: TextStyle(
-                        fontSize: 32,
+                        fontSize: ResponsiveUtils.sp(context, 32),
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF101922),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
+                    Text(
                       'General Information',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: ResponsiveUtils.sp(context, 18),
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF475569),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                     // Card Wrapper for Inputs
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.04),
@@ -259,14 +260,14 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                             controller: _nameController,
                             icon: Icons.store,
                           ),
-                          const Divider(height: 32, thickness: 0.5),
+                          Divider(height: ResponsiveUtils.hp(context, 32 / 844), thickness: 0.5),
                           _buildPremiumTextField(
                             label: 'Description',
                             controller: _descController,
                             icon: Icons.description,
                             maxLines: 4,
                           ),
-                          const Divider(height: 32, thickness: 0.5),
+                          Divider(height: ResponsiveUtils.hp(context, 32 / 844), thickness: 0.5),
                           _buildPremiumTextField(
                             label: 'Cover Image URL',
                             controller: _imageController,
@@ -282,7 +283,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                     Center(
                       child: OutlinedButton.icon(
                         onPressed: () {
@@ -299,11 +300,11 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
                         icon: const Icon(Icons.list_alt),
                         label: const Text('View Reservations'),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 32), vertical: ResponsiveUtils.spacing(context, 12)),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 100), // Space for FAB
+                    SizedBox(height: ResponsiveUtils.spacing(context, 100)), // Space for FAB
                   ],
                 ),
               ),
@@ -315,9 +316,9 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
         onPressed: _isLoading ? null : _saveSettings,
         backgroundColor: primaryColor,
         icon: _isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
+            ? SizedBox(
+                width: ResponsiveUtils.wp(context, 20 / 375),
+                height: ResponsiveUtils.hp(context, 20 / 844),
                 child: CircularProgressIndicator(
                   color: Colors.white,
                   strokeWidth: 2,
@@ -326,9 +327,9 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
             : const Icon(Icons.save, color: Colors.white),
         label: Text(
           _isLoading ? 'Saving...' : 'Save Changes',
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 16,
+            fontSize: ResponsiveUtils.sp(context, 16),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -349,9 +350,9 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
             color: Colors.grey[300],
-            child: const Icon(
+            child: Icon(
               Icons.image_not_supported,
-              size: 50,
+              size: ResponsiveUtils.iconSize(context) * (50 / 24),
               color: Colors.grey,
             ),
           ),
@@ -367,9 +368,9 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
     }
     return Container(
       color: Colors.grey[300],
-      child: const Icon(
+      child: Icon(
         Icons.image_not_supported,
-        size: 50,
+        size: ResponsiveUtils.iconSize(context) * (50 / 24),
         color: Colors.grey,
       ),
     );
@@ -411,6 +412,7 @@ class _RestaurantSettingsScreenState extends State<RestaurantSettingsScreen> {
     );
   }
 }
+
 
 
 

@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../utils/responsive_utils.dart';
 
 class EmergencyAdminScreen extends StatefulWidget {
   const EmergencyAdminScreen({super.key});
@@ -126,7 +127,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
             return Center(
               child: Text(
                 'Error: ${snapshot.error}',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
             );
           }
@@ -168,22 +169,22 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: Row(
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Emergencies',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: ResponsiveUtils.sp(context, 20),
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          SizedBox(height: 6),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 6)),
                           Text(
                             'Manage hotel-wide emergencies',
                             style: TextStyle(color: Colors.white70),
@@ -192,25 +193,25 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveUtils.spacing(context, 10),
+                        vertical: ResponsiveUtils.spacing(context, 8),
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFACC15).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                         border: Border.all(
                           color: const Color(0xFFFACC15).withValues(alpha: 0.6),
                         ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.flash_on,
                             color: Color(0xFFFACC15),
-                            size: 18,
+                            size: ResponsiveUtils.iconSize(context) * (18 / 24),
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                           Text(
                             '$activeCount Active',
                             style: const TextStyle(
@@ -224,10 +225,10 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                 child: Row(
                   children: [
                     _FilterChip(
@@ -253,7 +254,7 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
               Expanded(
                 child: visibleItems.isEmpty
                     ? const Center(
@@ -263,7 +264,12 @@ class _EmergencyAdminScreenState extends State<EmergencyAdminScreen> {
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        padding: EdgeInsets.fromLTRB(
+                          ResponsiveUtils.spacing(context, 16),
+                          0,
+                          ResponsiveUtils.spacing(context, 16),
+                          ResponsiveUtils.spacing(context, 16),
+                        ),
                         itemCount: visibleItems.length,
                         itemBuilder: (ctx, i) {
                           final item = visibleItems[i];
@@ -301,15 +307,15 @@ class _FilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
       child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        margin: EdgeInsets.only(right: 8),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 14), vertical: ResponsiveUtils.spacing(context, 10)),
         decoration: BoxDecoration(
           color: selected
               ? Colors.white.withValues(alpha: 0.12)
               : const Color(0xFF1E1E1E),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
           border: Border.all(color: selected ? Colors.white24 : Colors.white10),
         ),
         child: Text(
@@ -349,11 +355,11 @@ class _EmergencyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 14)),
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         border: Border.all(
           color: status == 'Processing'
               ? const Color(0xFFFACC15).withValues(alpha: 0.4)
@@ -364,14 +370,14 @@ class _EmergencyCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
             ),
-            child: Icon(icon, color: Colors.white70, size: 20),
+            child: Icon(icon, color: Colors.white70, size: ResponsiveUtils.iconSize(context) * (20 / 24)),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,15 +396,15 @@ class _EmergencyCard extends StatelessWidget {
                     // --- BURASI DEĞİŞTİ: InkWell ile sarmalandı ---
                     InkWell(
                       onTap: onStatusTap,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ResponsiveUtils.spacing(context, 8),
+                          vertical: ResponsiveUtils.spacing(context, 4),
                         ),
                         decoration: BoxDecoration(
                           color: statusColor.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           border: Border.all(
                             color: statusColor.withValues(alpha: 0.6),
                           ),
@@ -414,15 +420,15 @@ class _EmergencyCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: ResponsiveUtils.spacing(context, 6)),
                 Text(
                   '$place  •  $person',
                   style: const TextStyle(color: Colors.white70),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: ResponsiveUtils.spacing(context, 6)),
                 Text(
                   '$minutesAgo minutes ago',
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(color: Colors.white38, fontSize: ResponsiveUtils.sp(context, 14)),
                 ),
               ],
             ),
@@ -514,3 +520,4 @@ class _EmergencyItem {
     return now.difference(date).inMinutes;
   }
 }
+

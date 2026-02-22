@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:login_page/services/database_service.dart';
 import 'package:login_page/services/notification_service.dart';
 import '../../../../utils/connectivity_utils.dart';
+import '../../../utils/responsive_utils.dart';
 
 class SpaBookingScreen extends StatefulWidget {
   final String hotelName;
@@ -103,7 +104,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
         paymentMethod: _selectedPaymentMethod,
       );
 
-      // Randevudan 1 saat önce hatırlatıcı bildirim zamanla
+      // Randevudan 1 saat önce hatýrlatýcý bildirim zamanla
       final reminderTime1h = appointmentDateTime.subtract(
         const Duration(hours: 1),
       );
@@ -112,13 +113,13 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
           appointmentDateTime,
           'spa_1h',
         ),
-        title: '🔔 Your Spa Appointment is in 1 Hour',
+        title: '?? Your Spa Appointment is in 1 Hour',
         body: '${widget.service['name']} - Time: $_selectedTimeSlot',
         scheduledTime: reminderTime1h,
         type: 'spa',
       );
 
-      // Randevudan 30 dakika önce ikinci hatırlatıcı
+      // Randevudan 30 dakika önce ikinci hatýrlatýcý
       final reminderTime30m = appointmentDateTime.subtract(
         const Duration(minutes: 30),
       );
@@ -127,7 +128,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
           appointmentDateTime,
           'spa_30m',
         ),
-        title: '🔔 Your Spa Appointment is in 30 Minutes',
+        title: '?? Your Spa Appointment is in 30 Minutes',
         body: '${widget.service['name']} - Time: $_selectedTimeSlot',
         scheduledTime: reminderTime30m,
         type: 'spa',
@@ -140,11 +141,11 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           ),
           title: const Text("Appointment Created"),
           content: Text(
-            "Your appointment for ${widget.service['name']} has been booked.\n\nDate: ${DateFormat('dd MMM yyyy').format(_selectedDate!)}\nTime: $_selectedTimeSlot\n\n🔔 Reminders set: 1 hour and 30 min before",
+            "Your appointment for ${widget.service['name']} has been booked.\n\nDate: ${DateFormat('dd MMM yyyy').format(_selectedDate!)}\nTime: $_selectedTimeSlot\n\n?? Reminders set: 1 hour and 30 min before",
           ),
           actions: [
             TextButton(
@@ -187,7 +188,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
             expandedHeight: 250,
             pinned: true,
             leading: Container(
-              margin: const EdgeInsets.all(8),
+              margin: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
@@ -210,7 +211,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
           // Content
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -222,9 +223,9 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                       Expanded(
                         child: Text(
                           name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 24,
+                            fontSize: ResponsiveUtils.sp(context, 24),
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF0d141b),
                           ),
@@ -234,19 +235,19 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '₺${price.toStringAsFixed(0)}',
-                            style: const TextStyle(
+                            '?${price.toStringAsFixed(0)}',
+                            style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 24,
+                              fontSize: ResponsiveUtils.sp(context, 24),
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF137fec),
                             ),
                           ),
                           Text(
                             '$duration min',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 14,
+                              fontSize: ResponsiveUtils.sp(context, 14),
                               color: Color(0xFF4c739a),
                             ),
                           ),
@@ -254,42 +255,42 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                   // Description
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                       color: Color(0xFF4c739a),
-                      height: 1.6,
+                      height: ResponsiveUtils.hp(context, 1.6 / 844),
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  const Divider(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 32)),
+                  Divider(),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
                   // Date Selection
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
                         decoration: BoxDecoration(
                           color: const Color(0xFF137fec).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.calendar_month_rounded,
                           color: Color(0xFF137fec),
-                          size: 20,
+                          size: ResponsiveUtils.iconSize(context) * (20 / 24),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
+                      SizedBox(width: ResponsiveUtils.spacing(context, 12)),
+                      Text(
                         "Select Date",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: ResponsiveUtils.sp(context, 18),
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF0d141b),
                           letterSpacing: -0.3,
@@ -297,13 +298,13 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   SizedBox(
-                    height: 90,
+                    height: ResponsiveUtils.hp(context, 90 / 844),
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: 14, // Next 2 weeks
-                      separatorBuilder: (_, e) => const SizedBox(width: 12),
+                      separatorBuilder: (_, e) => SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                       itemBuilder: (context, index) {
                         final date = DateTime.now().add(Duration(days: index));
                         final isSelected =
@@ -324,7 +325,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            width: 65,
+                            width: ResponsiveUtils.wp(context, 65 / 375),
                             decoration: BoxDecoration(
                               gradient: isSelected
                                   ? const LinearGradient(
@@ -337,7 +338,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                                     )
                                   : null,
                               color: isSelected ? null : Colors.white,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                               border: isSelected
                                   ? null
                                   : Border.all(
@@ -374,18 +375,18 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                                 Text(
                                   DateFormat('EEE').format(date),
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: ResponsiveUtils.sp(context, 12),
                                     fontWeight: FontWeight.w500,
                                     color: isSelected
                                         ? Colors.white.withValues(alpha: 0.8)
                                         : Colors.grey[600],
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 6)),
                                 Text(
                                   DateFormat('dd').format(date),
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: ResponsiveUtils.sp(context, 22),
                                     fontWeight: FontWeight.bold,
                                     color: isSelected
                                         ? Colors.white
@@ -393,10 +394,10 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                                   ),
                                 ),
                                 if (isToday) ...[
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                   Container(
-                                    width: 6,
-                                    height: 6,
+                                    width: ResponsiveUtils.wp(context, 6 / 375),
+                                    height: ResponsiveUtils.hp(context, 6 / 844),
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? Colors.white
@@ -412,31 +413,31 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
                   // Time Selection
                   if (_selectedDate != null) ...[
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
                           decoration: BoxDecoration(
                             color: const Color(
                               0xFF137fec,
                             ).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.access_time_rounded,
                             color: Color(0xFF137fec),
-                            size: 20,
+                            size: ResponsiveUtils.iconSize(context) * (20 / 24),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        const Text(
+                        SizedBox(width: ResponsiveUtils.spacing(context, 12)),
+                        Text(
                           "Select Time",
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: ResponsiveUtils.sp(context, 18),
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF0d141b),
                             letterSpacing: -0.3,
@@ -444,7 +445,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     Wrap(
                       spacing: 12,
                       runSpacing: 12,
@@ -453,18 +454,18 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                         ..._afternoonSlots.map((time) => _buildTimeChip(time)),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
                     // Payment Method
                     if (_selectedDate != null && _selectedTimeSlot != null) ...[
-                      const Divider(),
-                      const SizedBox(height: 24),
+                      Divider(),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       _buildPaymentMethodSection(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       _buildSummarySection(price),
-                      const SizedBox(height: 100), // Bottom padding
+                      SizedBox(height: ResponsiveUtils.spacing(context, 100)), // Bottom padding
                     ] else ...[
-                      const SizedBox(height: 100),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 100)),
                     ],
                   ],
                 ],
@@ -489,7 +490,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
         child: SafeArea(
           child: SizedBox(
             width: double.infinity,
-            height: 56,
+            height: ResponsiveUtils.hp(context, 56 / 844),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
@@ -497,7 +498,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                     (_selectedDate != null &&
                         _selectedTimeSlot != null &&
                         !_isLoading)
-                    ? const LinearGradient(
+                    ? LinearGradient(
                         colors: [Color(0xFF137fec), Color(0xFF0A5EC7)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
@@ -509,7 +510,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                         _isLoading)
                     ? Colors.grey[200]
                     : null,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                 boxShadow:
                     (_selectedDate != null &&
                         _selectedTimeSlot != null &&
@@ -532,12 +533,12 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                           !_isLoading)
                       ? _bookAppointment
                       : null,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                   child: Center(
                     child: _isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
+                        ? SizedBox(
+                            width: ResponsiveUtils.wp(context, 24 / 375),
+                            height: ResponsiveUtils.hp(context, 24 / 844),
                             child: CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2.5,
@@ -548,18 +549,18 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                             children: [
                               Icon(
                                 Icons.calendar_today_rounded,
-                                size: 20,
+                                size: ResponsiveUtils.iconSize(context) * (20 / 24),
                                 color:
                                     (_selectedDate != null &&
                                         _selectedTimeSlot != null)
                                     ? Colors.white
                                     : Colors.grey[400],
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(width: ResponsiveUtils.spacing(context, 10)),
                               Text(
                                 "Book Appointment",
                                 style: TextStyle(
-                                  fontSize: 17,
+                                  fontSize: ResponsiveUtils.sp(context, 17),
                                   fontWeight: FontWeight.w700,
                                   color:
                                       (_selectedDate != null &&
@@ -613,12 +614,12 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
       onTap: isDisabled ? null : () => setState(() => _selectedTimeSlot = time),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 20), vertical: ResponsiveUtils.spacing(context, 12)),
         decoration: BoxDecoration(
           color: isDisabled
               ? Colors.grey[100]
               : (isSelected ? const Color(0xFF137fec) : Colors.white),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           border: Border.all(
             color: isDisabled
                 ? Colors.grey[300]!
@@ -642,7 +643,7 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
                 ? Colors.grey[400]
                 : (isSelected ? Colors.white : const Color(0xFF0d141b)),
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            fontSize: 15,
+            fontSize: ResponsiveUtils.sp(context, 15),
             decoration: isBooked ? TextDecoration.lineThrough : null,
           ),
         ),
@@ -654,43 +655,40 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "Payment Method",
           style: TextStyle(
-            fontSize: 16,
+            fontSize: ResponsiveUtils.sp(context, 16),
             fontWeight: FontWeight.bold,
             color: Color(0xFF0d141b),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: ResponsiveUtils.spacing(context, 12)),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
             border: Border.all(color: Colors.grey[200]!),
           ),
-          child: RadioListTile(
-            value: 'room_charge',
-            groupValue: _selectedPaymentMethod,
-            onChanged: null, // Read-only since it's the only option
-            activeColor: const Color(0xFF137fec),
-            title: const Text(
+          child: ListTile(
+            leading: const Icon(Icons.radio_button_checked, color: Color(0xFF137fec)),
+            title: Text(
               'Charge to Room',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: ResponsiveUtils.sp(context, 16),
                 color: Color(0xFF0d141b),
               ),
             ),
-            subtitle: const Text(
+            subtitle: Text(
               'The amount will be added to your checkout bill.',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey),
             ),
-            secondary: Container(
-              padding: const EdgeInsets.all(8),
+            trailing: Container(
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: const Color(0xFF137fec).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
               ),
               child: const Icon(Icons.receipt_long, color: Color(0xFF137fec)),
             ),
@@ -702,10 +700,10 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
 
   Widget _buildSummarySection(double price) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
@@ -713,39 +711,39 @@ class _SpaBookingScreenState extends State<SpaBookingScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Service Fee',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey),
               ),
               Text(
-                '₺${price.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 14,
+                '?${price.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 14),
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF0d141b),
                 ),
               ),
             ],
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Total Amount',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: ResponsiveUtils.sp(context, 16),
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0d141b),
                 ),
               ),
               Text(
-                '₺${price.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 18,
+                '?${price.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 18),
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF137fec),
                 ),

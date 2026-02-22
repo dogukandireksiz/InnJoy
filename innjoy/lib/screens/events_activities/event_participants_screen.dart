@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import '../../utils/responsive_utils.dart';
 
 class EventParticipantsScreen extends StatelessWidget {
   final String hotelName;
@@ -36,20 +37,20 @@ class EventParticipantsScreen extends StatelessWidget {
           final participants = snapshot.data ?? [];
 
           if (participants.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Icon(Icons.people_outline, size: 64, color: Colors.grey),
-                   SizedBox(height: 16),
-                   Text('No registered participants yet.', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                   Icon(Icons.people_outline, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey),
+                   SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                   Text('No registered participants yet.', style: TextStyle(color: Colors.grey, fontSize: ResponsiveUtils.sp(context, 16))),
                 ],
               ),
             );
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
             itemCount: participants.length,
             separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (context, index) {
@@ -67,13 +68,13 @@ class EventParticipantsScreen extends StatelessWidget {
                   foregroundColor: Colors.blue.shade800,
                   child: Text(name.substring(0, 1).toUpperCase()),
                 ),
-                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('Registration Date: $timeStr'),
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 6)),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                     border: Border.all(color: Colors.green.shade200),
                   ),
                   child: Text(
@@ -81,10 +82,10 @@ class EventParticipantsScreen extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.green.shade800,
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
+                      fontSize: ResponsiveUtils.sp(context, 14),
                   ),
                 ),
+              ),
               );
             },
           );
@@ -93,6 +94,7 @@ class EventParticipantsScreen extends StatelessWidget {
     );
   }
 }
+
 
 
 

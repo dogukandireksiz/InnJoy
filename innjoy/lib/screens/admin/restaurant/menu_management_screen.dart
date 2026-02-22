@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../services/database_service.dart';
 import '../../../models/menu_item_model.dart';
 import 'add_menu_item_screen.dart';
+import '../../../utils/responsive_utils.dart';
 
 class MenuManagementScreen extends StatefulWidget {
   final String hotelName;
@@ -101,10 +102,10 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                         children: [
                           Icon(
                             Icons.restaurant_menu,
-                            size: 64,
+                            size: ResponsiveUtils.iconSize(context) * (64 / 24),
                             color: Colors.grey[400],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                           Text(
                             'No items found',
                             style: TextStyle(color: Colors.grey[600]),
@@ -117,7 +118,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                   // Group by category for 'All' view for better UX
                   if (_selectedCategory == 'All') {
                     return ListView(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                       children: _categories
                           .where(
                             (c) =>
@@ -136,13 +137,13 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
+                                  padding: EdgeInsets.symmetric(
                                     vertical: 8,
                                   ),
                                   child: Text(
                                     cat['name'],
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: ResponsiveUtils.sp(context, 18),
                                       fontWeight: FontWeight.bold,
                                       color: isDarkMode
                                           ? Colors.white
@@ -167,10 +168,10 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                   }
 
                   return ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                     itemCount: displayedItems.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     itemBuilder: (context, index) {
                       return _buildPremiumMenuItemCard(
                         displayedItems[index],
@@ -194,13 +195,13 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
 
   Widget _buildHeader(bool isDarkMode) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16.0)),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
                 shape: BoxShape.circle,
@@ -208,11 +209,11 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
               child: Icon(
                 Icons.arrow_back,
                 color: isDarkMode ? Colors.white : Colors.black,
-                size: 20,
+                size: ResponsiveUtils.iconSize(context) * (20 / 24),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: ResponsiveUtils.spacing(context, 16)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +221,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                 Text(
                   'Menu Management',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: ResponsiveUtils.sp(context, 20),
                     fontWeight: FontWeight.bold,
                     color: isDarkMode ? Colors.white : textDarkColor,
                   ),
@@ -228,7 +229,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                 Text(
                   'Manage ${widget.hotelName} Menu',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: ResponsiveUtils.sp(context, 12),
                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
@@ -242,12 +243,12 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
 
   Widget _buildCategoryFilter(bool isDarkMode) {
     return SizedBox(
-      height: 40,
+      height: ResponsiveUtils.hp(context, 40 / 844),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 10),
+        separatorBuilder: (context, index) => SizedBox(width: ResponsiveUtils.spacing(context, 10)),
         itemBuilder: (context, index) {
           final category = _categories[index];
           final isSelected = _selectedCategory == category['name'];
@@ -256,12 +257,12 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
           return GestureDetector(
             onTap: () => setState(() => _selectedCategory = category['name']),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: isSelected
                     ? catColor
                     : (isDarkMode ? Colors.grey[800] : Colors.white),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                 border: Border.all(
                   color: isSelected
                       ? catColor
@@ -273,21 +274,21 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                   if (category['icon'] != null) ...[
                     Icon(
                       category['icon'],
-                      size: 16,
+                      size: ResponsiveUtils.iconSize(context) * (16 / 24),
                       color: isSelected ? Colors.white : catColor,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                   ] else if (category['emoji'] != null) ...[
                     Text(
                       category['emoji'],
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16)),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                   ],
                   Text(
                     category['name'],
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: ResponsiveUtils.sp(context, 13),
                       fontWeight: FontWeight.w600,
                       color: isSelected
                           ? Colors.white
@@ -308,13 +309,13 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
     // <div class="group flex flex-row bg-white dark:bg-slate-800 rounded-2xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-slate-100 dark:border-slate-700 gap-3.5 transition-all">
     
     return Container(
-      padding: const EdgeInsets.all(12), // p-3 -> 0.75rem -> 12px
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)), // p-3 -> 0.75rem -> 12px
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E2A38) : Colors.white,
-        borderRadius: BorderRadius.circular(16), // rounded-2xl -> 1rem -> 16px
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)), // rounded-2xl -> 1rem -> 16px
         border: Border.all(
           color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFF1F5F9), // border-slate-100 / slate-700
-          width: 1,
+          width: ResponsiveUtils.wp(context, 1 / 375),
         ),
         boxShadow: isDarkMode ? null : [
           BoxShadow(
@@ -331,14 +332,14 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
           // Image Section
           // <div class="w-24 h-24 shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
           Container(
-            width: 96, // w-24 -> 6rem -> 96px
-            height: 96, // h-24
+            width: ResponsiveUtils.wp(context, 96 / 375), // w-24 -> 6rem -> 96px
+            height: ResponsiveUtils.hp(context, 96 / 844), // h-24
             decoration: BoxDecoration(
               color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12), // rounded-xl -> 0.75rem -> 12px
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)), // rounded-xl -> 0.75rem -> 12px
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               child: Image.network(
                 item.imageUrl,
                 fit: BoxFit.cover,
@@ -347,13 +348,13 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
             ),
           ),
           
-          const SizedBox(width: 14), // gap-3.5 -> 0.875rem -> 14px
+          SizedBox(width: ResponsiveUtils.spacing(context, 14)), // gap-3.5 -> 0.875rem -> 14px
 
           // Content Section
           Expanded(
             child: SizedBox(
                // minHeight ensures alignment with image, but allows growth
-              // height: 96, // Removed to allow auto-sizing
+              // height: ResponsiveUtils.hp(context, 96 / 844), // Removed to allow auto-sizing
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,10 +367,10 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                       Text(
                         item.name,
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: ResponsiveUtils.sp(context, 15),
                           fontWeight: FontWeight.bold,
                           color: isDarkMode ? Colors.white : const Color(0xFF0f172a), 
-                          height: 1.25, 
+                          height: ResponsiveUtils.hp(context, 1.25 / 844), 
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -380,7 +381,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                         child: Text(
                           item.description, 
                           style: TextStyle(
-                            fontSize: 12, // Slightly smaller
+                            fontSize: ResponsiveUtils.sp(context, 12), // Slightly smaller
                             fontWeight: FontWeight.w400,
                             color: isDarkMode ? Colors.grey[400] : const Color(0xFF64748B), 
                           ),
@@ -394,7 +395,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                         child: Text(
                           '₺${item.price.toStringAsFixed(2)}',
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: ResponsiveUtils.sp(context, 15),
                             fontWeight: FontWeight.bold,
                             color: primaryColor,
                           ),
@@ -410,7 +411,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                       // Status Badge
                       // <span class="inline-flex items-center rounded-md bg-emerald-50 ... px-2 py-1 text-[11px] ...">Aktif</span>
                       // Status Badge removed as per user request
-                      const SizedBox.shrink(),
+                      SizedBox.shrink(),
 
                       // Actions
                       // <div class="flex items-center gap-2">
@@ -420,41 +421,41 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                           // <button class="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 ...">
                            InkWell(
                             onTap: () => _deleteItem(item),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                             child: Container(
-                              width: 32,
-                              height: 32,
+                              width: ResponsiveUtils.wp(context, 32 / 375),
+                              height: ResponsiveUtils.hp(context, 32 / 844),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                 color: Colors.transparent, // Default transparent
                               ),
-                              child: Icon(Icons.delete, size: 20, color: Colors.grey[400]),
+                              child: Icon(Icons.delete, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: Colors.grey[400]),
                             ),
                           ),
                           
-                          const SizedBox(width: 8),
+                          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
 
                           // Edit Button
                           // <button class="flex items-center gap-1 px-3 h-8 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-[13px] font-semibold ...">
                           InkWell(
                             onTap: () => _navigateToAddEditScreen(context, item: item),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                             child: Container(
-                              height: 32,
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              height: ResponsiveUtils.hp(context, 32 / 844),
+                              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12)),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                 color: primaryColor.withValues(alpha: 0.1), // bg-primary/10
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.edit, size: 16, color: primaryColor),
-                                  const SizedBox(width: 4),
+                                  Icon(Icons.edit, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: primaryColor),
+                                  SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                   Text(
                                     'Düzenle',
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: ResponsiveUtils.sp(context, 13),
                                       fontWeight: FontWeight.w600,
                                       color: primaryColor,
                                     ),

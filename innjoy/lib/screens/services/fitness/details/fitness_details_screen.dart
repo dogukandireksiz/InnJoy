@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../services/database_service.dart';
+import '../../../../utils/responsive_utils.dart';
 
 /// Fitness Center Details Screen
 /// 
@@ -136,37 +137,37 @@ class FitnessDetailsScreen extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 title,
-                                style: const TextStyle(
-                                  fontSize: 32,
+                                style: TextStyle(
+                                  fontSize: ResponsiveUtils.sp(context, 32),
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFF101922),
                                   letterSpacing: -0.5,
-                                  height: 1.1,
+                                  height: ResponsiveUtils.hp(context, 1.1 / 844),
                                 ),
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.green.shade50,
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                                 border: Border.all(color: Colors.green.shade200),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.check_circle, 
                                     color: Colors.green, 
-                                    size: 14,
+                                    size: ResponsiveUtils.iconSize(context) * (14 / 24),
                                   ),
-                                  SizedBox(width: 4),
+                                  SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                   Text(
                                     'Open 24/7',
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: ResponsiveUtils.sp(context, 12),
                                       fontWeight: FontWeight.w600,
                                       color: Colors.green,
                                     ),
@@ -181,7 +182,7 @@ class FitnessDetailsScreen extends StatelessWidget {
                   ),
                 ),
                 leading: Container(
-                  margin: const EdgeInsets.all(8),
+                  margin: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.8),
                     shape: BoxShape.circle,
@@ -196,7 +197,7 @@ class FitnessDetailsScreen extends StatelessWidget {
               // Content
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -204,22 +205,22 @@ class FitnessDetailsScreen extends StatelessWidget {
                       Text(
                         description,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: ResponsiveUtils.sp(context, 14),
                           color: Colors.grey[600],
-                          height: 1.5,
+                          height: ResponsiveUtils.hp(context, 1.5 / 844),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       
                       // Operating Hours
-                      _buildSection(
+                      _buildSection(context,
                         title: 'Operating Hours',
                         icon: Icons.access_time,
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.05),
@@ -235,7 +236,7 @@ class FitnessDetailsScreen extends StatelessWidget {
                                 value: operatingHours['hours'] ?? '24 Hours',
                                 icon: Icons.calendar_today,
                               ),
-                              const Divider(height: 20),
+                              Divider(height: 20),
                               _InfoRow(
                                 label: 'Staff Available',
                                 value: operatingHours['staffAvailable'] ?? '06:00 - 22:00',
@@ -245,33 +246,33 @@ class FitnessDetailsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       
                       // Equipment & Features
-                      _buildSection(
+                      _buildSection(context,
                         title: 'Equipment & Facilities',
                         icon: Icons.fitness_center,
-                        child: _buildEquipmentGrid(equipment),
+                        child: _buildEquipmentGrid(context, equipment),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       
                       // Gallery
-                      _buildSection(
+                      _buildSection(context,
                         title: 'Gallery',
                         icon: Icons.photo_library,
-                        child: _buildGallery(gallery),
+                        child: _buildGallery(context, gallery),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       
                       // Location
-                      _buildSection(
+                      _buildSection(context,
                         title: 'Location',
                         icon: Icons.location_on,
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.05),
@@ -283,35 +284,35 @@ class FitnessDetailsScreen extends StatelessWidget {
                           child: Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(12),
+                                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF137fec).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.directions,
                                   color: Color(0xFF137fec),
-                                  size: 24,
+                                  size: ResponsiveUtils.iconSize(context) * (24 / 24),
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       location['floor'] ?? 'Ground Floor',
-                                      style: const TextStyle(
-                                        fontSize: 16,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveUtils.sp(context, 16),
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF0d141b),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
+                                    SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                     Text(
                                       location['description'] ?? 'Next to the Pool Area',
-                                      style: const TextStyle(
-                                        fontSize: 14,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveUtils.sp(context, 14),
                                         color: Colors.grey,
                                       ),
                                     ),
@@ -322,43 +323,43 @@ class FitnessDetailsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                       
                       // Access Info
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                         decoration: BoxDecoration(
                           color: const Color(0xFF137fec).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           border: Border.all(
                             color: const Color(0xFF137fec).withValues(alpha: 0.2),
                           ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.key,
                               color: Color(0xFF137fec),
-                              size: 24,
+                              size: ResponsiveUtils.iconSize(context) * (24 / 24),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Room Key Access',
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: ResponsiveUtils.sp(context, 14),
                                       fontWeight: FontWeight.w600,
                                       color: Color(0xFF137fec),
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                   Text(
                                     accessInfo,
-                                    style: const TextStyle(
-                                      fontSize: 13,
+                                    style: TextStyle(
+                                      fontSize: ResponsiveUtils.sp(context, 13),
                                       color: Color(0xFF137fec),
                                     ),
                                   ),
@@ -368,7 +369,7 @@ class FitnessDetailsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 40)),
                     ],
                   ),
                 ),
@@ -387,7 +388,7 @@ class FitnessDetailsScreen extends StatelessWidget {
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Container(
           color: Colors.grey[300],
-          child: const Icon(Icons.fitness_center, size: 64, color: Colors.grey),
+          child: Icon(Icons.fitness_center, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey),
         ),
       );
     }
@@ -396,12 +397,12 @@ class FitnessDetailsScreen extends StatelessWidget {
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) => Container(
         color: Colors.grey[300],
-        child: const Icon(Icons.fitness_center, size: 64, color: Colors.grey),
+        child: Icon(Icons.fitness_center, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey),
       ),
     );
   }
 
-  Widget _buildSection({
+  Widget _buildSection(BuildContext context, {
     required String title,
     required IconData icon,
     required Widget child,
@@ -411,32 +412,32 @@ class FitnessDetailsScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: const Color(0xFF137fec)),
-            const SizedBox(width: 8),
+            Icon(icon, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: const Color(0xFF137fec)),
+            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: ResponsiveUtils.sp(context, 16),
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF0d141b),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: ResponsiveUtils.spacing(context, 12)),
         child,
       ],
     );
   }
 
-  Widget _buildEquipmentGrid(List<Map<String, dynamic>> equipment) {
+  Widget _buildEquipmentGrid(BuildContext context, List<Map<String, dynamic>> equipment) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+        crossAxisSpacing: ResponsiveUtils.spacing(context, 12),
+        mainAxisSpacing: ResponsiveUtils.spacing(context, 12),
         childAspectRatio: 0.9,
       ),
       itemCount: equipment.length,
@@ -446,10 +447,10 @@ class FitnessDetailsScreen extends StatelessWidget {
         final iconData = _iconMap[iconName] ?? Icons.fitness_center;
         
         return Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -463,15 +464,15 @@ class FitnessDetailsScreen extends StatelessWidget {
             children: [
               Icon(
                 iconData,
-                size: 24,
+                size: ResponsiveUtils.iconSize(context) * (24 / 24),
                 color: const Color(0xFF137fec),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: ResponsiveUtils.spacing(context, 6)),
               Text(
                 item['name'] as String? ?? '',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 10,
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 10),
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF0d141b),
                 ),
@@ -485,16 +486,16 @@ class FitnessDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGallery(List<String> images) {
+  Widget _buildGallery(BuildContext context, List<String> images) {
     return SizedBox(
-      height: 120,
+      height: ResponsiveUtils.hp(context, 120 / 844),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: images.length,
-        separatorBuilder: (_, e) => const SizedBox(width: 12),
+        separatorBuilder: (_, e) => SizedBox(width: ResponsiveUtils.spacing(context, 12)),
         itemBuilder: (context, index) {
           return ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
             child: AspectRatio(
               aspectRatio: 4 / 3,
               child: Image.network(
@@ -528,27 +529,27 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Colors.grey),
-        const SizedBox(width: 12),
+        Icon(icon, size: ResponsiveUtils.iconSize(context) * (18 / 24), color: Colors.grey),
+        SizedBox(width: ResponsiveUtils.spacing(context, 12)),
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.sp(context, 14),
               color: Color(0xFF0d141b),
             ),
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 10), vertical: ResponsiveUtils.spacing(context, 4)),
           decoration: BoxDecoration(
             color: const Color(0xFF137fec).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
           ),
           child: Text(
             value,
-            style: const TextStyle(
-              fontSize: 13,
+            style: TextStyle(
+              fontSize: ResponsiveUtils.sp(context, 13),
               fontWeight: FontWeight.w600,
               color: Color(0xFF137fec),
             ),
@@ -558,6 +559,7 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
+
 
 
 

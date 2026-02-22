@@ -11,6 +11,7 @@ import 'help_support_screen.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isTabView;
@@ -85,15 +86,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             return Dialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
               ),
               elevation: 0,
               backgroundColor: Colors.transparent,
               child: Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -107,54 +108,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     // Header Icon
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF0057FF), Color(0xFF00A3FF)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.qr_code_2,
                         color: Colors.white,
-                        size: 32,
+                        size: ResponsiveUtils.iconSize(context) * (32 / 24),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     // Title
-                    const Text(
+                    Text(
                       'Hotel WiFi QR Code',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: ResponsiveUtils.sp(context, 20),
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF1C1C1E),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                     // Subtitle (Room/Hotel Name)
                     Text(
                       hotelName,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey[600]),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                     // QR Code
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                         border: Border.all(
                           color: Colors.grey.withValues(alpha: 0.2),
-                          width: 1,
+                          width: ResponsiveUtils.wp(context, 1 / 375),
                         ),
                       ),
                       child: QrImageView(
                         data: qrData,
                         version: QrVersions.auto,
-                        size: 200,
+                        size: ResponsiveUtils.iconSize(context) * (200 / 24),
                         backgroundColor: Colors.white,
                         eyeStyle: const QrEyeStyle(
                           eyeShape: QrEyeShape.square,
@@ -166,16 +167,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                     // WiFi Details Text
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
+                      padding: EdgeInsets.symmetric(
+                        vertical: ResponsiveUtils.spacing(context, 12),
+                        horizontal: ResponsiveUtils.spacing(context, 16),
                       ),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                       ),
                       child: Column(
                         children: [
@@ -185,35 +186,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Text(
                                 "Network:",
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: ResponsiveUtils.sp(context, 14),
                                   color: Colors.grey[600],
                                 ),
                               ),
                               SelectableText(
                                 ssid,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: ResponsiveUtils.sp(context, 14),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 "Password:",
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: ResponsiveUtils.sp(context, 14),
                                   color: Colors.grey[600],
                                 ),
                               ),
                               SelectableText(
                                 password,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: ResponsiveUtils.sp(context, 14),
                                 ),
                               ),
                             ],
@@ -221,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                     // Close Button
                     SizedBox(
                       width: double.infinity,
@@ -230,16 +231,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0057FF),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                            vertical: ResponsiveUtils.spacing(context, 14),
+                          ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
+                        child: Text(
                           'Close',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: ResponsiveUtils.sp(context, 16),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -270,12 +273,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () => Navigator.pop(context),
               ),
         automaticallyImplyLeading: !widget.isTabView,
-        title: const Text(
+        title: Text(
           'Profile',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontSize: ResponsiveUtils.sp(context, 18),
           ),
         ),
         actions: [
@@ -299,7 +302,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               width: double.infinity,
               color: const Color(0xFFF6F7FB),
-              padding: const EdgeInsets.only(bottom: 16, left: 24, right: 24),
+              padding: EdgeInsets.only(
+                bottom: ResponsiveUtils.spacing(context, 16),
+                left: ResponsiveUtils.spacing(context, 24),
+                right: ResponsiveUtils.spacing(context, 24),
+              ),
               child: StreamBuilder<User?>(
                 stream: FirebaseAuth.instance.userChanges(),
                 builder: (context, snapshot) {
@@ -322,8 +329,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Stack(
                           children: [
                             Container(
-                              width: 120,
-                              height: 120,
+                              width: ResponsiveUtils.wp(context, 120 / 375),
+                              height: ResponsiveUtils.hp(context, 120 / 844),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
@@ -340,20 +347,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 2), // Minimized spacing heavily as requested
+                      SizedBox(height: ResponsiveUtils.spacing(context, 2)), // Minimized spacing heavily as requested
                       // İsim
                       Text(
                         displayName,
-                        style: const TextStyle(
-                          fontSize: 22,
+                        style: TextStyle(
+                          fontSize: ResponsiveUtils.sp(context, 22),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 4), // Increased from 2 to 4
+                      SizedBox(height: ResponsiveUtils.spacing(context, 4)), // Increased from 2 to 4
                       // E-posta
                       Text(
                         currentUser?.email ?? 'email@example.com',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey[600]),
                       ),
                     ],
                   );
@@ -362,15 +369,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             // Kişisel Bilgiler
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Personal Information',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   _InfoCard(
                     children: [
                       _InfoItem(
@@ -378,7 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         label: 'Full Name',
                         value: userName,
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1),
                       _InfoItem(
                         icon: Icons.email_outlined,
                         label: 'Email',
@@ -390,19 +397,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            const SizedBox(height: 14),
+            SizedBox(height: ResponsiveUtils.spacing(context, 14)),
 
             // Konaklama Bilgileri
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Accommodation Details',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   StreamBuilder<Map<String, dynamic>?>(
                     stream: _getUserAccommodationStream(),
                     builder: (context, snapshot) {
@@ -445,13 +452,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 label: 'Room Number',
                                 value: roomNumber,
                               ),
-                              const Divider(height: 1),
+                              Divider(height: 1),
                               _InfoItem(
                                 icon: Icons.calendar_today_outlined,
                                 label: 'Check-in Date',
                                 value: checkInStr,
                               ),
-                              const Divider(height: 1),
+                              Divider(height: 1),
                               _InfoItem(
                                 icon: Icons.event_outlined,
                                 label: 'Check-out Date',
@@ -459,7 +466,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                           // WiFi Connection Button
                           InkWell(
                             onTap: () {
@@ -467,7 +474,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _showWifiDialog(context, hotelName);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
+                                  SnackBar(
                                     content: Text(
                                       'Please check in to a hotel to view WiFi details',
                                     ),
@@ -476,10 +483,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               }
                             },
                             child: Container(
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.05),
@@ -491,35 +498,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(10),
+                                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFE3F2FD),
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.wifi,
                                       color: Color(0xFF1677FF),
-                                      size: 24,
+                                      size: ResponsiveUtils.iconSize(context) * (24 / 24),
                                     ),
                                   ),
-                                  const SizedBox(width: 16),
-                                  const Expanded(
+                                  SizedBox(width: ResponsiveUtils.spacing(context, 16)),
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'WiFi Connection',
                                           style: TextStyle(
-                                            fontSize: 16,
+                                            fontSize: ResponsiveUtils.sp(context, 16),
                                             fontWeight: FontWeight.w600,
                                             color: Color(0xFF1C1C1E),
                                           ),
                                         ),
-                                        SizedBox(height: 4),
+                                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                         Text(
                                           'Scan QR to connect',
                                           style: TextStyle(
-                                            fontSize: 13,
+                                            fontSize: ResponsiveUtils.sp(context, 13),
                                             color: Colors.grey,
                                           ),
                                         ),
@@ -542,19 +549,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            const SizedBox(height: 14),
+            SizedBox(height: ResponsiveUtils.spacing(context, 14)),
 
             // Ayarlar ve Tercihler
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Settings',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   _SettingsCard(
                     children: [
                       _SettingsItem(
@@ -610,11 +617,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Çıkış Yap Butonu
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -650,16 +657,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.red),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(
+                      vertical: ResponsiveUtils.spacing(context, 14),
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                     ),
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 120),
+            // Adaptif bottom spacing - küçük ekranlarda daha az boşluk
+            SizedBox(
+              height: ResponsiveUtils.isSmallScreen(context)
+                  ? ResponsiveUtils.spacing(context, 40)
+                  : ResponsiveUtils.isMediumScreen(context)
+                      ? ResponsiveUtils.spacing(context, 80)
+                      : ResponsiveUtils.spacing(context, 120),
+            ),
           ],
         ),
       ),
@@ -677,7 +693,7 @@ class _InfoCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -705,33 +721,33 @@ class _InfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: ResponsiveUtils.wp(context, 40 / 375),
+            height: ResponsiveUtils.hp(context, 40 / 844),
             decoration: BoxDecoration(
               color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
             ),
-            child: Icon(icon, color: const Color(0xFF1677FF), size: 20),
+            child: Icon(icon, color: const Color(0xFF1677FF), size: ResponsiveUtils.iconSize(context) * (20 / 24)),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  style: TextStyle(color: Colors.grey[600], fontSize: ResponsiveUtils.sp(context, 13)),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: ResponsiveUtils.spacing(context, 2)),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    fontSize: 15,
+                    fontSize: ResponsiveUtils.sp(context, 15),
                   ),
                 ),
               ],
@@ -753,7 +769,7 @@ class _SettingsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -785,34 +801,34 @@ class _SettingsItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: ResponsiveUtils.wp(context, 40 / 375),
+              height: ResponsiveUtils.hp(context, 40 / 844),
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
               ),
-              child: Icon(icon, color: Colors.black54, size: 20),
+              child: Icon(icon, color: Colors.black54, size: ResponsiveUtils.iconSize(context) * (20 / 24)),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: ResponsiveUtils.spacing(context, 12)),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 15,
+                  fontSize: ResponsiveUtils.sp(context, 15),
                 ),
               ),
             ),
             if (trailing != null) ...[
               Text(
                 trailing!,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                style: TextStyle(color: Colors.grey[600], fontSize: ResponsiveUtils.sp(context, 14)),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: ResponsiveUtils.spacing(context, 8)),
             ],
             Icon(Icons.chevron_right, color: Colors.grey[400]),
           ],

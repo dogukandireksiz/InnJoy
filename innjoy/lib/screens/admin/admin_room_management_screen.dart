@@ -5,6 +5,7 @@ import '../../services/database_service.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart'; // EKLENDİ
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../utils/responsive_utils.dart';
 
 class AdminRoomManagementScreen extends StatefulWidget {
   final String hotelName;
@@ -78,14 +79,14 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                     border: InputBorder.none,
                     hintStyle: TextStyle(color: Colors.grey),
                   ),
-                  style: const TextStyle(color: Colors.black, fontSize: 18),
+                  style: TextStyle(color: Colors.black, fontSize: ResponsiveUtils.sp(context, 18)),
                 )
-              : const Text(
+              : Text(
                   'Rooms',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 24,
+                    fontSize: ResponsiveUtils.sp(context, 24),
                   ),
                 ),
           backgroundColor: const Color(0xFFF6F7FB),
@@ -133,12 +134,12 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                 },
               ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: Color(0xFF2E5077),
             unselectedLabelColor: Colors.grey,
             indicatorColor: Color(0xFF2E5077),
             indicatorWeight: 3,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 16)),
             tabs: [
               Tab(text: 'Rooms'),
               Tab(text: 'History'),
@@ -215,8 +216,9 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       }
     }
 
-    // 2. 1'den totalRooms'a kadar odaları kontrol et (VEYA roomDocs'tan kalanları ekle)
-    // Eğer roomDocs varsa, oradan iterate edelim, yoksa 1..20 varsayalım
+    // 2. Add empty rooms from roomDocs (if not occupied)
+    Set<String> addedRoomIds = {}; // Track which rooms we've added from roomDocs
+    
     if (roomDocs.isNotEmpty) {
       for (var doc in roomDocs) {
         final roomId = doc['id'];
@@ -235,25 +237,26 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
             'guestName': null,
             'isDnd': isDnd,
           });
-        }
-      }
-    } else {
-      // Fallback old logic if no room docs found
-      for (int i = 1; i <= totalRooms; i++) {
-        String roomNumber = i.toString();
-        if (!occupiedRoomNumbers.contains(roomNumber)) {
-          rooms.add({
-            'number': roomNumber,
-            'id': roomNumber,
-            'status': 'Empty',
-            'guestName': null,
-            'isDnd': false,
-          });
+          addedRoomIds.add(roomId);
         }
       }
     }
+    
+    // 3. Add generic numbered rooms from 1 to totalRooms (if not already added or occupied)
+    for (int i = 1; i <= totalRooms; i++) {
+      String roomNumber = i.toString();
+      if (!occupiedRoomNumbers.contains(roomNumber) && !addedRoomIds.contains(roomNumber)) {
+        rooms.add({
+          'number': roomNumber,
+          'id': roomNumber,
+          'status': 'Empty',
+          'guestName': null,
+          'isDnd': false,
+        });
+      }
+    }
 
-    // 3. Oda numarasına göre sırala
+    // 4. Oda numarasına göre sırala
     rooms.sort((a, b) {
       // Sayısal sıralama denemesi
       String numStrA = a['number'].toString();
@@ -288,15 +291,16 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
             return AlertDialog(
               title: const Text('New Guest Check-In'),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
               ),
               content: SizedBox(
                 width: double.maxFinite,
                 child: StreamBuilder<Map<String, dynamic>?>(
                   stream: DatabaseService().getHotelInfo(widget.hotelName),
                   builder: (context, infoSnapshot) {
-                    if (!infoSnapshot.hasData)
+                    if (!infoSnapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
+                    }
 
                     int totalRooms = infoSnapshot.data!['totalRooms'] ?? 20;
 
@@ -305,10 +309,11 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                         widget.hotelName,
                       ),
                       builder: (context, resSnapshot) {
-                        if (!resSnapshot.hasData)
+                        if (!resSnapshot.hasData) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
+                        }
 
                         // Boş odaları hesapla
                         List<Map<String, dynamic>> reservations =
@@ -348,11 +353,11 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                               children: [
                                 // Oda Seçimi Dropdown
                                 DropdownButtonFormField<String>(
-                                  value: selectedRoomNumber,
+                                  initialValue: selectedRoomNumber,
                                   decoration: InputDecoration(
                                     labelText: 'Select Room',
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     ),
                                     prefixIcon: const Icon(Icons.meeting_room),
                                   ),
@@ -367,7 +372,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                   validator: (v) =>
                                       v == null ? 'Please select a room' : null,
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                                 // Misafir Adı
                                 TextFormField(
@@ -375,14 +380,14 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                   decoration: InputDecoration(
                                     labelText: 'Guest Name',
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     ),
                                     prefixIcon: const Icon(Icons.person),
                                   ),
                                   validator: (v) =>
                                       v!.isEmpty ? 'Guest name required' : null,
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                                 // Giriş Tarihi
                                 ListTile(
@@ -392,7 +397,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                       'dd MMMM yyyy',
                                       'tr_TR',
                                     ).format(checkInDate),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -401,7 +406,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                     color: Color(0xFF2E5077),
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     side: BorderSide(
                                       color: Colors.grey.withValues(alpha: 0.5),
                                     ),
@@ -426,14 +431,14 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                           checkInDate,
                                         )) {
                                           checkOutDate = checkInDate.add(
-                                            const Duration(days: 1),
+                                            Duration(days: 1),
                                           );
                                         }
                                       });
                                     }
                                   },
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
 
                                 // Çıkış Tarihi
                                 ListTile(
@@ -452,7 +457,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                     color: Color(0xFF2E5077),
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     side: BorderSide(
                                       color: Colors.grey.withValues(alpha: 0.5),
                                     ),
@@ -495,7 +500,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2E5077),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                     ),
                   ),
                   onPressed: isLoading
@@ -546,15 +551,16 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                                 );
                               }
                             } finally {
-                              if (context.mounted)
+                              if (context.mounted) {
                                 setState(() => isLoading = false);
+                              }
                             }
                           }
                         },
                   child: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
+                      ? SizedBox(
+                          width: ResponsiveUtils.wp(context, 20 / 375),
+                          height: ResponsiveUtils.hp(context, 20 / 844),
                           child: CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2,
@@ -582,7 +588,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
         if (!_isSearching)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
             child: Row(
               children: [
                 _FilterChip(
@@ -590,13 +596,13 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                   isSelected: _selectedFilter == 'All',
                   onTap: () => setState(() => _selectedFilter = 'All'),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                 _FilterChip(
                   label: 'Empty',
                   isSelected: _selectedFilter == 'Empty',
                   onTap: () => setState(() => _selectedFilter = 'Empty'),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                 _FilterChip(
                   label: 'Occupied',
                   isSelected: _selectedFilter == 'Occupied',
@@ -669,28 +675,32 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                         }
 
                         if (_selectedFilter == 'All') return true;
-                        if (_selectedFilter == 'Empty' && status == 'Empty')
+                        if (_selectedFilter == 'Empty' && status == 'Empty') {
                           return true;
+                        }
                         if (_selectedFilter == 'Occupied' &&
-                            status == 'Occupied')
+                            status == 'Occupied') {
                           return true;
+                        }
                         if (_selectedFilter == 'Cleaning' &&
-                            status == 'Cleaning')
+                            status == 'Cleaning') {
                           return true;
+                        }
                         if (_selectedFilter == 'Maintenance' &&
-                            status == 'Maintenance')
+                            status == 'Maintenance') {
                           return true;
+                        }
 
                         return false;
                       }).toList();
 
                       return GridView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                            SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
+                              crossAxisSpacing: ResponsiveUtils.spacing(context, 12),
+                              mainAxisSpacing: ResponsiveUtils.spacing(context, 12),
                               childAspectRatio:
                                   0.85, // Taller card to prevent overflow
                             ),
@@ -718,8 +728,9 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
     return StreamBuilder<List<Map<String, dynamic>>>(
       stream: DatabaseService().getHotelReservations(widget.hotelName),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
 
         // Filter for 'past' or expired reservations
         final history = snapshot.data!.where((res) {
@@ -739,7 +750,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
           itemCount: history.length,
           itemBuilder: (context, index) {
             final res = history[index];
@@ -751,9 +762,9 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
             // final email = res['guestEmail']; // Unused
 
             return Card(
-              margin: const EdgeInsets.only(bottom: 12),
+              margin: EdgeInsets.only(bottom: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               ),
               child: ListTile(
                 leading: CircleAvatar(
@@ -815,12 +826,12 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           ),
           title: Row(
-            children: const [
-              Icon(Icons.check_circle, color: Colors.green, size: 28),
-              SizedBox(width: 8),
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: ResponsiveUtils.iconSize(context) * (28 / 24)),
+              SizedBox(width: ResponsiveUtils.spacing(context, 8)),
               Expanded(child: Text('Reservation Successful!')),
             ],
           ),
@@ -829,28 +840,28 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0FDF4), // Açık yeşil arka plan
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   border: Border.all(
                     color: Colors.green.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Generated PNR Code',
                       style: TextStyle(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                     Text(
                       pnr,
-                      style: const TextStyle(
-                        fontSize: 32,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtils.sp(context, 32),
                         fontWeight: FontWeight.w900,
                         color: Colors.black87,
                         letterSpacing: 2.0,
@@ -859,7 +870,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: ResponsiveUtils.spacing(context, 16)),
               _detailRow('Guest:', guestName),
               _detailRow('Room:', roomNumber),
               const Divider(),
@@ -880,16 +891,16 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E5077),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 onPressed: () {
                   Navigator.of(ctx).pop(); // Dialogu kapat
                 },
-                child: const Text(
+                child: Text(
                   'OK',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: Colors.white, fontSize: ResponsiveUtils.sp(context, 16)),
                 ),
               ),
             ),
@@ -916,13 +927,13 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       context: context,
       builder: (ctx) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        insetPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 20)),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -938,7 +949,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                     decoration: BoxDecoration(
                       color: Colors.grey[100], // Grey for history
                       shape: BoxShape.circle,
@@ -946,20 +957,20 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                     ),
                     child: const Icon(Icons.history, color: Colors.grey),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           displayName,
-                          style: const TextStyle(
-                            fontSize: 20,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 20),
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -967,13 +978,13 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 6)),
                             border: Border.all(color: Colors.grey[300]!),
                           ),
-                          child: const Text(
+                          child: Text(
                             'History Record',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: ResponsiveUtils.sp(context, 10),
                               color: Colors.grey,
                               fontWeight: FontWeight.bold,
                             ),
@@ -988,14 +999,14 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
               // Info Grid
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                   border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
                 ),
                 child: Column(
@@ -1027,7 +1038,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                       'Email',
                       res['guestEmail'] ?? '-',
                     ),
-                    const Divider(height: 24),
+                    Divider(height: 24),
                     Row(
                       children: [
                         Expanded(
@@ -1039,11 +1050,11 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                           ),
                         ),
                         Container(
-                          width: 1,
-                          height: 40,
+                          width: ResponsiveUtils.wp(context, 1 / 375),
+                          height: ResponsiveUtils.hp(context, 40 / 844),
                           color: Colors.grey.withValues(alpha: 0.2),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                         Expanded(
                           child: _detailRowStyled(
                             Icons.logout,
@@ -1095,13 +1106,13 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       builder: (ctx) => Dialog(
         // AlertDialog yerine Custom Dialog
         backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        insetPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 20)),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -1110,45 +1121,46 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
               ),
             ],
           ),
-          child: Column(
+          child: SingleChildScrollView(
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Header: Avatar & Name
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                     decoration: BoxDecoration(
                       color: const Color(0xFFEFF6FF), // Blue 50
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: const Color(0xFFBFDBFE),
-                        width: 2,
+                        width: ResponsiveUtils.wp(context, 2 / 375),
                       ),
                     ),
                     child: Text(
                       room['number'].toString(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF1D4ED8),
-                        fontSize: 18,
+                        fontSize: ResponsiveUtils.sp(context, 18),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           displayName,
-                          style: const TextStyle(
-                            fontSize: 20,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 20),
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -1156,13 +1168,13 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.green[50],
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 6)),
                             border: Border.all(color: Colors.green[100]!),
                           ),
                           child: Text(
                             isClaimed ? 'Checked-In Guest' : 'Pending',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: ResponsiveUtils.sp(context, 10),
                               color: Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
@@ -1177,14 +1189,14 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
               // Info Grid
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                   border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
                 ),
                 child: Column(
@@ -1216,7 +1228,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                       'Email',
                       room['guestEmail'] ?? '-',
                     ),
-                    const Divider(height: 24),
+                    Divider(height: 24),
                     Row(
                       children: [
                         Expanded(
@@ -1228,11 +1240,11 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                           ),
                         ),
                         Container(
-                          width: 1,
-                          height: 40,
+                          width: ResponsiveUtils.wp(context, 1 / 375),
+                          height: ResponsiveUtils.hp(context, 40 / 844),
                           color: Colors.grey.withValues(alpha: 0.2),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                         Expanded(
                           child: _detailRowStyled(
                             Icons.logout,
@@ -1247,17 +1259,17 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
               // QR Code Section
               if (room['data'] != null &&
                   room['data']['qrCodeData'] != null) ...[
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF0F7FF),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                     border: Border.all(color: const Color(0xFFBFDBFE)),
                   ),
                   child: Column(
@@ -1267,30 +1279,30 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                           Icon(
                             Icons.qr_code_2,
                             color: const Color(0xFF2E5077),
-                            size: 20,
+                            size: ResponsiveUtils.iconSize(context) * (20 / 24),
                           ),
-                          const SizedBox(width: 8),
-                          const Text(
+                          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+                          Text(
                             'Room QR Code',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: ResponsiveUtils.sp(context, 14),
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF2E5077),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         ),
                         child: QrImageView(
                           data: room['data']['qrCodeData'],
                           version: QrVersions.auto,
-                          size: 150,
+                          size: ResponsiveUtils.iconSize(context) * (150 / 24),
                           backgroundColor: Colors.white,
                           eyeStyle: const QrEyeStyle(
                             eyeShape: QrEyeShape.square,
@@ -1307,7 +1319,7 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                 ),
               ],
 
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
               // Actions
               SizedBox(
@@ -1330,14 +1342,15 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                   ),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                     ),
                   ),
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),
@@ -1354,8 +1367,8 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: Colors.grey[400]),
-        const SizedBox(width: 12),
+        Icon(icon, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: Colors.grey[400]),
+        SizedBox(width: ResponsiveUtils.spacing(context, 12)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1363,12 +1376,12 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: ResponsiveUtils.sp(context, 12),
                   color: Colors.grey[500],
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: ResponsiveUtils.spacing(context, 2)),
               Text(
                 value,
                 style: TextStyle(
@@ -1391,38 +1404,38 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
       builder: (ctx) => Dialog(
         backgroundColor: Colors.transparent,
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 decoration: BoxDecoration(
                   color: Colors.red[50], // Soft red
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.warning_amber_rounded,
                   color: Colors.red,
-                  size: 32,
+                  size: ResponsiveUtils.iconSize(context) * (32 / 24),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+              Text(
                 'Delete Reservation?',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: ResponsiveUtils.sp(context, 20), fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
               Text(
                 'Reservation for room $roomNumber will be deleted.\nThis action cannot be undone.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.grey),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
               Row(
                 children: [
                   Expanded(
@@ -1437,13 +1450,13 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
@@ -1499,12 +1512,12 @@ class _AdminRoomManagementScreenState extends State<AdminRoomManagementScreen> {
 
   Widget _detailRow(String label, String? value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 80,
+            width: ResponsiveUtils.wp(context, 80 / 375),
             child: Text(
               label,
               style: const TextStyle(
@@ -1544,10 +1557,10 @@ class _FilterChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF3B82F6) : Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
         ),
         child: Text(
           label,
@@ -1602,7 +1615,7 @@ class _RoomGridCard extends StatelessWidget {
           ), // Biraz daha az yuvarlatılmış
           border: Border.all(
             color: accentColor,
-            width: 2,
+            width: ResponsiveUtils.wp(context, 2 / 375),
           ), // Kalın, belirgin çerçeve
           boxShadow: [
             BoxShadow(
@@ -1620,7 +1633,7 @@ class _RoomGridCard extends StatelessWidget {
           children: [
             // Header: Oda No + İkon (Solid header efekti)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: accentColor, // Başlık tamamen renkli
                 borderRadius: const BorderRadius.vertical(
@@ -1632,9 +1645,9 @@ class _RoomGridCard extends StatelessWidget {
                 children: [
                   Text(
                     'ROOM ${room['number']}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w900,
-                      fontSize: 16,
+                      fontSize: ResponsiveUtils.sp(context, 16),
                       color: Colors.white, // Beyaz yazı
                       letterSpacing: 1.0,
                     ),
@@ -1643,14 +1656,14 @@ class _RoomGridCard extends StatelessWidget {
                     children: [
                       // DND ICON
                       if (room['isDnd'] == true) ...[
-                        const Icon(
+                        Icon(
                           Icons.do_not_disturb_on,
                           color: Colors.white,
-                          size: 18,
+                          size: ResponsiveUtils.iconSize(context) * (18 / 24),
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                       ],
-                      Icon(statusIcon, color: Colors.white, size: 18),
+                      Icon(statusIcon, color: Colors.white, size: ResponsiveUtils.iconSize(context) * (18 / 24)),
                     ],
                   ),
                 ],
@@ -1660,12 +1673,19 @@ class _RoomGridCard extends StatelessWidget {
             // Content: İsim veya Durum
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                 child: isOccupied
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                    ? LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
                           // 1. Misafir İsmi
                           // Eğer gerçek kullanıcı giriş yapmışsa onun adını göster
                           Builder(
@@ -1691,7 +1711,7 @@ class _RoomGridCard extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 17,
+                                      fontSize: ResponsiveUtils.sp(context, 17),
                                       color: isClaimed
                                           ? const Color(0xFF047857)
                                           : const Color(
@@ -1701,10 +1721,10 @@ class _RoomGridCard extends StatelessWidget {
                                     ),
                                   ),
                                   if (isClaimed)
-                                    const Text(
+                                    Text(
                                       '(Checked In)',
                                       style: TextStyle(
-                                        fontSize: 10,
+                                        fontSize: ResponsiveUtils.sp(context, 10),
                                         color: Colors.green,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -1713,61 +1733,65 @@ class _RoomGridCard extends StatelessWidget {
                               );
                             },
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 4)),
 
                           // 2. PNR Chip & Status
                           Row(
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEFF6FF), // Blue 50
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: const Color(0xFFBFDBFE),
-                                  ), // Blue 200
-                                ),
-                                child: Text(
-                                  room['pnr'] ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1E40AF), // Blue 800
+                              Flexible(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEFF6FF), // Blue 50
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
+                                    border: Border.all(
+                                      color: const Color(0xFFBFDBFE),
+                                    ), // Blue 200
+                                  ),
+                                  child: Text(
+                                    room['pnr'] ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: ResponsiveUtils.sp(context, 11),
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1E40AF), // Blue 800
+                                    ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                               // Eğer statüsü 'used' ise (Müşteri PNR girmiş)
                               if (room['data'] != null &&
                                   room['data']['status'] == 'used')
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
+                                    horizontal: 6,
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFECFDF5), // Green 50
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     border: Border.all(
                                       color: const Color(0xFF6EE7B7),
                                     ), // Green 300
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
                                         Icons.check_circle,
-                                        size: 12,
+                                        size: ResponsiveUtils.iconSize(context) * (12 / 24),
                                         color: Color(0xFF059669),
                                       ),
-                                      SizedBox(width: 4),
+                                      SizedBox(width: ResponsiveUtils.spacing(context, 3)),
                                       Text(
                                         'Active',
                                         style: TextStyle(
-                                          fontSize: 10,
+                                          fontSize: ResponsiveUtils.sp(context, 10),
                                           fontWeight: FontWeight.bold,
                                           color: Color(0xFF047857),
                                         ),
@@ -1780,20 +1804,20 @@ class _RoomGridCard extends StatelessWidget {
                                 Container(
                                   // Bekliyor
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
+                                    horizontal: 6,
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFFF7ED), // Orange 50
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     border: Border.all(
                                       color: const Color(0xFFFDBA74),
                                     ), // Orange 300
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Pending',
                                     style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: ResponsiveUtils.sp(context, 10),
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFFC2410C),
                                     ),
@@ -1801,26 +1825,26 @@ class _RoomGridCard extends StatelessWidget {
                                 ),
                             ],
                           ),
-                          const Spacer(),
+
 
                           // 3. Tarih Bilgisi (Giriş - Çıkış)
                           Container(
-                            padding: const EdgeInsets.all(6),
+                            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 6)),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                               border: Border.all(
                                 color: Colors.grey.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.date_range,
-                                  size: 14,
+                                  size: ResponsiveUtils.iconSize(context) * (14 / 24),
                                   color: Colors.grey,
                                 ),
-                                const SizedBox(width: 6),
+                                SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                                 Expanded(
                                   child: Text(
                                     (room['checkOut'] != null &&
@@ -1831,28 +1855,32 @@ class _RoomGridCard extends StatelessWidget {
                                           )
                                         : '-',
                                     style: TextStyle(
-                                      fontSize: 13,
+                                      fontSize: ResponsiveUtils.sp(context, 13),
                                       fontWeight: FontWeight.bold,
                                       color: accentColor,
                                     ),
                                   ),
                                 ),
-                                const Icon(
+                                Icon(
                                   Icons.logout,
-                                  size: 14,
+                                  size: ResponsiveUtils.iconSize(context) * (14 / 24),
                                   color: Colors.grey,
                                 ),
                               ],
                             ),
                           ),
                         ],
+                      ),
+                            ),
+                          );
+                        },
                       )
                     : Center(
                         child: Text(
                           statusText.toUpperCase(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 22, // Büyütüldü (18 -> 22)
+                            fontSize: ResponsiveUtils.sp(context, 14),
                             fontWeight: FontWeight.w900,
                             color: accentColor,
                             letterSpacing: 1.2,
@@ -1867,3 +1895,5 @@ class _RoomGridCard extends StatelessWidget {
     );
   }
 }
+
+

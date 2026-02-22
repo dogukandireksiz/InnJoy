@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../services/database_service.dart';
+import '../../../utils/responsive_utils.dart';
 
 class AdminRestaurantReservationsScreen extends StatefulWidget {
   final String hotelName;
@@ -59,7 +60,7 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
             children: [
               // 1. Date Navigation & Summary
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: [
@@ -77,7 +78,7 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                       children: [
                         IconButton(
                           onPressed: () => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1))),
-                          icon: const Icon(Icons.arrow_back_ios, size: 18),
+                          icon: Icon(Icons.arrow_back_ios, size: ResponsiveUtils.iconSize(context) * (18 / 24)),
                         ),
                         GestureDetector(
                           onTap: () async {
@@ -93,12 +94,12 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                           },
                           child: Row(
                             children: [
-                              const Icon(Icons.calendar_today, size: 20, color: primaryColor),
-                              const SizedBox(width: 8),
+                              Icon(Icons.calendar_today, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: primaryColor),
+                              SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                               Text(
                                 "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
-                                style: const TextStyle(
-                                  fontSize: 18, 
+                                style: TextStyle(
+                                  fontSize: ResponsiveUtils.sp(context, 18), 
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF101922),
                                 ),
@@ -108,11 +109,11 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                         ),
                         IconButton(
                           onPressed: () => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1))),
-                          icon: const Icon(Icons.arrow_forward_ios, size: 18),
+                          icon: Icon(Icons.arrow_forward_ios, size: ResponsiveUtils.iconSize(context) * (18 / 24)),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -122,7 +123,7 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                           icon: Icons.people,
                           color: Colors.orange,
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                         _SummaryChip(
                           label: 'Bookings',
                           value: dailyReservations.length.toString(),
@@ -142,27 +143,27 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.event_note, size: 80, color: Colors.grey[300]),
-                            const SizedBox(height: 16),
+                            Icon(Icons.event_note, size: ResponsiveUtils.iconSize(context) * (80 / 24), color: Colors.grey[300]),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                             Text(
                               'No reservations for this date',
-                              style: TextStyle(color: Colors.grey[500], fontSize: 16),
+                              style: TextStyle(color: Colors.grey[500], fontSize: ResponsiveUtils.sp(context, 16)),
                             ),
                           ],
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                         itemCount: dailyReservations.length,
                         itemBuilder: (context, index) {
                           final res = dailyReservations[index];
                           final hasNote = res['note'] != null && res['note'].toString().isNotEmpty;
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 16),
+                            margin: EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.04),
@@ -174,32 +175,32 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                             child: Column(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       // Table Indicator
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 8)),
                                         decoration: BoxDecoration(
                                           color: primaryColor.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                           border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
                                         ),
                                         child: Column(
                                           children: [
-                                            const Text(
+                                            Text(
                                               'TABLE',
                                               style: TextStyle(
-                                                fontSize: 10, 
+                                                fontSize: ResponsiveUtils.sp(context, 10), 
                                                 fontWeight: FontWeight.bold, 
                                                 color: primaryColor
                                               ),
                                             ),
                                             Text(
                                               '${res['tableNumber']}',
-                                              style: const TextStyle(
-                                                fontSize: 24, 
+                                              style: TextStyle(
+                                                fontSize: ResponsiveUtils.sp(context, 24), 
                                                 fontWeight: FontWeight.bold, 
                                                 color: primaryColor
                                               ),
@@ -207,34 +208,34 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(width: 16),
+                                      SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               res['userName'] ?? 'Guest',
-                                              style: const TextStyle(
-                                                fontSize: 18, 
+                                              style: TextStyle(
+                                                fontSize: ResponsiveUtils.sp(context, 18), 
                                                 fontWeight: FontWeight.bold,
                                                 color: Color(0xFF101922),
                                               ),
                                             ),
-                                            const SizedBox(height: 4),
+                                            SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                                             Row(
                                               children: [
-                                                Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
-                                                const SizedBox(width: 4),
+                                                Icon(Icons.access_time, size: ResponsiveUtils.iconSize(context) * (14 / 24), color: Colors.grey[600]),
+                                                SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                                 Text(
                                                   '20:00', 
-                                                  style: TextStyle(color: Colors.grey[600], fontSize: 13)
+                                                  style: TextStyle(color: Colors.grey[600], fontSize: ResponsiveUtils.sp(context, 13))
                                                 ),
-                                                const SizedBox(width: 12),
-                                                Icon(Icons.people_outline, size: 14, color: Colors.grey[600]),
-                                                const SizedBox(width: 4),
+                                                SizedBox(width: ResponsiveUtils.spacing(context, 12)),
+                                                Icon(Icons.people_outline, size: ResponsiveUtils.iconSize(context) * (14 / 24), color: Colors.grey[600]),
+                                                SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                                 Text(
                                                   '${res['partySize']} Guests', 
-                                                  style: TextStyle(color: Colors.grey[600], fontSize: 13)
+                                                  style: TextStyle(color: Colors.grey[600], fontSize: ResponsiveUtils.sp(context, 13))
                                                 ),
                                               ],
                                             ),
@@ -243,16 +244,16 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                                       ),
                                       // Status Chip
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 8), vertical: ResponsiveUtils.spacing(context, 4)),
                                         decoration: BoxDecoration(
                                           color: Colors.green.shade50,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                                           border: Border.all(color: Colors.green.shade100),
                                         ),
-                                        child: const Text(
+                                        child: Text(
                                           'Confirmed',
                                           style: TextStyle(
-                                            fontSize: 12, 
+                                            fontSize: ResponsiveUtils.sp(context, 12), 
                                             fontWeight: FontWeight.bold,
                                             color: Colors.green
                                           ),
@@ -264,7 +265,7 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                                 if (hasNote)
                                   Container(
                                     width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
                                     decoration: BoxDecoration(
                                       color: Colors.amber.shade50,
                                       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -272,14 +273,14 @@ class _AdminRestaurantReservationsScreenState extends State<AdminRestaurantReser
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Icon(Icons.notes, size: 16, color: Colors.amber.shade800),
-                                        const SizedBox(width: 8),
+                                        Icon(Icons.notes, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Colors.amber.shade800),
+                                        SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                                         Expanded(
                                           child: Text(
                                             'Note: ${res['note']}',
                                             style: TextStyle(
                                               color: Colors.amber.shade900,
-                                              fontSize: 13,
+                                              fontSize: ResponsiveUtils.sp(context, 13),
                                               fontStyle: FontStyle.italic,
                                             ),
                                           ),
@@ -317,17 +318,17 @@ class _SummaryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 8)),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 8),
+          Icon(icon, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: color),
+          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -335,14 +336,14 @@ class _SummaryChip extends StatelessWidget {
                 value,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: ResponsiveUtils.sp(context, 14),
                   color: color,
                 ),
               ),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: ResponsiveUtils.sp(context, 10),
                   color: color.withValues(alpha: 0.8),
                 ),
               ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../services/database_service.dart';
 import 'events_activities_manage_screen.dart';
 import 'event_participants_screen.dart';
+import '../../utils/responsive_utils.dart';
 
 class AdminEventsScreen extends StatefulWidget {
   final String hotelName;
@@ -110,15 +111,15 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
       // Check if day changed
       if (lastDate == null || !_isSameDay(lastDate, date)) {
         if (lastDate != null) {
-          widgets.add(const SizedBox(height: 24)); // Space between groups
+          widgets.add(SizedBox(height: ResponsiveUtils.spacing(context, 24))); // Space between groups
         }
         widgets.add(
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 4), vertical: ResponsiveUtils.spacing(context, 8)),
             child: Text(
               _headerFor(date),
               style: TextStyle(
-                fontSize: 14,
+                fontSize: ResponsiveUtils.sp(context, 14),
                 fontWeight: FontWeight.bold,
                 color: Colors.grey[500],
                 letterSpacing: 0.5,
@@ -143,12 +144,12 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
         final nextDate =
             (items[i + 1]['date'] as Timestamp?)?.toDate() ?? DateTime.now();
         if (_isSameDay(date, nextDate)) {
-          widgets.add(const SizedBox(height: 12));
+          widgets.add(SizedBox(height: ResponsiveUtils.spacing(context, 12)));
         }
       }
     }
 
-    return ListView(padding: const EdgeInsets.all(16), children: widgets);
+    return ListView(padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)), children: widgets);
   }
 
   @override
@@ -270,7 +271,12 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
               children: [
                 Container(
                   color: const Color(0xFFF6F7FB),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveUtils.spacing(context, 16),
+                    ResponsiveUtils.spacing(context, 16),
+                    ResponsiveUtils.spacing(context, 16),
+                    ResponsiveUtils.spacing(context, 8),
+                  ),
                   child: _SearchBar(
                     controller: _searchController,
                     onChanged: (v) => setState(() => _query = v),
@@ -289,7 +295,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                       Column(
                         children: [
                           // SearchBar removed from here
-                          const SizedBox(height: 8),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                           if (!searching)
                             _DateScroller(
                               days: _days,
@@ -298,7 +304,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                   setState(() => _selectedDayIndex = i),
                             ),
                           if (!searching)
-                            const SizedBox(height: 16), // Conditional spacing
+                            SizedBox(height: ResponsiveUtils.spacing(context, 16)), // Conditional spacing
                           Expanded(
                             child: upcomingForSelectedDay.isEmpty
                                 ? Container(
@@ -311,12 +317,12 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                       children: [
                                         Icon(
                                           Icons.event_busy_rounded,
-                                          size: 64,
+                                          size: ResponsiveUtils.iconSize(context) * (64 / 24),
                                           color: Colors.grey[300],
                                         ),
-                                        const SizedBox(height: 16),
+                                        SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(
+                                          padding: EdgeInsets.symmetric(
                                             horizontal: 40,
                                           ),
                                           child: Text(
@@ -326,7 +332,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: Colors.grey[500],
-                                              fontSize: 16,
+                                              fontSize: ResponsiveUtils.sp(context, 16),
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -335,13 +341,13 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                     ),
                                   )
                                 : ListView.separated(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: ResponsiveUtils.spacing(context, 16),
+                                      vertical: ResponsiveUtils.spacing(context, 8),
                                     ),
                                     itemCount: upcomingForSelectedDay.length,
                                     separatorBuilder: (_, e) =>
-                                        const SizedBox(height: 16),
+                                        SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                                     itemBuilder: (context, index) {
                                       final e = upcomingForSelectedDay[index];
                                       return _AdminEventItem(
@@ -361,7 +367,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                       Column(
                         children: [
                           // SearchBar removed from here
-                          const SizedBox(height: 8),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                           Expanded(
                             child: pastEvents.isEmpty
                                 ? Container(
@@ -374,12 +380,12 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                       children: [
                                         Icon(
                                           Icons.history_toggle_off,
-                                          size: 64,
+                                          size: ResponsiveUtils.iconSize(context) * (64 / 24),
                                           color: Colors.grey[300],
                                         ),
-                                        const SizedBox(height: 16),
+                                        SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(
+                                          padding: EdgeInsets.symmetric(
                                             horizontal: 40,
                                           ),
                                           child: Text(
@@ -387,7 +393,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: Colors.grey[500],
-                                              fontSize: 16,
+                                              fontSize: ResponsiveUtils.sp(context, 16),
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -533,7 +539,7 @@ class _DateScrollerState extends State<_DateScroller> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 70,
+      height: ResponsiveUtils.hp(context, 70 / 844),
       child: ListView.separated(
         key: const PageStorageKey('admin_events_date_scroll_v2'),
         controller: _controller,
@@ -544,13 +550,13 @@ class _DateScrollerState extends State<_DateScroller> {
           return GestureDetector(
             onTap: () => widget.onSelected(i),
             child: Container(
-              width: 64,
-              height: 64,
+              width: ResponsiveUtils.wp(context, 64 / 375),
+              height: ResponsiveUtils.hp(context, 64 / 844),
               decoration: BoxDecoration(
                 color: selected
                     ? (_isToday(d) ? Colors.green : const Color(0xFF137FEC))
                     : Colors.white,
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 32)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -573,11 +579,11 @@ class _DateScrollerState extends State<_DateScroller> {
                           : (_isToday(d)
                                 ? Colors.green
                                 : const Color(0xFF0D141B)),
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 2)),
                   Text(
                     d.day.toString(),
                     style: TextStyle(
@@ -586,15 +592,15 @@ class _DateScrollerState extends State<_DateScroller> {
                           : (_isToday(d)
                                 ? Colors.green
                                 : const Color(0xFF0D141B)),
-                      fontSize: 20,
+                      fontSize: ResponsiveUtils.sp(context, 20),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   if (_isToday(d))
                     Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      width: 4,
-                      height: 4,
+                      margin: EdgeInsets.only(top: 4),
+                      width: ResponsiveUtils.wp(context, 4 / 375),
+                      height: ResponsiveUtils.hp(context, 4 / 844),
                       decoration: BoxDecoration(
                         color: selected ? Colors.white : Colors.green,
                         shape: BoxShape.circle,
@@ -605,7 +611,7 @@ class _DateScrollerState extends State<_DateScroller> {
             ),
           );
         },
-        separatorBuilder: (_, e) => const SizedBox(width: 8),
+        separatorBuilder: (_, e) => SizedBox(width: ResponsiveUtils.spacing(context, 8)),
         itemCount: widget.days.length,
       ),
     );
@@ -719,7 +725,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
       child: Container(
         decoration: BoxDecoration(
           color: isPast ? Colors.grey[50] : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           border: isPast ? Border.all(color: Colors.grey[300]!) : null,
           boxShadow: [
             BoxShadow(
@@ -734,16 +740,16 @@ class _AdminEventItemState extends State<_AdminEventItem> {
           children: [
             // Top Section: Image and Details
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Image (Left)
                   Container(
-                    width: 96,
-                    height: 96,
+                    width: ResponsiveUtils.wp(context, 96 / 375),
+                    height: ResponsiveUtils.hp(context, 96 / 844),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                       image: DecorationImage(
                         image: (imageAsset.startsWith('http')) 
                           ? NetworkImage(imageAsset) 
@@ -753,7 +759,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 16)),
 
                   // Details (Right)
                   Expanded(
@@ -766,7 +772,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: ResponsiveUtils.sp(context, 20),
                             fontWeight: FontWeight.w700,
                             color: isPast 
                                 ? const Color(0xFF0F172A).withValues(alpha: 0.6) 
@@ -782,17 +788,17 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                           children: [
                             Icon(
                               Icons.schedule,
-                              size: 18,
+                              size: ResponsiveUtils.iconSize(context) * (18 / 24),
                               color: Colors.grey[500],
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                             Expanded(
                               child: Text(
                                 time,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: ResponsiveUtils.sp(context, 15),
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[500],
                                 ),
@@ -800,24 +806,24 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
 
                         // Location
                         Row(
                           children: [
                             Icon(
                               Icons.location_on,
-                              size: 16,
+                              size: ResponsiveUtils.iconSize(context) * (16 / 24),
                               color: Colors.grey[500],
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                             Expanded(
                               child: Text(
                                 location,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: ResponsiveUtils.sp(context, 15),
                                   fontWeight: FontWeight.w500,
                                   color: Colors.grey[500],
                                 ),
@@ -833,22 +839,22 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                             // Capacity Badge
                             Flexible(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: ResponsiveUtils.spacing(context, 8),
+                                  vertical: ResponsiveUtils.spacing(context, 4),
                                 ),
                                 decoration: BoxDecoration(
                                   color: isFull
                                       ? Colors.red.withValues(alpha: 0.1)
                                       : Colors.blue.withValues(alpha: 0.1), // blue-50 or red-50
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 4)),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Container(
-                                      width: 6,
-                                      height: 6,
+                                      width: ResponsiveUtils.wp(context, 6 / 375),
+                                      height: ResponsiveUtils.hp(context, 6 / 844),
                                       decoration: BoxDecoration(
                                         color: isFull
                                             ? Colors.red
@@ -856,7 +862,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                                     Flexible(
                                       child: Text(
                                         isFull
@@ -864,7 +870,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                                             : '$registered/$capacity Registered',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          fontSize: 13,
+                                          fontSize: ResponsiveUtils.sp(context, 13),
                                           fontWeight: FontWeight.w700,
                                           color: isFull
                                               ? Colors.red
@@ -877,13 +883,13 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                               ),
                             ),
 
-                            const SizedBox(width: 8),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
 
                             // Custom Toggle
                             if (_isLoading)
-                              const SizedBox(
-                                width: 20,
-                                height: 20,
+                              SizedBox(
+                                width: ResponsiveUtils.wp(context, 20 / 375),
+                                height: ResponsiveUtils.hp(context, 20 / 844),
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                 ),
@@ -895,7 +901,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                                   Text(
                                     'Inactive',
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: ResponsiveUtils.sp(context, 12),
                                       fontWeight: FontWeight.w700,
                                       color: !isPublished
                                           ? Colors.black54
@@ -913,7 +919,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                                   Text(
                                     'Published',
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: ResponsiveUtils.sp(context, 12),
                                       fontWeight: FontWeight.w700,
                                       color: isPublished
                                           ? Colors.green
@@ -932,7 +938,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
             ),
 
             // Divider
-            const Divider(height: 1, thickness: 1, color: Color(0xFFF1F5F9)),
+            Divider(height: ResponsiveUtils.hp(context, 1 / 844), thickness: 1, color: Color(0xFFF1F5F9)),
 
             // Bottom Action Bar
             Row(
@@ -944,7 +950,9 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                     child: InkWell(
                       onTap: widget.onEdit,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(
+                          vertical: ResponsiveUtils.spacing(context, 12),
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                           border: Border(
@@ -956,14 +964,14 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                           children: [
                             Icon(
                               Icons.edit_outlined,
-                              size: 18,
+                              size: ResponsiveUtils.iconSize(context) * (18 / 24),
                               color: Colors.indigo[600],
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                             Text(
                               'Edit',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: ResponsiveUtils.sp(context, 13),
                                 fontWeight: FontWeight.w600,
                                 color: Colors.indigo[600],
                               ),
@@ -993,7 +1001,7 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                           border: Border(
@@ -1005,14 +1013,14 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                           children: [
                             Icon(
                               Icons.people_outline,
-                              size: 18,
+                              size: ResponsiveUtils.iconSize(context) * (18 / 24),
                               color: Colors.teal[600],
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                             Text(
                               'Participants',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: ResponsiveUtils.sp(context, 13),
                                 fontWeight: FontWeight.w600,
                                 color: Colors.teal[600],
                               ),
@@ -1031,20 +1039,22 @@ class _AdminEventItemState extends State<_AdminEventItem> {
                     child: InkWell(
                       onTap: widget.onDelete,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(
+                          vertical: ResponsiveUtils.spacing(context, 12),
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.delete_outline,
-                              size: 18,
+                              size: ResponsiveUtils.iconSize(context) * (18 / 24),
                               color: Colors.red[600],
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                             Text(
                               'Delete',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: ResponsiveUtils.sp(context, 13),
                                 fontWeight: FontWeight.w600,
                                 color: Colors.red[600],
                               ),
@@ -1088,12 +1098,12 @@ class _SearchBar extends StatelessWidget {
         filled: true,
         fillColor: Colors.grey[100],
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 12,
+        contentPadding: EdgeInsets.symmetric(
+          vertical: ResponsiveUtils.spacing(context, 12),
+          horizontal: ResponsiveUtils.spacing(context, 12),
         ),
       ),
       textInputAction: TextInputAction.search,

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart';
 
 class MyPlansScreen extends StatefulWidget {
   const MyPlansScreen({super.key});
@@ -52,19 +53,19 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Plans',
           style: TextStyle(
             color: Color(0xFF0d141b),
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: ResponsiveUtils.sp(context, 20),
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF0d141b), size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: Color(0xFF0d141b), size: ResponsiveUtils.iconSize(context) * (20 / 24)),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -79,7 +80,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
 
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+              child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)),
             );
           }
 
@@ -93,7 +94,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
           final groupedPlans = _groupPlansByDate(plans);
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
             itemCount: groupedPlans.length,
             itemBuilder: (context, index) {
               final dateKey = groupedPlans.keys.elementAt(index);
@@ -104,21 +105,21 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                 children: [
                   // Date Header
                   Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 12),
+                    padding: EdgeInsets.only(top: 8, bottom: 12),
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 6)),
                           decoration: BoxDecoration(
                             color: _isToday(dateKey) 
                                 ? const Color(0xFF137fec) 
                                 : Colors.grey[200],
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                           ),
                           child: Text(
                             _formatDateHeader(dateKey),
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: ResponsiveUtils.sp(context, 13),
                               fontWeight: FontWeight.w600,
                               color: _isToday(dateKey) ? Colors.white : Colors.grey[700],
                             ),
@@ -256,30 +257,30 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.event_note_outlined, size: 64, color: Colors.grey[400]),
+            child: Icon(Icons.event_note_outlined, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[400]),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: ResponsiveUtils.spacing(context, 24)),
           Text(
             'No plans yet',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: ResponsiveUtils.sp(context, 20),
               fontWeight: FontWeight.w600,
               color: Colors.grey[700],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: ResponsiveUtils.spacing(context, 8)),
           Text(
             'Start by making a restaurant,\nspa or event reservation',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: ResponsiveUtils.sp(context, 14),
               color: Colors.grey[500],
-              height: 1.5,
+              height: ResponsiveUtils.hp(context, 1.5 / 844),
             ),
           ),
         ],
@@ -295,10 +296,10 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
     final bool isPast = date.isBefore(DateTime.now());
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -312,7 +313,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
           children: [
             // Color indicator bar
             Container(
-              width: 4,
+              width: ResponsiveUtils.wp(context, 4 / 375),
               decoration: BoxDecoration(
                 color: isPast ? Colors.grey[400] : planColor,
                 borderRadius: const BorderRadius.only(
@@ -324,23 +325,23 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 child: Row(
                   children: [
                     // Icon
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
                       decoration: BoxDecoration(
                         color: (isPast ? Colors.grey : planColor).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                       ),
                       child: Icon(
                         planIcon,
                         color: isPast ? Colors.grey[500] : planColor,
-                        size: 22,
+                        size: ResponsiveUtils.iconSize(context) * (22 / 24),
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 14)),
                     // Text content
                     Expanded(
                       child: Column(
@@ -349,16 +350,16 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                           Text(
                             plan['title'],
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: ResponsiveUtils.sp(context, 15),
                               fontWeight: FontWeight.w600,
                               color: isPast ? Colors.grey[500] : const Color(0xFF0d141b),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                           Text(
                             plan['subtitle'],
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: ResponsiveUtils.sp(context, 13),
                               color: Colors.grey[500],
                             ),
                           ),
@@ -373,24 +374,22 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
                         Text(
                           DateFormat('HH:mm').format(date),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: ResponsiveUtils.sp(context, 14),
                             fontWeight: FontWeight.w600,
                             color: isPast ? Colors.grey[400] : const Color(0xFF0d141b),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 8), vertical: ResponsiveUtils.spacing(context, 3)),
                           decoration: BoxDecoration(
                             color: _getStatusColor(status, isPast).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           ),
                           child: Text(
                             _getStatusText(status, isPast),
                             style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: _getStatusColor(status, isPast),
+                              fontSize: ResponsiveUtils.sp(context, 14),
                             ),
                           ),
                         ),
@@ -443,6 +442,7 @@ class _MyPlansScreenState extends State<MyPlansScreen> {
     }
   }
 }
+
 
 
 

@@ -4,6 +4,7 @@ import '../../services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../../utils/responsive_utils.dart';
 
 class EventsActivitiesManageScreen extends StatefulWidget {
   final String hotelName;
@@ -145,22 +146,22 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
     showCupertinoModalPopup(
       context: context,
       builder: (_) => Container(
-        height: 300,
+        height: ResponsiveUtils.hp(context, 300 / 844),
         color: Colors.white,
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
               color: Colors.grey[100],
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Select Time', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text('Select Time', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.w600)),
                   CupertinoButton(
                     padding: EdgeInsets.zero,
-                    child: const Text('OK', style: TextStyle(
+                    child: Text('OK', style: TextStyle(
                       color: Colors.blue,
-                      fontSize: 16,
+                      fontSize: ResponsiveUtils.sp(context, 16),
                       fontWeight: FontWeight.bold
                     )),
                     onPressed: () => Navigator.of(context).pop(),
@@ -292,11 +293,11 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.add_a_photo, size: 40, color: Colors.grey[400]),
-          const SizedBox(height: 8),
+          Icon(Icons.add_a_photo, size: ResponsiveUtils.iconSize(context) * (40 / 24), color: Colors.grey[400]),
+          SizedBox(height: ResponsiveUtils.spacing(context, 8)),
           Text(
             'Add Image',
-            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            style: TextStyle(color: Colors.grey[600], fontSize: ResponsiveUtils.sp(context, 14)),
           ),
         ],
       ),
@@ -307,7 +308,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
     // 1. Çâ€œnce dosya varsa göster
     if (_imageFile != null) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         child: Image.file(_imageFile!, fit: BoxFit.cover),
       );
     }
@@ -315,7 +316,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
     // 2. URL girilmişse göster
     if (_imageUrlController.text.isNotEmpty) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         child: Image.network(
           _imageUrlController.text,
           fit: BoxFit.cover,
@@ -328,7 +329,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
     if (_selectedImage != null && _selectedImage!.isNotEmpty) {
       if (_selectedImage!.startsWith('http')) {
         return ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           child: Image.network(
             _selectedImage!,
             fit: BoxFit.cover,
@@ -337,7 +338,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
         );
       } else if (_selectedImage!.startsWith('assets')) {
         return ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
           child: Image.asset(
             _selectedImage!,
             fit: BoxFit.cover,
@@ -365,9 +366,9 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
         ),
         title: Text(
           widget.eventToEdit == null ? 'New Event' : 'Edit Event',
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.black87,
-            fontSize: 18,
+            fontSize: ResponsiveUtils.sp(context, 18),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -383,11 +384,11 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  height: 180,
+                  height: ResponsiveUtils.hp(context, 180 / 844),
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: _buildImagePreview(),
@@ -396,15 +397,15 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
 
               // Image URL Input
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'or Image URL',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
+                      style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black54),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                     TextFormField(
                       controller: _imageUrlController,
                       decoration: InputDecoration(
@@ -414,18 +415,18 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         filled: true,
                         fillColor: Colors.grey[50],
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: const BorderSide(color: Colors.blue),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
                       ),
                       keyboardType: TextInputType.url,
                     ),
@@ -435,26 +436,26 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
 
               // Event Details Section
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Event Details',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: ResponsiveUtils.sp(context, 16),
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                     // Event Name
-                    const Text(
+                    Text(
                       'Event Name',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                      style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                     TextFormField(
                       controller: _eventNameController,
                       decoration: InputDecoration(
@@ -463,18 +464,18 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         filled: true,
                         fillColor: Colors.grey[50],
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: const BorderSide(color: Colors.blue),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -483,14 +484,14 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // Kategori Dropdown
-                    const Text(
+                    Text(
                       'Category',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                      style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedCategory,
                       decoration: InputDecoration(
@@ -499,18 +500,18 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         filled: true,
                         fillColor: Colors.grey[50],
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: const BorderSide(color: Colors.blue),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
                       ),
                       items: _categories.map((cat) {
                         return DropdownMenuItem(
@@ -521,14 +522,14 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                       onChanged: (val) => setState(() => _selectedCategory = val),
                       validator: (v) => v == null ? 'Please select a category' : null,
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // Description
-                    const Text(
+                    Text(
                       'Description',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                      style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                     TextFormField(
                       controller: _descriptionController,
                       maxLines: 4,
@@ -538,18 +539,18 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         filled: true,
                         fillColor: Colors.grey[50],
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: BorderSide(color: Colors.grey[200]!),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                           borderSide: const BorderSide(color: Colors.blue),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -558,7 +559,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         return null;
                       },
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                     
                     // Date and Time Row
                     Row(
@@ -567,15 +568,15 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Date', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                              const SizedBox(height: 8),
+                              Text('Date', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87)),
+                              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                               GestureDetector(
                                 onTap: () => _selectDate(context),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                  padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 14), vertical: ResponsiveUtils.spacing(context, 14)),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[50],
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     border: Border.all(color: _dateError ? Colors.red : Colors.grey[200]!),
                                   ),
                                   child: Row(
@@ -583,10 +584,10 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                       Expanded(
                                         child: Text(
                                           _selectedDate != null ? _formatDate(_selectedDate!) : 'Select Date',
-                                          style: TextStyle(color: _selectedDate != null ? Colors.black87 : Colors.grey[400], fontSize: 14),
+                                          style: TextStyle(color: _selectedDate != null ? Colors.black87 : Colors.grey[400], fontSize: ResponsiveUtils.sp(context, 14)),
                                         ),
                                       ),
-                                      Icon(Icons.calendar_today, color: _dateError ? Colors.red : Colors.grey[600], size: 20),
+                                      Icon(Icons.calendar_today, color: _dateError ? Colors.red : Colors.grey[600], size: ResponsiveUtils.iconSize(context) * (20 / 24)),
                                     ],
                                   ),
                                 ),
@@ -594,25 +595,25 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                               if (_dateError)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 6, left: 4),
-                                  child: Text('Select a date', style: TextStyle(color: Colors.red[700], fontSize: 12)),
+                                  child: Text('Select a date', style: TextStyle(color: Colors.red[700], fontSize: ResponsiveUtils.sp(context, 12))),
                                 ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Time', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                              const SizedBox(height: 8),
+                              Text('Time', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87)),
+                              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                               GestureDetector(
                                 onTap: () => _selectTime(context),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                  padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 14), vertical: ResponsiveUtils.spacing(context, 14)),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[50],
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     border: Border.all(color: _timeError ? Colors.red : Colors.grey[200]!),
                                   ),
                                   child: Row(
@@ -620,10 +621,10 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                       Expanded(
                                         child: Text(
                                           _selectedTime != null ? _formatTime(_selectedTime!) : 'Select Time',
-                                          style: TextStyle(color: _selectedTime != null ? Colors.black87 : Colors.grey[400], fontSize: 14),
+                                          style: TextStyle(color: _selectedTime != null ? Colors.black87 : Colors.grey[400], fontSize: ResponsiveUtils.sp(context, 14)),
                                         ),
                                       ),
-                                      Icon(Icons.access_time, color: _timeError ? Colors.red : Colors.grey[600], size: 20),
+                                      Icon(Icons.access_time, color: _timeError ? Colors.red : Colors.grey[600], size: ResponsiveUtils.iconSize(context) * (20 / 24)),
                                     ],
                                   ),
                                 ),
@@ -631,14 +632,14 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                               if (_timeError)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 6, left: 4),
-                                  child: Text('Select a time', style: TextStyle(color: Colors.red[700], fontSize: 12)),
+                                  child: Text('Select a time', style: TextStyle(color: Colors.red[700], fontSize: ResponsiveUtils.sp(context, 12))),
                                 ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // Location and Capacity Row
                     Row(
@@ -647,8 +648,8 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Location', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                              const SizedBox(height: 8),
+                              Text('Location', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87)),
+                              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                               TextFormField(
                                 controller: _locationController,
                                 decoration: InputDecoration(
@@ -657,18 +658,18 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                   filled: true,
                                   fillColor: Colors.grey[50],
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     borderSide: BorderSide(color: Colors.grey[200]!),
                                   ),
                                   enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     borderSide: BorderSide(color: Colors.grey[200]!),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     borderSide: const BorderSide(color: Colors.blue),
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -680,13 +681,13 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                             ],
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Capacity', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                              const SizedBox(height: 8),
+                              Text('Capacity', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87)),
+                              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                               TextFormField(
                                 controller: _capacityController,
                                 keyboardType: TextInputType.number,
@@ -696,18 +697,18 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                                   filled: true,
                                   fillColor: Colors.grey[50],
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     borderSide: BorderSide(color: Colors.grey[200]!),
                                   ),
                                   enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     borderSide: BorderSide(color: Colors.grey[200]!),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                                     borderSide: const BorderSide(color: Colors.blue),
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 14)),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -724,18 +725,18 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
                     // Visibility Section
-                    const Text('Visibility', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87)),
-                    const SizedBox(height: 12),
+                    Text('Visibility', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.w700, color: Colors.black87)),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 12)),
 
                     // Publish Toggle
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         border: Border.all(color: Colors.grey[200]!),
                       ),
                       child: Row(
@@ -744,8 +745,8 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Publish', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
-                                Text('Make event visible to guests.', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                                Text('Publish', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), fontWeight: FontWeight.w500, color: Colors.black87)),
+                                Text('Make event visible to guests.', style: TextStyle(fontSize: ResponsiveUtils.sp(context, 12), color: Colors.grey[600])),
                               ],
                             ),
                           ),
@@ -757,7 +758,7 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
                         ],
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 32)),
                   ],
                 ),
               ),
@@ -767,31 +768,31 @@ class _EventsActivitiesManageScreenState extends State<EventsActivitiesManageScr
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: ResponsiveUtils.hp(context, 52 / 844),
                 child: ElevatedButton(
                   onPressed: _saveEvent,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 26))),
                     elevation: 0,
                   ),
                   child: Text(
                     widget.eventToEdit == null ? 'Save' : 'Save Changes',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel', style: TextStyle(color: Colors.blue, fontSize: 16, fontWeight: FontWeight.w500)),
+                child: Text('Cancel', style: TextStyle(color: Colors.blue, fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.w500)),
               ),
             ],
           ),

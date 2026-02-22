@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/menu_item_model.dart';
 import '../../services/database_service.dart';
 import 'room_service_cart_screen.dart';
+import '../../utils/responsive_utils.dart';
 
 class RoomServiceScreen extends StatefulWidget {
   final String hotelName;
@@ -104,7 +105,7 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
                     child: _buildCategoryFilters(),
                   ),
                   _buildContentSlivers(),
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)), // Bottom padding
+                  SliverToBoxAdapter(child: SizedBox(height: ResponsiveUtils.spacing(context, 100))), // Bottom padding
                 ],
               ),
               if (_totalItems > 0) _buildCartSummary(),
@@ -147,21 +148,21 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
               left: 16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Room Service',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 28,
+                      fontSize: ResponsiveUtils.sp(context, 28),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                   Text(
                     'Delicious meals delivered to your door',
                     style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                     ),
                   ),
                 ],
@@ -171,7 +172,7 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
         ),
       ),
       leading: Container(
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(ResponsiveUtils.spacing(context, 8)),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.8),
           shape: BoxShape.circle,
@@ -186,14 +187,14 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
 
   Widget _buildCategoryFilters() {
     return Container(
-      height: 60,
-      margin: const EdgeInsets.only(top: 16, bottom: 8),
+      height: ResponsiveUtils.hp(context, 60 / 844),
+      margin: EdgeInsets.only(top: 16, bottom: 8),
       child: ListView.separated(
         controller: _categoryScrollController, // Use persisted controller
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
-        separatorBuilder: (_, e) => const SizedBox(width: 12),
+        separatorBuilder: (_, e) => SizedBox(width: ResponsiveUtils.spacing(context, 12)),
         itemBuilder: (context, index) {
           final cat = _categories[index];
           final isSelected = _selectedCategory == cat['id'];
@@ -202,10 +203,10 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
           return GestureDetector(
             onTap: () => setState(() => _selectedCategory = cat['id']),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
               decoration: BoxDecoration(
                 color: isSelected ? color : Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                 boxShadow: [
                   if (!isSelected)
                     BoxShadow(
@@ -219,10 +220,10 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
                 children: [
                   Icon(
                     cat['icon'],
-                    size: 18,
+                    size: ResponsiveUtils.iconSize(context) * (18 / 24),
                     color: isSelected ? Colors.white : color,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                   Text(
                     cat['name'],
                     style: TextStyle(
@@ -287,13 +288,13 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
                 child: Row(
                   children: [
                     Text(
                       category['name'],
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtils.sp(context, 20),
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF101922),
                       ),
@@ -304,7 +305,7 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                 itemCount: items.length,
                 itemBuilder: (context, i) => _buildMenuItemCard(items[i]),
               ),
@@ -326,7 +327,7 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => _buildMenuItemCard(items[index]),
@@ -340,10 +341,10 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
     final quantity = _cart[item.id] ?? 0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -353,26 +354,26 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
         child: Row(
           children: [
             // Image
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               child: Image.network(
                 item.imageUrl,
-                width: 100,
-                height: 100,
+                width: ResponsiveUtils.wp(context, 100 / 375),
+                height: ResponsiveUtils.hp(context, 100 / 844),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 100,
-                  height: 100,
+                  width: ResponsiveUtils.wp(context, 100 / 375),
+                  height: ResponsiveUtils.hp(context, 100 / 844),
                   color: Colors.grey[200],
                   child: const Icon(Icons.fastfood, color: Colors.grey),
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: ResponsiveUtils.spacing(context, 16)),
             // Info
             Expanded(
               child: Column(
@@ -380,32 +381,34 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
                 children: [
                   Text(
                     item.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: ResponsiveUtils.sp(context, 16),
                       color: Color(0xFF101922),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                   Text(
                     item.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.grey[600],
-                      fontSize: 12,
+                      fontSize: ResponsiveUtils.sp(context, 12),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         '₺${item.price.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xFF137fec),
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: ResponsiveUtils.sp(context, 16),
                         ),
                       ),
                       // Add Button / Counter
@@ -413,17 +416,17 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
                         ? InkWell(
                             onTap: () => _updateCart(item, 1),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 6)),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF137fec),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                               ),
-                              child: const Text(
+                              child: Text(
                                 "ADD",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 12,
+                                  fontSize: ResponsiveUtils.sp(context, 12),
                                 ),
                               ),
                             ),
@@ -432,7 +435,7 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
                             children: [
                               _buildQtyIcon(Icons.remove, () => _updateCart(item, -1)),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 8)),
                                 child: Text(
                                   '$quantity',
                                   style: const TextStyle(fontWeight: FontWeight.bold),
@@ -456,12 +459,12 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(4),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 4)),
         decoration: BoxDecoration(
           color: Colors.grey[100],
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 16, color: const Color(0xFF137fec)),
+        child: Icon(icon, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: const Color(0xFF137fec)),
       ),
     );
   }
@@ -474,10 +477,10 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
       child: GestureDetector(
         onTap: _goToCart,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
           decoration: BoxDecoration(
             color: const Color(0xFF137fec),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF137fec).withValues(alpha: 0.4),
@@ -490,10 +493,10 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 6)),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                 ),
                 child: Text(
                   '$_totalItems ${_totalItems == 1 ? "item" : "items"}',
@@ -503,15 +506,19 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
                   ),
                 ),
               ),
-              Text(
-                'Go to Cart • ₺$_totalPrice',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              Flexible(
+                child: Text(
+                  'Go to Cart • ₺$_totalPrice',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: ResponsiveUtils.sp(context, 14),
+                    ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+              Icon(Icons.arrow_forward_ios, color: Colors.white, size: ResponsiveUtils.iconSize(context) * (16 / 24)),
             ],
           ),
         ),
@@ -584,6 +591,7 @@ class _RoomServiceScreenState extends State<RoomServiceScreen> {
     });
   }
 }
+
 
 
 

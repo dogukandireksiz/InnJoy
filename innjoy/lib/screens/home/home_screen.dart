@@ -24,6 +24,7 @@ import 'admin_home_screen.dart';
 import '../../widgets/common/custom_top_navigation_bar.dart';
 import '../../widgets/admin/admin_action_bar.dart';
 import 'package:latlong2/latlong.dart';
+import '../../utils/responsive_utils.dart';
 
 /// Ana Ekran (Home Screen)
 ///
@@ -216,8 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xFFF6F7FB),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: SizedBox(
-        height: 52,
-        width: 52,
+        height: ResponsiveUtils.hp(context, 52 / 844),
+        width: ResponsiveUtils.wp(context, 52 / 375),
         child: FloatingActionButton(
           onPressed: () {
             Navigator.of(
@@ -226,10 +227,10 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           backgroundColor: Colors.red,
           elevation: 4,
-          child: const Icon(
+          child: Icon(
             Icons.warning_amber_rounded,
             color: Colors.white,
-            size: 26,
+            size: ResponsiveUtils.iconSize(context) * (26 / 24),
           ),
         ),
       ),
@@ -305,6 +306,7 @@ class _HomeDashboard extends StatelessWidget {
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
+        toolbarHeight: 72,
         // PreTripScreen'e geri dönüş butonu (login_page projesinden korundu)
         leading: isAdmin
             ? null
@@ -323,7 +325,10 @@ class _HomeDashboard extends StatelessWidget {
         actions: [
           if (isAdmin)
             Padding(
-              padding: const EdgeInsets.only(right: 12, top: 16),
+              padding: EdgeInsets.only(
+                right: ResponsiveUtils.spacing(context, 12),
+                top: ResponsiveUtils.spacing(context, 16),
+              ),
               child: AdminActionBar(
                 activeView: AdminPanelView.guest,
                 theme: ToggleTheme.light,
@@ -358,7 +363,9 @@ class _HomeDashboard extends StatelessWidget {
             )
           else
             Padding(
-              padding: const EdgeInsets.only(right: 10),
+              padding: EdgeInsets.only(
+                right: ResponsiveUtils.spacing(context, 10),
+              ),
               child: GestureDetector(
                 onTap: onNavigateToProfile,
                 child: StreamBuilder<User?>(
@@ -366,8 +373,8 @@ class _HomeDashboard extends StatelessWidget {
                   builder: (context, snapshot) {
                     final user = snapshot.data;
                     return Container(
-                      width: 45,
-                      height: 45,
+                      width: ResponsiveUtils.wp(context, 45 / 375),
+                      height: ResponsiveUtils.hp(context, 45 / 844),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: const Color(0xFFE3F2FD),
@@ -393,26 +400,35 @@ class _HomeDashboard extends StatelessWidget {
         title: isAdmin
             ? null
             : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveUtils.spacing(context, 16),
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Welcome back,',
-                          style: TextStyle(color: Colors.black54, fontSize: 14),
-                        ),
-                        Text(
-                          userName,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome back,',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: ResponsiveUtils.sp(context, 14),
+                            ),
                           ),
-                        ),
-                      ],
+                          Text(
+                            userName,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: ResponsiveUtils.sp(context, 22),
+                              fontWeight: FontWeight.w700,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -424,11 +440,11 @@ class _HomeDashboard extends StatelessWidget {
         child: SingleChildScrollView(
           physics:
               const AlwaysScrollableScrollPhysics(), // Enable pull even when content is short
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 8,
-            bottom: 90,
+          padding: EdgeInsets.only(
+            left: ResponsiveUtils.spacing(context, 16),
+            right: ResponsiveUtils.spacing(context, 16),
+            top: ResponsiveUtils.spacing(context, 8),
+            bottom: ResponsiveUtils.spacing(context, 90),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,7 +456,7 @@ class _HomeDashboard extends StatelessWidget {
                 checkOut: checkOut,
                 qrCodeData: qrCodeData,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: ResponsiveUtils.spacing(context, 8)),
 
               // My Plans & My Requests - Card Style (like Housekeeping & Room Service)
               Row(
@@ -459,7 +475,7 @@ class _HomeDashboard extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                   Expanded(
                     child: _ServiceTile(
                       icon: Icons.receipt_long,
@@ -478,13 +494,16 @@ class _HomeDashboard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: ResponsiveUtils.spacing(context, 4)),
 
-              const Text(
+              Text(
                 'Need Something?',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 16),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: ResponsiveUtils.spacing(context, 4)),
               Row(
                 children: [
                   Expanded(
@@ -501,7 +520,7 @@ class _HomeDashboard extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                   Expanded(
                     child: _ServiceTile(
                       icon: Icons.room_service,
@@ -522,14 +541,17 @@ class _HomeDashboard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: ResponsiveUtils.spacing(context, 4)),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "What's On Today",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: ResponsiveUtils.sp(context, 16),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   TextButton(
                     onPressed: () {
@@ -545,19 +567,20 @@ class _HomeDashboard extends StatelessWidget {
                       foregroundColor: Colors.black87,
                       padding: EdgeInsets.zero,
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Text('All Events'),
-                        SizedBox(width: 4),
-                        Icon(Icons.chevron_right, size: 20),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: ResponsiveUtils.iconSize(context) * (20 / 24),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 3),
+              SizedBox(height: ResponsiveUtils.spacing(context, 3)),
               SizedBox(
-                height: 160,
+                height: ResponsiveUtils.hp(context, 160 / 844),
                 child: hotelName == null
                     ? const Center(child: CircularProgressIndicator())
                     : StreamBuilder<List<Map<String, dynamic>>>(
@@ -599,16 +622,19 @@ class _HomeDashboard extends StatelessWidget {
                           if (events.isEmpty) {
                             return Container(
                               width: double.infinity,
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                              margin: EdgeInsets.symmetric(horizontal: 16),
+                              padding: EdgeInsets.symmetric(
+                                vertical: ResponsiveUtils.spacing(context, 16),
+                                horizontal: ResponsiveUtils.spacing(
+                                  context,
+                                  16,
+                                ),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ), // Reduced padding
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveUtils.spacing(context, 16),
+                                ),
                                 border: Border.all(
                                   color: Colors.grey.withValues(alpha: 0.1),
                                 ),
@@ -624,37 +650,52 @@ class _HomeDashboard extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(
-                                      8,
-                                    ), // Reduced padding
+                                    padding: EdgeInsets.all(
+                                      ResponsiveUtils.spacing(context, 8),
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.blue.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.event_busy_rounded,
                                       color: Colors.blue,
-                                      size: 28,
+                                      size:
+                                          ResponsiveUtils.iconSize(context) *
+                                          (28 / 24),
                                     ), // Reduced size
                                   ),
-                                  const SizedBox(height: 8), // Reduced spacing
-                                  const Text(
+                                  SizedBox(
+                                    height: ResponsiveUtils.spacing(context, 8),
+                                  ), // Reduced spacing
+                                  Text(
                                     "No events scheduled for today.",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 16, // Reduced font size
+                                      fontSize: ResponsiveUtils.sp(
+                                        context,
+                                        16,
+                                      ), // Reduced font size
                                       fontWeight: FontWeight.w700,
                                       color: Color(0xFF0D141B),
                                     ),
                                   ),
-                                  const SizedBox(height: 4), // Reduced spacing
+                                  SizedBox(
+                                    height: ResponsiveUtils.spacing(context, 4),
+                                  ), // Reduced spacing
                                   Text(
                                     "Feel free to browse other days!",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 14, // Reduced font size
+                                      fontSize: ResponsiveUtils.sp(
+                                        context,
+                                        14,
+                                      ), // Reduced font size
                                       color: Colors.grey[600],
-                                      height: 1.4,
+                                      height: ResponsiveUtils.hp(
+                                        context,
+                                        1.4 / 844,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -665,8 +706,9 @@ class _HomeDashboard extends StatelessWidget {
                           return ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: events.length,
-                            separatorBuilder: (_, e) =>
-                                const SizedBox(width: 12),
+                            separatorBuilder: (_, e) => SizedBox(
+                              width: ResponsiveUtils.spacing(context, 12),
+                            ),
                             itemBuilder: (context, index) {
                               final e = events[index];
                               final title = e['title'] ?? 'Unnamed Event';
@@ -697,15 +739,18 @@ class _HomeDashboard extends StatelessWidget {
                         },
                       ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: ResponsiveUtils.spacing(context, 6)),
 
-              const Text(
+              Text(
                 'Spending Summary',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: ResponsiveUtils.sp(context, 16),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: ResponsiveUtils.spacing(context, 6)),
               _SpendingCard(hotelName: hotelName),
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
             ],
           ),
         ),
@@ -788,15 +833,19 @@ class _HotelCardState extends State<_HotelCard> {
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(
+              ResponsiveUtils.spacing(context, 20),
+            ),
           ),
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(
+                ResponsiveUtils.spacing(context, 20),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -810,15 +859,17 @@ class _HotelCardState extends State<_HotelCard> {
               children: [
                 // Icon with gradient background
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: ResponsiveUtils.wp(context, 80 / 375),
+                  height: ResponsiveUtils.hp(context, 80 / 844),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF0057FF), Color(0xFF00A3FF)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveUtils.spacing(context, 20),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF0057FF).withValues(alpha: 0.3),
@@ -827,34 +878,34 @@ class _HotelCardState extends State<_HotelCard> {
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.nfc_rounded,
                     color: Colors.white,
-                    size: 40,
+                    size: ResponsiveUtils.iconSize(context) * (40 / 24),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                 // Title
-                const Text(
+                Text(
                   'Coming Soon!',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: ResponsiveUtils.sp(context, 24),
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1C1C1E),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                 // Message
                 Text(
                   'We are working on NFC Keyless Entry. Soon you will be able to unlock your room just by tapping your phone!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: ResponsiveUtils.sp(context, 15),
                     color: Colors.grey[600],
-                    height: 1.5,
+                    height: ResponsiveUtils.hp(context, 1.5 / 844),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                 // Button
                 SizedBox(
                   width: double.infinity,
@@ -865,16 +916,18 @@ class _HotelCardState extends State<_HotelCard> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0057FF),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveUtils.spacing(context, 12),
+                        ),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Got it',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: ResponsiveUtils.sp(context, 16),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -892,7 +945,7 @@ class _HotelCardState extends State<_HotelCard> {
     if (widget.qrCodeData == null || widget.qrCodeData!.isEmpty) {
       // QR kodu yok - bilgi mesajı göster
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('QR code not available yet. Please check back later.'),
           backgroundColor: Colors.orange,
         ),
@@ -906,15 +959,19 @@ class _HotelCardState extends State<_HotelCard> {
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(
+              ResponsiveUtils.spacing(context, 20),
+            ),
           ),
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(
+                ResponsiveUtils.spacing(context, 20),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -928,51 +985,58 @@ class _HotelCardState extends State<_HotelCard> {
               children: [
                 // Header
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF0057FF), Color(0xFF00A3FF)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveUtils.spacing(context, 16),
+                    ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.qr_code_2,
                     color: Colors.white,
-                    size: 32,
+                    size: ResponsiveUtils.iconSize(context) * (32 / 24),
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                Text(
                   'Your Room QR Code',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: ResponsiveUtils.sp(context, 20),
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1C1C1E),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 Text(
                   'Room ${widget.roomNumber ?? "N/A"}',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 14),
+                    color: Colors.grey[600],
+                  ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                 // QR Code
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveUtils.spacing(context, 16),
+                    ),
                     border: Border.all(
                       color: Colors.grey.withValues(alpha: 0.2),
-                      width: 1,
+                      width: ResponsiveUtils.wp(context, 1 / 375),
                     ),
                   ),
                   child: QrImageView(
                     data: widget.qrCodeData!,
                     version: QrVersions.auto,
-                    size: 200,
+                    size: ResponsiveUtils.iconSize(context) * (200 / 24),
                     backgroundColor: Colors.white,
                     eyeStyle: const QrEyeStyle(
                       eyeShape: QrEyeShape.square,
@@ -984,13 +1048,16 @@ class _HotelCardState extends State<_HotelCard> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                 Text(
                   'Show this QR code for room access',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 13),
+                    color: Colors.grey[500],
+                  ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: ResponsiveUtils.spacing(context, 20)),
                 // Close Button
                 SizedBox(
                   width: double.infinity,
@@ -1001,14 +1068,16 @@ class _HotelCardState extends State<_HotelCard> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveUtils.spacing(context, 12),
+                        ),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Close',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: ResponsiveUtils.sp(context, 16),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1036,7 +1105,9 @@ class _HotelCardState extends State<_HotelCard> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.spacing(context, 16),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -1045,69 +1116,85 @@ class _HotelCardState extends State<_HotelCard> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
       child: Row(
         children: [
           _buildHotelImage(),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   widget.hotelName,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 15),
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                 Text(
                   widget.roomNumber != null
                       ? 'Room ${widget.roomNumber}'
                       : 'Not Assigned',
-                  style: const TextStyle(color: Colors.black54),
+                  style: TextStyle(color: Colors.black54),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(dateRange, style: const TextStyle(color: Colors.black54)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          // QR Kod Butonu
-          IconButton(
-            onPressed: () => _showQrCodeDialog(context),
-            icon: const Icon(Icons.qr_code_2, color: Color(0xFF0057FF)),
-            style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFF0057FF).withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.all(12),
-            ),
-          ),
-          // Kapı AÇma Düğmesi (Unlock Button)
-          ElevatedButton(
-            onPressed: () {
-              _showComingSoonDialog(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0057FF),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              foregroundColor: Colors.white,
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.meeting_room, size: 20),
-                SizedBox(width: 8),
                 Text(
-                  'Unlock',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  dateRange,
+                  style: const TextStyle(color: Colors.black54),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
+            ),
+          ),
+          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+          // QR Kod Butonu
+          Flexible(
+            flex: 0,
+            child: IconButton(
+              onPressed: () => _showQrCodeDialog(context),
+              icon: const Icon(Icons.qr_code_2, color: Color(0xFF0057FF)),
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFF0057FF).withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveUtils.spacing(context, 12),
+                  ),
+                ),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
+              ),
+            ),
+          ),
+          SizedBox(width: ResponsiveUtils.spacing(context, 4)),
+          // Kapı AÇma Düğmesi (Unlock Button)
+          Flexible(
+            flex: 0,
+            child: ElevatedButton(
+              onPressed: () {
+                _showComingSoonDialog(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0057FF),
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveUtils.spacing(context, 12),
+                  vertical: ResponsiveUtils.spacing(context, 10),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveUtils.spacing(context, 12),
+                  ),
+                ),
+                foregroundColor: Colors.white,
+              ),
+              child: Icon(
+                Icons.meeting_room,
+                size: ResponsiveUtils.iconSize(context) * (20 / 24),
+              ),
             ),
           ),
         ],
@@ -1121,20 +1208,26 @@ class _HotelCardState extends State<_HotelCard> {
         _cachedImageUrl!.isNotEmpty &&
         _cachedImageUrl!.startsWith('http')) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.spacing(context, 12),
+        ),
         child: Image.network(
           _cachedImageUrl!,
-          width: 60,
-          height: 60,
+          width: ResponsiveUtils.wp(context, 60 / 375),
+          height: ResponsiveUtils.hp(context, 60 / 844),
           fit: BoxFit.cover,
           loadingBuilder: (ctx, child, progress) {
             if (progress == null) return child;
             return Container(
               color: Colors.grey[200],
-              width: 60,
-              height: 60,
-              child: const Center(
-                child: Icon(Icons.image, size: 20, color: Colors.grey),
+              width: ResponsiveUtils.wp(context, 60 / 375),
+              height: ResponsiveUtils.hp(context, 60 / 844),
+              child: Center(
+                child: Icon(
+                  Icons.image,
+                  size: ResponsiveUtils.iconSize(context) * (20 / 24),
+                  color: Colors.grey,
+                ),
               ),
             );
           },
@@ -1145,11 +1238,13 @@ class _HotelCardState extends State<_HotelCard> {
     // Case 2: Asset Path (Data exists but is local path like 'assets/...')
     else if (_cachedImageUrl != null && _cachedImageUrl!.isNotEmpty) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.spacing(context, 12),
+        ),
         child: Image.asset(
           _cachedImageUrl!,
-          width: 60,
-          height: 60,
+          width: ResponsiveUtils.wp(context, 60 / 375),
+          height: ResponsiveUtils.hp(context, 60 / 844),
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             Logger.debug("Asset load failed for: $_cachedImageUrl");
@@ -1165,11 +1260,13 @@ class _HotelCardState extends State<_HotelCard> {
 
   Widget _buildFallbackImage() {
     return Container(
-      width: 60,
-      height: 60,
+      width: ResponsiveUtils.wp(context, 60 / 375),
+      height: ResponsiveUtils.hp(context, 60 / 844),
       decoration: BoxDecoration(
         color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.spacing(context, 12),
+        ),
       ),
       child: const Icon(Icons.hotel, color: Colors.grey),
     );
@@ -1194,10 +1291,12 @@ class _ServiceTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(
+            ResponsiveUtils.spacing(context, 20),
+          ),
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
@@ -1212,19 +1311,25 @@ class _ServiceTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: ResponsiveUtils.wp(context, 40 / 375),
+              height: ResponsiveUtils.hp(context, 40 / 844),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveUtils.spacing(context, 20),
+                ),
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(
+                icon,
+                color: color,
+                size: ResponsiveUtils.iconSize(context) * (22 / 24),
+              ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveUtils.spacing(context, 12)),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: ResponsiveUtils.sp(context, 14),
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF111827),
               ),
@@ -1257,10 +1362,15 @@ class _EventCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 180, // Increased width per user request
+        width: ResponsiveUtils.wp(
+          context,
+          180 / 375,
+        ), // Increased width per user request
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(
+            ResponsiveUtils.spacing(context, 12),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -1273,39 +1383,45 @@ class _EventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildEventImage(imageAsset),
+            _buildEventImage(imageAsset, context),
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      fontSize: 16, // Increased from 15
+                      fontSize: ResponsiveUtils.sp(
+                        context,
+                        16,
+                      ), // Increased from 15
                       color: Color(0xFF1C1C1E),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 6)),
                   // Merged Time & Location Row
                   Row(
                     children: [
                       // Time
                       Icon(
                         Icons.access_time_rounded,
-                        size: 14,
+                        size: ResponsiveUtils.iconSize(context) * (14 / 24),
                         color: Colors.grey[600],
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                       Flexible(
                         child: Text(
                           time,
                           style: TextStyle(
                             color: Colors.grey[700],
-                            fontSize: 14, // Increased from 12
+                            fontSize: ResponsiveUtils.sp(
+                              context,
+                              14,
+                            ), // Increased from 12
                             fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
@@ -1313,23 +1429,26 @@ class _EventCard extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(width: 8),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                       Text('•', style: TextStyle(color: Colors.grey[400])),
-                      const SizedBox(width: 8),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 8)),
 
                       // Location
                       Icon(
                         Icons.location_on_rounded,
-                        size: 14,
+                        size: ResponsiveUtils.iconSize(context) * (14 / 24),
                         color: Colors.grey[600],
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                       Expanded(
                         child: Text(
                           location,
                           style: TextStyle(
                             color: Colors.grey[700],
-                            fontSize: 14, // Increased from 12
+                            fontSize: ResponsiveUtils.sp(
+                              context,
+                              14,
+                            ), // Increased from 12
                             fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
@@ -1347,7 +1466,7 @@ class _EventCard extends StatelessWidget {
     );
   }
 
-  Widget _buildEventImage(String? imageAsset) {
+  Widget _buildEventImage(String? imageAsset, BuildContext context) {
     const fallbackAsset = 'assets/images/arkaplanyok1.png';
     const double imageHeight = 80;
 
@@ -1358,7 +1477,8 @@ class _EventCard extends StatelessWidget {
         width: double.infinity,
         height: imageHeight,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+        errorBuilder: (context, error, stackTrace) =>
+            _buildPlaceholder(context),
       );
     }
 
@@ -1369,7 +1489,8 @@ class _EventCard extends StatelessWidget {
         width: double.infinity,
         height: imageHeight,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+        errorBuilder: (context, error, stackTrace) =>
+            _buildPlaceholder(context),
       );
     }
 
@@ -1379,14 +1500,14 @@ class _EventCard extends StatelessWidget {
       width: double.infinity,
       height: imageHeight,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      errorBuilder: (context, error, stackTrace) => _buildPlaceholder(context),
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 80,
+      height: ResponsiveUtils.hp(context, 80 / 844),
       color: Colors.grey[200],
       child: const Icon(Icons.broken_image, color: Colors.grey),
     );
@@ -1402,7 +1523,9 @@ class _SpendingCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.spacing(context, 16),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -1411,28 +1534,28 @@ class _SpendingCard extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Current Balance',
                   style: TextStyle(color: Colors.black54),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: ResponsiveUtils.spacing(context, 6)),
                 StreamBuilder<Map<String, dynamic>?>(
                   stream: hotelName != null
                       ? DatabaseService().getMySpending(hotelName!)
                       : Stream.value(null),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text(
+                      return Text(
                         '₺0.00',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: ResponsiveUtils.sp(context, 28),
                           fontWeight: FontWeight.w700,
                         ),
                       );
@@ -1450,11 +1573,16 @@ class _SpendingCard extends StatelessWidget {
                       }
                     }
 
-                    return Text(
-                      '₺${total.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
+                    return FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '₺${total.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: ResponsiveUtils.sp(context, 28),
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
                       ),
                     );
                   },
@@ -1474,20 +1602,31 @@ class _SpendingCard extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0057FF),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveUtils.spacing(context, 12),
+                vertical: ResponsiveUtils.spacing(context, 8),
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveUtils.spacing(context, 12),
+                ),
               ),
               minimumSize: Size.zero,
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.pie_chart, size: 18),
-                SizedBox(width: 6),
+                Icon(
+                  Icons.pie_chart,
+                  size: ResponsiveUtils.iconSize(context) * (18 / 24),
+                ),
+                SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                 Text(
                   'View Spending',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: ResponsiveUtils.sp(context, 14),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -1506,19 +1645,11 @@ class _CustomBottomBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
 
-  const _CustomBottomBar({
-    super.key,
-    required this.selectedIndex,
-    required this.onTap,
-  });
+  const _CustomBottomBar({required this.selectedIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    const labelStyle = TextStyle(
-      fontSize: 11,
-      color: Colors.black87,
-      height: 1.1,
-    );
+    TextStyle labelStyle = TextStyle(fontSize: ResponsiveUtils.sp(context, 14));
 
     // Helper to determine color based on selection
     Color getColor(int index) {
@@ -1541,67 +1672,64 @@ class _CustomBottomBar extends StatelessWidget {
           notchMargin: 10,
           child: SafeArea(
             top: false,
-            child: SizedBox(
-              height: 56,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _BottomBarItem(
-                          icon: Icons.home,
-                          label: 'Home',
-                          labelStyle: labelStyle.copyWith(
-                            color: getColor(0),
-                            fontWeight: getWeight(0),
-                          ),
-                          iconColor: getColor(0),
-                          onTap: () => onTap(0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _BottomBarItem(
+                        icon: Icons.home,
+                        label: 'Home',
+                        labelStyle: labelStyle.copyWith(
+                          color: getColor(0),
+                          fontWeight: getWeight(0),
                         ),
-                        _BottomBarItem(
-                          icon: Icons.map,
-                          label: 'Map',
-                          labelStyle: labelStyle.copyWith(
-                            color: getColor(1),
-                            fontWeight: getWeight(1),
-                          ),
-                          iconColor: getColor(1),
-                          onTap: () => onTap(1),
+                        iconColor: getColor(0),
+                        onTap: () => onTap(0),
+                      ),
+                      _BottomBarItem(
+                        icon: Icons.map,
+                        label: 'Map',
+                        labelStyle: labelStyle.copyWith(
+                          color: getColor(1),
+                          fontWeight: getWeight(1),
                         ),
-                      ],
-                    ),
+                        iconColor: getColor(1),
+                        onTap: () => onTap(1),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 68),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _BottomBarItem(
-                          icon: Icons.apps,
-                          label: 'Services',
-                          labelStyle: labelStyle.copyWith(
-                            color: getColor(2),
-                            fontWeight: getWeight(2),
-                          ),
-                          iconColor: getColor(2),
-                          onTap: () => onTap(2),
+                ),
+                SizedBox(width: ResponsiveUtils.spacing(context, 68)),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _BottomBarItem(
+                        icon: Icons.apps,
+                        label: 'Services',
+                        labelStyle: labelStyle.copyWith(
+                          color: getColor(2),
+                          fontWeight: getWeight(2),
                         ),
-                        _BottomBarItem(
-                          icon: Icons.person,
-                          label: 'Profile',
-                          labelStyle: labelStyle.copyWith(
-                            color: getColor(3),
-                            fontWeight: getWeight(3),
-                          ),
-                          iconColor: getColor(3),
-                          onTap: () => onTap(3),
+                        iconColor: getColor(2),
+                        onTap: () => onTap(2),
+                      ),
+                      _BottomBarItem(
+                        icon: Icons.person,
+                        label: 'Profile',
+                        labelStyle: labelStyle.copyWith(
+                          color: getColor(3),
+                          fontWeight: getWeight(3),
                         ),
-                      ],
-                    ),
+                        iconColor: getColor(3),
+                        onTap: () => onTap(3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -1629,16 +1757,25 @@ class _BottomBarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: iconColor ?? labelStyle.color, size: 24),
-            const SizedBox(height: 2),
-            Text(label, style: labelStyle),
-          ],
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveUtils.spacing(context, 4.0),
+        ),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: iconColor ?? labelStyle.color,
+                size: ResponsiveUtils.iconSize(context),
+              ),
+              SizedBox(height: ResponsiveUtils.spacing(context, 2)),
+              Text(label, style: labelStyle),
+            ],
+          ),
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'signup_screen.dart';
 import '../../services/auth.dart';
 import 'forget_password.dart';
 import '../../utils/dialogs/custom_snackbar.dart';
+import '../../utils/responsive_utils.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -91,52 +92,57 @@ class _LoginScreenState extends State<LoginScreen> {
           Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveUtils.spacing(context, 32),
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      height: 150,
-                      width: 150,
+                      height: ResponsiveUtils.hp(context, 0.18),
+                      width: ResponsiveUtils.hp(context, 0.18),
                       // child: Image.asset("assets/images/arkaplanyok1.png"),
                       child: Image.asset(
                         "assets/images/kalitelilogoarkaplanyok.png",
                       ),
                     ),
 
-                    const Text(
+                    Text(
                       "InnJoy",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 35,
+                        fontSize: ResponsiveUtils.sp(context, 35),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 3,
                       ),
                     ),
 
-                    const Text(
+                    Text(
                       "Your seamless hotel experience",
-                      style: TextStyle(color: Colors.white60, fontSize: 18),
+                      style: TextStyle(
+                        color: Colors.white60,
+                        fontSize: ResponsiveUtils.sp(context, 18),
+                      ),
                     ),
 
-                    const SizedBox(height: 8),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
 
-                    const Text(
+                    Text(
                       "Welcome!",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 50,
+                        fontSize: ResponsiveUtils.sp(context, 50),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 3,
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // --- E-mail Input ---
                     TextField(
                       controller: _emailController,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white.withValues(alpha: 0.15),
@@ -147,13 +153,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: "E-mail Address",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveUtils.borderRadiusLarge(context) * 1.5,
+                          ),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // --- Password Input ---
                     TextField(
@@ -183,23 +191,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: "Password",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveUtils.borderRadiusLarge(context) * 1.5,
+                          ),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 10)),
 
                     // --- Sign In Button ---
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: ResponsiveUtils.buttonHeight(context),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.lightBlueAccent,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveUtils.borderRadiusLarge(context) * 1.5,
+                            ),
                           ),
                         ),
                         onPressed: () {
@@ -209,10 +221,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             createUser();
                           }
                         },
-                        child: const Text(
+                        child: Text(
                           "Sign In",
                           style: TextStyle(
-                            fontSize: 25,
+                            fontSize: ResponsiveUtils.sp(context, 25),
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -220,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 5),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 5)),
 
                     // --- Forgot Password Link ---
                     Align(
@@ -234,15 +246,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               // Dosya adı 'forget_password.dart' olsa bile
                               // iÇindeki class adı 'ForgotPasswordScreen' olduğu iÇin bunu Çağırıyoruz.
                               builder: (context) =>
-                                  const ForgotPasswordScreen(),
+                                  ForgotPasswordScreen(),
                             ),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           "Forgot Password ?",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 17,
+                            fontSize: ResponsiveUtils.sp(context, 17),
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
                             decorationColor: Colors.white,
@@ -251,27 +263,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // --- Divider ---
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Divider(
                             color: Colors.white,
                             thickness: 3,
                             endIndent: 10,
                           ),
                         ),
-                        const Text(
+                        Text(
                           "Or Sign In With",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: ResponsiveUtils.sp(context, 20),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Divider(
                             color: Colors.white,
                             thickness: 3,
@@ -281,103 +293,102 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 10)),
 
                     // --- Social Media Buttons ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         // Google
-                        SizedBox(
-                          width: 90,
-                          height: 30,
-                          child: IconButton(
-                            icon: const FaIcon(
-                              FontAwesomeIcons.google,
-                              color: Colors.white,
-                              size: 30,
+                        Expanded(
+                          child: SizedBox(
+                            height: ResponsiveUtils.spacing(context, 30),
+                            child: IconButton(
+                              icon: FaIcon(
+                                FontAwesomeIcons.google,
+                                color: Colors.white,
+                                size: ResponsiveUtils.iconSize(context) * 1.2,
+                              ),
+                              onPressed: () async {
+                                final authservice = Auth();
+                                await authservice.signInWithGoogle();
+                              },
                             ),
-                            onPressed: () async {
-                              final authservice = Auth();
-                              await authservice.signInWithGoogle();
-                            },
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 10)),
                         // Twitter
-                        SizedBox(
-                          width: 90,
-                          height: 30,
-                          child: IconButton(
-                            icon: const FaIcon(
-                              FontAwesomeIcons.xTwitter,
-                              color: Colors.white,
-                              size: 30,
+                        Expanded(
+                          child: SizedBox(
+                            height: ResponsiveUtils.spacing(context, 30),
+                            child: IconButton(
+                              icon: FaIcon(
+                                FontAwesomeIcons.xTwitter,
+                                color: Colors.white,
+                                size: ResponsiveUtils.iconSize(context) * 1.2,
+                              ),
+                              onPressed: () async {
+                                final authService2 = Auth();
+                                await authService2.signInWithTwitter();
+                              },
                             ),
-                            onPressed: () async {
-                              final authService2 = Auth();
-                              await authService2.signInWithTwitter();
-                            },
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 10)),
                         // Facebook
-                        SizedBox(
-                          width: 90,
-                          height: 30,
-                          child: IconButton(
-                            icon: const FaIcon(
-                              FontAwesomeIcons.facebook,
-                              color: Colors.white,
-                              size: 30,
+                        Expanded(
+                          child: SizedBox(
+                            height: ResponsiveUtils.spacing(context, 30),
+                            child: IconButton(
+                              icon: FaIcon(
+                                FontAwesomeIcons.facebook,
+                                color: Colors.white,
+                                size: ResponsiveUtils.iconSize(context) * 1.2,
+                              ),
+                              onPressed: () async {
+                                final authService3 = Auth();
+                                await authService3.signInWithFacebook();
+                              },
                             ),
-                            onPressed: () async {
-                              final authService3 = Auth();
-                              await authService3.signInWithFacebook();
-                            },
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // --- Sign Up Link ---
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Don't have an account ?",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isLogin = !isLogin;
-                            });
-                          },
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SignUpScreen(),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              "Sign Up Now",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                                decorationColor: Colors.white,
-                              ),
+                        Flexible(
+                          child: Text(
+                            "Don't have an account ?",
+                            style: TextStyle(
+                              fontSize: ResponsiveUtils.sp(context, 16),
+                              color: Colors.white,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ],
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignUpScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Sign Up Now",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: ResponsiveUtils.sp(context, 14),
+                          ),
+                        ),
+                      ),
+                    ],
                     ),
                   ],
                 ),
@@ -389,3 +400,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

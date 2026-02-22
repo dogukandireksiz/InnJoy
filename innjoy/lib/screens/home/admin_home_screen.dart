@@ -17,6 +17,7 @@ import '../../widgets/admin/admin_action_bar.dart';
 import '../edit/chose_edit_screen.dart';
 import '../emergency/emergency_admin_screen.dart';
 import '../../widgets/admin/management_panel.dart';
+import '../../utils/responsive_utils.dart';
 
 import 'dart:math' as math;
 
@@ -169,13 +170,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         // Close panel first to prevent visual glitch
         Navigator.pop(context);
         
+        final navigator = Navigator.of(context);
         await Auth().signOut();
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const AuthWrapper()),
-            (route) => false,
-          );
-        }
+        navigator.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthWrapper()),
+          (route) => false,
+        );
       },
     );
   }
@@ -229,25 +229,25 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             // Curved Header
             _buildCurvedHeader(),
             
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
             
             // Main Content
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   
                   // Quick Access Section
-                  const Text(
+                  Text(
                     'Quick Access',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: ResponsiveUtils.sp(context, 20),
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1F2937),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     
                     // Quick Access Grid
                     Row(
@@ -270,7 +270,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                         Expanded(
                           child: _QuickAccessCard(
                             icon: Icons.restaurant,
@@ -291,7 +291,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     Row(
                       children: [
                         Expanded(
@@ -312,7 +312,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                         Expanded(
                           child: _QuickAccessCard(
                             icon: Icons.event,
@@ -332,7 +332,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     Row(
                       children: [
                         Expanded(
@@ -351,7 +351,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                         Expanded(
                           child: _QuickAccessCard(
                             icon: Icons.emergency,
@@ -370,7 +370,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                       ],
                     ),
-                  const SizedBox(height: 100), // Bottom padding for nav bar
+                  SizedBox(height: ResponsiveUtils.spacing(context, 100)), // Bottom padding for nav bar
                 ],
               ),
             ),
@@ -438,7 +438,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ],
                         ),
                       );
-                      if (shouldLogout == true && context.mounted) {
+                      if (shouldLogout == true && mounted) {
                         final navigator = Navigator.of(context);
                         await Auth().signOut();
                         navigator.pushAndRemoveUntil(
@@ -451,7 +451,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ],
               ),
               
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
               
               // Hotel Info Row
               Row(
@@ -464,19 +464,19 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       children: [
                         Text(
                           _hotelName ?? 'Loading...',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 28,
+                            fontSize: ResponsiveUtils.sp(context, 28),
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                         Text(
                           userName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Color(0xFFBFDBFE),
-                            fontSize: 14,
+                            fontSize: ResponsiveUtils.sp(context, 14),
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
                           ),
@@ -486,44 +486,44 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   ),
                   // User Avatar
                   Container(
-                    padding: const EdgeInsets.all(3),
+                    padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 3)),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 28)),
                     ),
                     child: Container(
-                      width: 48,
-                      height: 48,
+                      width: ResponsiveUtils.wp(context, 48 / 375),
+                      height: ResponsiveUtils.hp(context, 48 / 844),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.person,
                         color: Color(0xFF6B7280),
-                        size: 28,
+                        size: ResponsiveUtils.iconSize(context) * (28 / 24),
                       ),
                     ),
                   ),
                 ],
               ),
               
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
               
               // Today's Summary Title
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Today's Summary",
                   style: TextStyle(
                     color: Colors.white70,
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
               
-              const SizedBox(height: 20),
+              SizedBox(height: ResponsiveUtils.spacing(context, 20)),
               
               // Occupancy Stats Row
               if (_hotelName != null && _hotelName!.isNotEmpty)
@@ -629,10 +629,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     }
                     
                     return Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                       ),
                       child: Column(
                         children: [
@@ -641,13 +641,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             children: [
                               // Circular Progress Chart
                               SizedBox(
-                                width: 80,
-                                height: 80,
+                                width: ResponsiveUtils.wp(context, 80 / 375),
+                                height: ResponsiveUtils.hp(context, 80 / 844),
                                 child: _CircularOccupancyChart(
                                   percentage: occupancyPercent,
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                               // Stats
                               Expanded(
                                 child: Row(
@@ -676,13 +676,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                           // Divider
                           Container(
-                            height: 1,
+                            height: ResponsiveUtils.hp(context, 1 / 844),
                             color: Colors.white.withValues(alpha: 0.2),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                           // Second Row: Check-ins, Check-outs, Orders, Requests
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -753,17 +753,17 @@ class _CircularOccupancyChart extends StatelessWidget {
           children: [
             Text(
               '$percentage%',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: ResponsiveUtils.sp(context, 14),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Text(
+            Text(
               'Occupied',
               style: TextStyle(
                 color: Colors.white70,
-                fontSize: 8,
+                fontSize: ResponsiveUtils.sp(context, 8),
               ),
             ),
           ],
@@ -830,21 +830,21 @@ class _HeaderStatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: iconColor, size: 22),
-        const SizedBox(height: 4),
+        Icon(icon, color: iconColor, size: ResponsiveUtils.iconSize(context) * (22 / 24)),
+        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 22,
+            fontSize: ResponsiveUtils.sp(context, 22),
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: Color(0xFFBFDBFE),
-            fontSize: 9,
+            fontSize: ResponsiveUtils.sp(context, 9),
           ),
         ),
       ],
@@ -873,10 +873,10 @@ class _QuickAccessCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
@@ -890,28 +890,28 @@ class _QuickAccessCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: ResponsiveUtils.wp(context, 40 / 375),
+              height: ResponsiveUtils.hp(context, 40 / 844),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: ResponsiveUtils.iconSize(context) * (22 / 24)),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 15,
+              style: TextStyle(
+                fontSize: ResponsiveUtils.sp(context, 15),
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF111827),
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: ResponsiveUtils.spacing(context, 2)),
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: ResponsiveUtils.sp(context, 12),
                 color: Colors.grey.shade500,
               ),
             ),
@@ -940,7 +940,7 @@ class _ModernBottomNav extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -999,15 +999,14 @@ class _NavItem extends StatelessWidget {
           Icon(
             icon,
             color: isActive ? const Color(0xFFF97316) : Colors.black87,
-            size: 24,
+            size: ResponsiveUtils.iconSize(context) * (24 / 24),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: ResponsiveUtils.spacing(context, 4)),
           Text(
             label,
             style: TextStyle(
               color: isActive ? const Color(0xFFF97316) : Colors.black87,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontSize: ResponsiveUtils.sp(context, 14),
             ),
           ),
         ],
@@ -1015,6 +1014,7 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
+
 
 
 

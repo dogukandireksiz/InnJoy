@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/spa_wellness/spa_management_screen.dart';
 import '../services/fitness/details/fitness_details_screen.dart';
+import '../../utils/responsive_utils.dart';
 
 class ChoseServicesScreen extends StatelessWidget {
   final String hotelName;
@@ -19,18 +20,18 @@ class ChoseServicesScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         children: [
           Text(
             'Select a service to update',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
           ),
-          SizedBox(height: 6),
+          SizedBox(height: ResponsiveUtils.spacing(context, 6)),
           Text(
             'Choose a specific service category below to manage details and operations.',
             style: TextStyle(color: Colors.black54),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           _ServiceTile(
             icon: Icons.spa,
             title: 'Spa & Wellness',
@@ -42,7 +43,7 @@ class ChoseServicesScreen extends StatelessWidget {
               );
             },
           ),
-          SizedBox(height: 10),
+          SizedBox(height: ResponsiveUtils.spacing(context, 10)),
           _ServiceTile(
             icon: Icons.fitness_center,
             title: 'Fitness',
@@ -71,29 +72,29 @@ class _ServiceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         onTap: () => onTap?.call(context),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 14)),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 10)),
                 decoration: BoxDecoration(
                   color: Colors.blue.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                 ),
                 child: Icon(icon, color: Colors.blue),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: ResponsiveUtils.spacing(context, 12)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 4),
+                    Text(title, style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.w600)),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                     Text(subtitle, style: const TextStyle(color: Colors.black54)),
                   ],
                 ),

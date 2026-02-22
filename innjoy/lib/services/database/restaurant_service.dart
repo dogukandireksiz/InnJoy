@@ -296,6 +296,7 @@ class RestaurantService extends BaseDatabaseService {
   }
 
   // --- KULLANICIYA AİT TÜM REZERVASYONLARI GETİR ---
+  // Not: collectionGroup yerine direkt yol kullanarak composite index ihtiyacını ortadan kaldırıyoruz.
   Stream<List<Map<String, dynamic>>> getUserReservations(
     String userId, {
     String? hotelName,
@@ -304,13 +305,42 @@ class RestaurantService extends BaseDatabaseService {
       return Stream.value([]);
     }
 
+    // Otelin tüm restoranlarını dinle, her birinin rezervasyonlarını filtrele
     return db
-        .collectionGroup('reservations')
-        .where('userId', isEqualTo: userId)
-        .where('hotelName', isEqualTo: hotelName)
-        .orderBy('date', descending: false)
+        .collection('hotels')
+        .doc(hotelName)
+        .collection('restaurants')
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+        .asyncMap((restaurantsSnap) async {
+          final List<Map<String, dynamic>> allReservations = [];
+
+          for (final restaurantDoc in restaurantsSnap.docs) {
+            try {
+              final reservationsSnap = await restaurantDoc.reference
+                  .collection('reservations')
+                  .where('userId', isEqualTo: userId)
+                  .get();
+
+              for (final resDoc in reservationsSnap.docs) {
+                allReservations.add(resDoc.data());
+              }
+            } catch (e) {
+              // Bu restoranı atla, diğerlerine devam et
+            }
+          }
+
+          // Tarihe göre sırala
+          allReservations.sort((a, b) {
+            final aDate = a['date'];
+            final bDate = b['date'];
+            if (aDate is Timestamp && bDate is Timestamp) {
+              return aDate.compareTo(bDate);
+            }
+            return 0;
+          });
+
+          return allReservations;
+        });
   }
 
   // Get Reservations (Admin)

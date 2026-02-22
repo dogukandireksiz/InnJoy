@@ -9,6 +9,7 @@ import '../../utils/dialogs/custom_snackbar.dart';
 import '../legal/legal_constants.dart';
 import '../legal/legal_document_screen.dart';
 import 'package:flutter/gestures.dart';
+import '../../utils/responsive_utils.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -164,44 +165,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
           Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 32)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      height: 150,
-                      width: 150,
+                      height: ResponsiveUtils.hp(context, 150 / 844),
+                      width: ResponsiveUtils.wp(context, 150 / 375),
                       color: Colors.transparent,
                       child: Image.asset("assets/images/arkaplanyok1.png"),
                     ),
 
-                    const Text(
+                    Text(
                       "InnJoy",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 40,
+                        fontSize: ResponsiveUtils.sp(context, 40),
                         fontWeight: FontWeight.bold,
                         letterSpacing: 3,
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 10)),
 
-                    const Text(
+                    Text(
                       "Create New Account",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 25,
+                        fontSize: ResponsiveUtils.sp(context, 25),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // Kullanıcı adı
                     TextField(
                       controller: _nameController,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white.withValues(alpha: 0.15),
@@ -209,13 +210,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         hintText: "Name and Surname",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 30)),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // E-mail girişi
                     TextField(
@@ -228,13 +229,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         hintText: "E-mail Address",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 30)),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // şifre
                     TextField(
@@ -260,7 +261,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         hintText: "Password",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 30)),
                           borderSide: BorderSide.none,
                         ),
                       ),
@@ -268,29 +269,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Password strength indicators
                     if (_passwordController.text.isNotEmpty) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 15)),
                           border: Border.all(
                             color: Colors.white.withValues(alpha: 0.2),
-                            width: 1,
+                            width: ResponsiveUtils.wp(context, 1 / 375),
                           ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "Password Requirements:",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 13,
+                                fontSize: ResponsiveUtils.sp(context, 13),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                             _buildPasswordCriterion(
                               "At least 8 characters",
                               _hasMinLength,
@@ -316,7 +317,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ],
 
-                    SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // şifre tekrar
                     TextField(
@@ -341,13 +342,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         hintText: "Confirm Password",
                         hintStyle: const TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 30)),
                           borderSide: BorderSide.none,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 10)),
 
                     // --- Legal Consents ---
                     // 1. Mandatory Checkbox (User Agreement + Privacy Policy)
@@ -355,8 +356,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: 24,
-                          height: 24,
+                          width: ResponsiveUtils.wp(context, 24 / 375),
+                          height: ResponsiveUtils.hp(context, 24 / 844),
                           child: Checkbox(
                           value: _isMandatoryAccepted,
                           activeColor: Colors.lightBlueAccent,
@@ -368,12 +369,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           },
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 10)),
                         Expanded(
                           child: RichText(
                             text: TextSpan(
                               text: "InnJoy ",
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              style: TextStyle(color: Colors.white, fontSize: ResponsiveUtils.sp(context, 13)),
                               children: [
                                 TextSpan(
                                   text: "User Agreement",
@@ -420,7 +421,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       );
                                     },
                                 ),
-                                const TextSpan(text: ", I have read and accept."),
+                                TextSpan(text: ", I have read and accept."),
                               ],
                             ),
                           ),
@@ -428,15 +429,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 15),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 15)),
 
                     // 2. Optional Checkbox (Open Consent / Marketing)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: 24,
-                          height: 24,
+                          width: ResponsiveUtils.wp(context, 24 / 375),
+                          height: ResponsiveUtils.hp(context, 24 / 844),
                           child: Checkbox(
                           value: _isOptionalAccepted,
                           activeColor: Colors.lightBlueAccent,
@@ -448,12 +449,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           },
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: ResponsiveUtils.spacing(context, 10)),
                         Expanded(
                           child: RichText(
                             text: TextSpan(
                               text: "I consent to the processing of my marketing notifications, location and usage data for personalization purposes ",
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              style: TextStyle(color: Colors.white, fontSize: ResponsiveUtils.sp(context, 13)),
                               children: [
                                 TextSpan(
                                   text: "(explicit consent)",
@@ -477,7 +478,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       );
                                     },
                                 ),
-                                const TextSpan(text: "."),
+                                TextSpan(text: "."),
                               ],
                             ),
                           ),
@@ -485,7 +486,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 10)),
 
                     // KVKK Link
                     Align(
@@ -506,11 +507,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             "KVKK Information Notice",
                             style: TextStyle(
                               color: Colors.white70,
-                              fontSize: 13,
+                              fontSize: ResponsiveUtils.sp(context, 13),
                               decoration: TextDecoration.underline,
                             ),
                           ),
@@ -518,24 +519,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
                     // Kayıt ol butonu -> Firebase.createUser tetikler
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: ResponsiveUtils.hp(context, 50 / 844),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.lightBlueAccent,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 30)),
                           ),
                         ),
                         onPressed: createUser, // Firebase + Firestore işlemini Çalıştırır
-                        child: const Text(
+                        child: Text(
                           "Sign Up",
                           style: TextStyle(
-                            fontSize: 25,
+                            fontSize: ResponsiveUtils.sp(context, 25),
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -543,15 +544,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 15),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 15)),
 
                     Wrap(
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           "Already have an account ? ",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          style: TextStyle(fontSize: ResponsiveUtils.sp(context, 16), color: Colors.white),
                         ),
                         TextButton(
                           style: TextButton.styleFrom(
@@ -562,11 +563,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             Navigator.pop(context); // Giriş ekranına döner
                           },
-                          child: const Text(
+                          child: Text(
                             "Sign In Now",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
                               decorationColor: Colors.white,
@@ -576,7 +577,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 30),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 30)),
                     
                   ],
                 ),
@@ -591,20 +592,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // Helper widget to show password criterion with check/x mark
   Widget _buildPasswordCriterion(String text, bool isMet) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(
             isMet ? Icons.check_circle : Icons.cancel,
             color: isMet ? Colors.lightGreenAccent : Colors.redAccent,
-            size: 16,
+            size: ResponsiveUtils.iconSize(context) * (16 / 24),
           ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              color: isMet ? Colors.white : Colors.white60,
-              fontSize: 12,
+          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: isMet ? Colors.white : Colors.white60,
+                fontSize: ResponsiveUtils.sp(context, 14),
+              ),
             ),
           ),
         ],
@@ -612,6 +615,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
+
 
 
 

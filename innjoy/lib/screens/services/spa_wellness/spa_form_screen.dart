@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:login_page/services/database_service.dart';
+import '../../../utils/responsive_utils.dart';
 
 class SpaFormScreen extends StatefulWidget {
   final String hotelName;
@@ -103,7 +104,7 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
             title: const Text("Are you sure you want to delete?"),
             content: const Text("This action cannot be undone."),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
             ),
             actions: [
               TextButton(
@@ -150,16 +151,16 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
             color: Color(0xFF0d141b),
-            size: 20,
+            size: ResponsiveUtils.iconSize(context) * (20 / 24),
           ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         child: Column(
           children: [
             // Image Preview (Click to change URL for now, could be picker)
@@ -175,7 +176,7 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                       decoration: InputDecoration(
                         hintText: "Enter image URL",
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                         ),
                       ),
                     ),
@@ -192,16 +193,16 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                       ),
                     ],
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                     ),
                   ),
                 );
               },
               child: Container(
-                height: 240,
+                height: ResponsiveUtils.hp(context, 240 / 844),
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 24)),
                   color: Colors.grey[100],
                   boxShadow: _imageUrlController.text.isNotEmpty
                       ? [
@@ -215,7 +216,7 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                   border: _imageUrlController.text.isEmpty
                       ? Border.all(
                           color: Colors.grey.shade300,
-                          width: 2,
+                          width: ResponsiveUtils.wp(context, 2 / 375),
                           style: BorderStyle.solid,
                         )
                       : null,
@@ -234,55 +235,55 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                         children: [
                           Icon(
                             Icons.add_a_photo,
-                            size: 48,
+                            size: ResponsiveUtils.iconSize(context) * (48 / 24),
                             color: Colors.grey[400],
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                           Text(
                             'Add Image',
                             style: TextStyle(
                               color: Colors.grey[600],
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                           Text(
                             'or enter URL below',
                             style: TextStyle(
                               color: Colors.grey[400],
-                              fontSize: 12,
+                              fontSize: ResponsiveUtils.sp(context, 12),
                             ),
                           ),
                         ],
                       )
                     : Container(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 30)),
                           border: Border.all(
                             color: Colors.white.withValues(alpha: 0.2),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.camera_alt,
                               color: Colors.white,
-                              size: 18,
+                              size: ResponsiveUtils.iconSize(context) * (18 / 24),
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                             Text(
                               "Change Image",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: ResponsiveUtils.sp(context, 14),
                               ),
                             ),
                           ],
@@ -290,21 +291,21 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                       ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
             // Image URL Input Field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Image URL',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: ResponsiveUtils.sp(context, 14),
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF0d141b),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 TextField(
                   controller: _imageUrlController,
                   onChanged: (_) => setState(() {}),
@@ -317,23 +318,23 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                     hintStyle: TextStyle(color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveUtils.spacing(context, 16),
+                      vertical: ResponsiveUtils.spacing(context, 16),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                       borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
+                      borderSide: BorderSide(
                         color: Color(0xFF137fec),
-                        width: 1.5,
+                        width: ResponsiveUtils.wp(context, 1.5 / 375),
                       ),
                     ),
                   ),
@@ -341,18 +342,18 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
             // Form Fields
             _buildTextField("Service Name", _nameController, icon: Icons.spa),
-            const SizedBox(height: 20),
+            SizedBox(height: ResponsiveUtils.spacing(context, 20)),
             _buildTextField(
               "Description",
               _descController,
               maxLines: 4,
               icon: Icons.description,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: ResponsiveUtils.spacing(context, 20)),
             Row(
               children: [
                 Expanded(
@@ -363,16 +364,16 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                     icon: Icons.schedule,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                 Expanded(
                   child: _buildTextField(
                     "Price (₺)",
                     _priceController,
                     isNumber: true,
-                    customPrefix: const Text(
+                    customPrefix: Text(
                       '₺',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: ResponsiveUtils.sp(context, 20),
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF64748B),
                       ),
@@ -381,29 +382,29 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: ResponsiveUtils.spacing(context, 32)),
 
             // Actions
             // Actions
             SizedBox(
               width: double.infinity,
-              height: 56,
+              height: ResponsiveUtils.hp(context, 56 / 844),
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _saveService,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF137fec),
                   elevation: 2,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                   ),
                   shadowColor: Colors.blue.withValues(alpha: 0.3),
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
+                    : Text(
                         "Save",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: ResponsiveUtils.sp(context, 18),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -411,18 +412,20 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
               ),
             ),
             if (widget.serviceId != null) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: ResponsiveUtils.spacing(context, 16)),
               TextButton.icon(
                 onPressed: _isLoading ? null : _deleteService,
                 icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                label: const Text(
+                label: Text(
                   "Delete Service",
-                  style: TextStyle(color: Colors.redAccent, fontSize: 16),
+                  style: TextStyle(color: Colors.redAccent, fontSize: ResponsiveUtils.sp(context, 16)),
                 ),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveUtils.spacing(context, 12),
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   ),
                 ),
               ),
@@ -446,13 +449,13 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: ResponsiveUtils.sp(context, 14),
             fontWeight: FontWeight.w500,
             color: Color(0xFF0d141b),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: ResponsiveUtils.spacing(context, 8)),
         TextField(
           controller: controller,
           maxLines: maxLines,
@@ -460,7 +463,7 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
           decoration: InputDecoration(
             prefixIcon: customPrefix != null
                 ? Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 8),
+                    padding: EdgeInsets.only(left: 16, right: 8),
                     child: customPrefix,
                   )
                 : (icon != null
@@ -471,23 +474,23 @@ class _SpaFormScreenState extends State<SpaFormScreen> {
                 : null,
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: ResponsiveUtils.spacing(context, 16),
+              vertical: ResponsiveUtils.spacing(context, 16),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
+              borderSide: BorderSide(
                 color: Color(0xFF137fec),
-                width: 1.5,
+                width: ResponsiveUtils.wp(context, 1.5 / 375),
               ),
             ),
             hintText: "Enter $label".toLowerCase(),

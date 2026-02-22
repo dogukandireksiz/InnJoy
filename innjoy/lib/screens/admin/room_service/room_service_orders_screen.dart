@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import '../../../utils/responsive_utils.dart';
 
 class RoomServiceOrdersScreen extends StatefulWidget {
   final String hotelName;
@@ -53,7 +54,7 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
       decoration: const BoxDecoration(
         color: Color(0xFFF6F7FB),
         border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
@@ -67,12 +68,12 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
                 icon: const Icon(Icons.arrow_back, color: Color(0xFF111827)),
                 onPressed: () => Navigator.pop(context),
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: ResponsiveUtils.spacing(context, 8)),
+              Text(
                 'Room Service Management',
                 style: TextStyle(
                   color: Color(0xFF111827),
-                  fontSize: 20,
+                  fontSize: ResponsiveUtils.sp(context, 20),
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Inter',
                 ),
@@ -80,8 +81,8 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
             ],
           ),
           Container(
-            width: 40,
-            height: 40,
+            width: ResponsiveUtils.wp(context, 40 / 375),
+            height: ResponsiveUtils.hp(context, 40 / 844),
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -101,12 +102,12 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
       child: Container(
-        height: 48,
+        height: ResponsiveUtils.hp(context, 48 / 844),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           border: Border.all(color: const Color(0xFFE5E7EB)),
           boxShadow: [
             BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 2, offset: const Offset(0, 1)),
@@ -114,7 +115,7 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
         ),
         child: Row(
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 16, right: 12),
               child: Icon(Icons.search, color: Color(0xFF9CA3AF)),
             ),
@@ -122,7 +123,7 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'Search room service orders...',
-                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: ResponsiveUtils.sp(context, 16)),
                   border: InputBorder.none,
                 ),
               ),
@@ -141,9 +142,9 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
     ];
 
     return SizedBox(
-      height: 60,
+      height: ResponsiveUtils.hp(context, 60 / 844),
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 8)),
         scrollDirection: Axis.horizontal,
         children: [
           // Calendar Button
@@ -151,10 +152,10 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
             onTap: () => _selectDate(context),
             child: Container(
                margin: const EdgeInsets.only(right: 8),
-               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+               padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 12), vertical: ResponsiveUtils.spacing(context, 8)),
                decoration: BoxDecoration(
                  color: _selectedDate != null ? const Color(0xFF137fec).withValues(alpha: 0.1) : Colors.white,
-                 borderRadius: BorderRadius.circular(20),
+                 borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                  border: Border.all(
                    color: _selectedDate != null ? const Color(0xFF137fec) : const Color(0xFFE5E7EB)
                  ),
@@ -164,22 +165,22 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
                    Icon(
                      Icons.calendar_month, 
                      color: _selectedDate != null ? const Color(0xFF137fec) : Colors.grey[600], 
-                     size: 20
+                     size: ResponsiveUtils.iconSize(context) * (20 / 24)
                    ),
                    if (_selectedDate != null) ...[
-                     const SizedBox(width: 6),
+                     SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                      Text(
                        DateFormat('dd MMM').format(_selectedDate!),
-                       style: const TextStyle(
+                       style: TextStyle(
                          color: Color(0xFF137fec),
                          fontWeight: FontWeight.bold,
-                         fontSize: 12,
+                         fontSize: ResponsiveUtils.sp(context, 12),
                        ),
                      ),
-                     const SizedBox(width: 4),
+                     SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                      GestureDetector(
                        onTap: () => setState(() => _selectedDate = null),
-                       child: const Icon(Icons.close, size: 16, color: Color(0xFF137fec)),
+                       child: Icon(Icons.close, size: ResponsiveUtils.iconSize(context) * (16 / 24), color: Color(0xFF137fec)),
                      ),
                    ],
                  ],
@@ -195,12 +196,12 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
             return GestureDetector(
               onTap: () => setState(() => _selectedFilter = label),
               child: Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                margin: EdgeInsets.only(right: 8),
+                padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16)),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFF137fec) : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                   border: Border.all(color: isSelected ? const Color(0xFF137fec) : const Color(0xFFE5E7EB)),
                    boxShadow: isSelected ? [
                      BoxShadow(color: const Color(0xFF137fec).withValues(alpha: 0.3), blurRadius: 4, offset: const Offset(0, 2))
@@ -211,7 +212,7 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
                   style: TextStyle(
                     color: isSelected ? Colors.white : Colors.grey[700],
                     fontWeight: FontWeight.w500,
-                    fontSize: 14,
+                    fontSize: ResponsiveUtils.sp(context, 14),
                   ),
                 ),
               ),
@@ -239,9 +240,9 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
         
         if (snapshot.hasError) {
           if (snapshot.error.toString().contains('requires an index')) {
-             return const Center(
+             return Center(
                child: Padding(
-                 padding: EdgeInsets.all(16.0),
+                 padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16.0)),
                  child: Text('Database index is being created... Please wait a moment or notify the developer.'),
                ),
              );
@@ -256,16 +257,16 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.restaurant_menu, size: 64, color: Colors.grey[300]),
-                const SizedBox(height: 16),
+                Icon(Icons.restaurant_menu, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[300]),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 Text(
                   'No orders yet',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                 Text(
                   'Orders will appear here',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+                  style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14), color: Colors.grey[400]),
                 ),
               ],
             ),
@@ -318,8 +319,8 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
              child: Column(
                mainAxisAlignment: MainAxisAlignment.center,
                children: [
-                 Icon(Icons.filter_list_off, size: 64, color: Colors.grey[300]),
-                 const SizedBox(height: 16),
+                 Icon(Icons.filter_list_off, size: ResponsiveUtils.iconSize(context) * (64 / 24), color: Colors.grey[300]),
+                 SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                  Text('No orders match these criteria.', style: TextStyle(color: Colors.grey[500])),
                ],
              ),
@@ -327,9 +328,9 @@ class _RoomServiceOrdersScreenState extends State<RoomServiceOrdersScreen> {
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
           itemCount: filteredDocs.length,
-          separatorBuilder: (_, e) => const SizedBox(height: 16),
+          separatorBuilder: (_, e) => SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           itemBuilder: (context, index) {
              final data = filteredDocs[index].data() as Map<String, dynamic>;
              return _OrderCard(
@@ -426,7 +427,7 @@ class _OrderCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -443,11 +444,11 @@ class _OrderCard extends StatelessWidget {
               left: 0,
               top: 0,
               bottom: 0,
-              width: 4,
+              width: ResponsiveUtils.wp(context, 4 / 375),
               child: Container(color: color),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+              padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -460,48 +461,48 @@ class _OrderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 10), vertical: ResponsiveUtils.spacing(context, 4)),
                             decoration: BoxDecoration(
                               color: bgColor,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
-                                  width: 6,
-                                  height: 6,
+                                  width: ResponsiveUtils.wp(context, 6 / 375),
+                                  height: ResponsiveUtils.hp(context, 6 / 844),
                                   decoration: BoxDecoration(
                                     color: color,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                                const SizedBox(width: 6),
+                                SizedBox(width: ResponsiveUtils.spacing(context, 6)),
                                 Text(
                                   label,
                                   style: TextStyle(
                                     color: textColor,
-                                    fontSize: 12,
+                                    fontSize: ResponsiveUtils.sp(context, 12),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                           Text(
                             'Room $room',
-                            style: const TextStyle(
-                              fontSize: 18,
+                            style: TextStyle(
+                              fontSize: ResponsiveUtils.sp(context, 18),
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF111827),
                             ),
                           ),
                           Text(
                             data['guestName'] ?? 'Guest',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Color(0xFF6B7280),
-                              fontSize: 14,
+                              fontSize: ResponsiveUtils.sp(context, 14),
                             ),
                           ),
                         ],
@@ -512,28 +513,28 @@ class _OrderCard extends StatelessWidget {
                         children: [
                           Text(
                             dateStr,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Color(0xFF137fec),
-                              fontSize: 12,
+                              fontSize: ResponsiveUtils.sp(context, 12),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 2)),
                           Text(
                             timeStr,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Color(0xFF111827),
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: ResponsiveUtils.sp(context, 14),
                             ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   Divider(color: Colors.grey[200]),
-                  const SizedBox(height: 12),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                   
                   // Content: Items
                   Row(
@@ -543,21 +544,21 @@ class _OrderCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Order Items',
                               style: TextStyle(
                                 color: Color(0xFF4B5563),
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: ResponsiveUtils.sp(context, 14),
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                             Text(
                               itemNames.isNotEmpty ? itemNames : 'No items',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Color(0xFF6B7280),
-                                fontSize: 14,
-                                height: 1.5,
+                                fontSize: ResponsiveUtils.sp(context, 14),
+                                height: ResponsiveUtils.hp(context, 1.5 / 844),
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -565,24 +566,24 @@ class _OrderCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 16)),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text(
+                          Text(
                             'Total',
                             style: TextStyle(
                               color: Color(0xFF9CA3AF),
-                              fontSize: 12,
+                              fontSize: ResponsiveUtils.sp(context, 12),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
                             '₺${totalPrice.toStringAsFixed(0)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Color(0xFF111827),
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                             ),
                           ),
                         ],
@@ -611,9 +612,9 @@ class _OrderCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20))),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
           constraints: const BoxConstraints(maxWidth: 500),
           child: SingleChildScrollView(
             child: Column(
@@ -624,10 +625,10 @@ class _OrderCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Order Details',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: ResponsiveUtils.sp(context, 22),
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF111827),
                       ),
@@ -638,47 +639,47 @@ class _OrderCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 
                 // Order Info
-                _buildInfoRow('Room Number', room.toString()),
-                _buildInfoRow('Guest', guestName),
-                _buildInfoRow('Date & Time', dateStr),
-                _buildInfoRow('Status', _getStatusLabel(status)),
+                _buildInfoRow(context, 'Room Number', room.toString()),
+                _buildInfoRow(context, 'Guest', guestName),
+                _buildInfoRow(context, 'Date & Time', dateStr),
+                _buildInfoRow(context, 'Status', _getStatusLabel(status)),
                 
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                Divider(),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 
                 // Items List
-                const Text(
+                Text(
                   'Order Items',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF111827),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                 ...items.map((item) {
                   final name = item['name'] ?? '';
                   final quantity = item['quantity'] ?? 1;
                   final price = item['price'] ?? 0;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(bottom: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
                             '$quantity x $name',
-                            style: const TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: ResponsiveUtils.sp(context, 14)),
                           ),
                         ),
                         Text(
                           '₺${(price * quantity).toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.sp(context, 14),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -688,46 +689,46 @@ class _OrderCard extends StatelessWidget {
                 }),
                 
                 if (notes.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  const Text(
+                  SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                  Divider(),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                  Text(
                     'Notes',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: ResponsiveUtils.sp(context, 16),
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF111827),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                   Text(
                     notes,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: ResponsiveUtils.sp(context, 14),
                       color: Colors.grey[600],
                     ),
                   ),
                 ],
                 
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
+                Divider(),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 
                 // Total
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Total Amount',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: ResponsiveUtils.sp(context, 18),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       '₺${totalPrice.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: TextStyle(
+                        fontSize: ResponsiveUtils.sp(context, 20),
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF137fec),
                       ),
@@ -735,7 +736,7 @@ class _OrderCard extends StatelessWidget {
                   ],
                 ),
                 
-                const SizedBox(height: 24),
+                SizedBox(height: ResponsiveUtils.spacing(context, 24)),
                 
                 // Action Buttons (only show if not completed or cancelled)
                 if (status != 'Completed' && status != 'Cancelled')
@@ -748,23 +749,23 @@ class _OrderCard extends StatelessWidget {
                             Navigator.pop(ctx);
                           },
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: EdgeInsets.symmetric(vertical: 14),
                             side: const BorderSide(color: Colors.red),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Cancel',
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
@@ -773,17 +774,17 @@ class _OrderCard extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Completed',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: ResponsiveUtils.sp(context, 16),
                             ),
                           ),
                         ),
@@ -798,25 +799,23 @@ class _OrderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: ResponsiveUtils.sp(context, 14),
               color: Colors.grey[600],
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF111827),
+            style: TextStyle(
+              fontSize: ResponsiveUtils.sp(context, 14),
             ),
           ),
         ],
@@ -845,6 +844,7 @@ class _OrderCard extends StatelessWidget {
     );
   }
 }
+
 
 
 

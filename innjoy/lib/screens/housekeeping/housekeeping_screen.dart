@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../services/database_service.dart'; // Servis importu
+import '../../services/database_service.dart';
+import '../../utils/responsive_utils.dart'; // Servis importu
 
 class HousekeepingScreen extends StatefulWidget {
   const HousekeepingScreen({super.key});
@@ -212,8 +213,9 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
       detailsBuffer.writeln("STATUS: DO NOT DISTURB");
     }
 
-    if (_extraTowelCount > 0)
+    if (_extraTowelCount > 0) {
       detailsBuffer.writeln("Extra Towels: $_extraTowelCount");
+    }
     if (_pillowCount > 0) detailsBuffer.writeln("Pillows: $_pillowCount");
     if (_blanketCount > 0) detailsBuffer.writeln("Blankets: $_blanketCount");
 
@@ -267,26 +269,26 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Housekeeping Request',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontSize: ResponsiveUtils.sp(context, 18),
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Rahatsız Etmeyin Toggle
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -301,19 +303,19 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Do Not Disturb',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                            fontSize: ResponsiveUtils.sp(context, 16),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
                         Text(
                           'Privacy note will be added below.',
                           style: TextStyle(
                             color: Colors.grey[600],
-                            fontSize: 13,
+                            fontSize: ResponsiveUtils.sp(context, 13),
                           ),
                         ),
                       ],
@@ -328,16 +330,16 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Show cleaning options only if DND is OFF
             if (!_doNotDisturb) ...[
               // Cleaning Request
-              const Text(
+              Text(
                 'Cleaning Request',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
 
               // Zaman Seçimi Chips
               Row(
@@ -347,7 +349,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     isSelected: _selectedTimeType == 0,
                     onTap: () => setState(() => _selectedTimeType = 0),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                   _TimeChip(
                     label: 'Specific Time Range',
                     isSelected: _selectedTimeType == 1,
@@ -358,23 +360,23 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
 
               // Saat Seçimi (sadece Belirli Saat Aralığında seçiliyse)
               if (_selectedTimeType == 1) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveUtils.spacing(context, 16),
+                    vertical: ResponsiveUtils.spacing(context, 12),
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                     border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Select Time',
-                        style: TextStyle(color: Colors.black54, fontSize: 15),
+                        style: TextStyle(color: Colors.black54, fontSize: ResponsiveUtils.sp(context, 15)),
                       ),
                       GestureDetector(
                         onTap: () => _showTimeRangePicker(),
@@ -382,12 +384,12 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                           children: [
                             Text(
                               _selectedTimeRange,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 15,
+                                fontSize: ResponsiveUtils.sp(context, 15),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: ResponsiveUtils.spacing(context, 8)),
                             Icon(
                               Icons.keyboard_arrow_down,
                               color: Colors.grey[600],
@@ -403,10 +405,10 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
             // Show info message when DND is active
             if (_doNotDisturb) ...[
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 decoration: BoxDecoration(
                   color: Colors.orange[50],
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   border: Border.all(color: Colors.orange[200]!),
                 ),
                 child: Row(
@@ -414,16 +416,16 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     Icon(
                       Icons.info_outline,
                       color: Colors.orange[700],
-                      size: 24,
+                      size: ResponsiveUtils.iconSize(context) * (24 / 24),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                     Expanded(
                       child: Text(
                         'Cleaning services are disabled while "Do Not Disturb" is active. Turn off DND to request cleaning.',
                         style: TextStyle(
                           color: Colors.orange[900],
-                          fontSize: 14,
-                          height: 1.4,
+                          fontSize: ResponsiveUtils.sp(context, 14),
+                          height: ResponsiveUtils.hp(context, 1.4 / 844),
                         ),
                       ),
                     ),
@@ -432,15 +434,15 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               ),
             ],
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Material and Extra Requests (only if DND is OFF)
             if (!_doNotDisturb) ...[
-              const Text(
+              Text(
                 'Material and Extra Requests',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
 
               _MaterialRequestItem(
                 icon: Icons.local_laundry_service,
@@ -453,7 +455,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 },
                 onIncrement: () => setState(() => _extraTowelCount++),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
 
               _MaterialRequestItem(
                 icon: Icons.king_bed,
@@ -466,7 +468,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 },
                 onIncrement: () => setState(() => _pillowCount++),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
 
               _MaterialRequestItem(
                 icon: Icons.airline_seat_individual_suite,
@@ -481,20 +483,20 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               ),
             ], // Close material requests if block
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Special Requests and Complaints (only if DND is OFF)
             if (!_doNotDisturb) ...[
-              const Text(
+              Text(
                 'Special Requests and Complaints',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
 
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   border: Border.all(color: Colors.grey[300]!),
                 ),
                 child: TextField(
@@ -503,29 +505,29 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                   decoration: InputDecoration(
                     hintText:
                         'Please write your special requests or notes here...',
-                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: ResponsiveUtils.sp(context, 14)),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(16),
+                    contentPadding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                   ),
                 ),
               ),
             ], // Close special requests if block
 
-            const SizedBox(height: 24),
+            SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
             // Request Tracking (only if DND is OFF)
             if (!_doNotDisturb) ...[
-              const Text(
+              Text(
                 'Request Tracking',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
 
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
                 decoration: BoxDecoration(
                   color: _requestSent ? const Color(0xFFE8F5E9) : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                   border: Border.all(
                     color: _requestSent
                         ? const Color(0xFF4CAF50)
@@ -535,21 +537,21 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                 child: Row(
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: ResponsiveUtils.wp(context, 40 / 375),
+                      height: ResponsiveUtils.hp(context, 40 / 844),
                       decoration: BoxDecoration(
                         color: _requestSent
                             ? const Color(0xFF4CAF50)
                             : Colors.grey[200],
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                       ),
                       child: Icon(
                         _requestSent ? Icons.check : Icons.hourglass_empty,
                         color: _requestSent ? Colors.white : Colors.grey[500],
-                        size: 20,
+                        size: ResponsiveUtils.iconSize(context) * (20 / 24),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: ResponsiveUtils.spacing(context, 12)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -558,13 +560,13 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                             _requestSent ? 'Request Sent' : 'Waiting',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              fontSize: 15,
+                              fontSize: ResponsiveUtils.sp(context, 15),
                               color: _requestSent
                                   ? const Color(0xFF2E7D32)
                                   : Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: ResponsiveUtils.spacing(context, 2)),
                           Text(
                             _requestSent
                                 ? 'Our team will attend to it as soon as possible.'
@@ -573,7 +575,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                               color: _requestSent
                                   ? const Color(0xFF388E3C)
                                   : Colors.grey[600],
-                              fontSize: 13,
+                              fontSize: ResponsiveUtils.sp(context, 13),
                             ),
                           ),
                         ],
@@ -584,12 +586,12 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
               ),
             ], // Close request tracking if block
 
-            const SizedBox(height: 100),
+            SizedBox(height: ResponsiveUtils.spacing(context, 100)),
           ],
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -607,15 +609,17 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1677FF),
               disabledBackgroundColor: Colors.grey[300],
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveUtils.spacing(context, 16),
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               ),
             ),
             child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
+                ? SizedBox(
+                    height: ResponsiveUtils.hp(context, 20 / 844),
+                    width: ResponsiveUtils.wp(context, 20 / 375),
                     child: CircularProgressIndicator(
                       color: Colors.white,
                       strokeWidth: 2,
@@ -625,7 +629,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     _requestSent ? 'Request Sent' : 'Send Request',
                     style: TextStyle(
                       color: _requestSent ? Colors.grey[600] : Colors.white,
-                      fontSize: 16,
+                      fontSize: ResponsiveUtils.sp(context, 16),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -642,16 +646,16 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Select Time Range',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
             ...List.generate(_timeRanges.length, (index) {
               final range = _timeRanges[index];
               final isSelected = range == _selectedTimeRange;
@@ -678,7 +682,7 @@ class _HousekeepingScreenState extends State<HousekeepingScreen> {
                     : null,
               );
             }),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveUtils.spacing(context, 16)),
           ],
         ),
       ),
@@ -704,10 +708,10 @@ class _TimeChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 10)),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFE3F2FD) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
           border: Border.all(
             color: isSelected ? const Color(0xFF1677FF) : Colors.grey[300]!,
           ),
@@ -717,7 +721,7 @@ class _TimeChip extends StatelessWidget {
           style: TextStyle(
             color: isSelected ? const Color(0xFF1677FF) : Colors.black87,
             fontWeight: FontWeight.w500,
-            fontSize: 14,
+            fontSize: ResponsiveUtils.sp(context, 14),
           ),
         ),
       ),
@@ -743,10 +747,10 @@ class _MaterialRequestItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -758,19 +762,19 @@ class _MaterialRequestItem extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: ResponsiveUtils.wp(context, 40 / 375),
+            height: ResponsiveUtils.hp(context, 40 / 844),
             decoration: BoxDecoration(
               color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 10)),
             ),
-            child: Icon(icon, color: const Color(0xFF1677FF), size: 22),
+            child: Icon(icon, color: const Color(0xFF1677FF), size: ResponsiveUtils.iconSize(context) * (22 / 24)),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: ResponsiveUtils.spacing(context, 12)),
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: ResponsiveUtils.sp(context, 15)),
             ),
           ),
           // Counter
@@ -779,40 +783,40 @@ class _MaterialRequestItem extends StatelessWidget {
               GestureDetector(
                 onTap: onDecrement,
                 child: Container(
-                  width: 32,
-                  height: 32,
+                  width: ResponsiveUtils.wp(context, 32 / 375),
+                  height: ResponsiveUtils.hp(context, 32 / 844),
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.remove,
-                    size: 18,
+                    size: ResponsiveUtils.iconSize(context) * (18 / 24),
                     color: Colors.black54,
                   ),
                 ),
               ),
               SizedBox(
-                width: 40,
+                width: ResponsiveUtils.wp(context, 40 / 375),
                 child: Text(
                   count.toString(),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: ResponsiveUtils.sp(context, 16),
                   ),
                 ),
               ),
               GestureDetector(
                 onTap: onIncrement,
                 child: Container(
-                  width: 32,
-                  height: 32,
+                  width: ResponsiveUtils.wp(context, 32 / 375),
+                  height: ResponsiveUtils.hp(context, 32 / 844),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1677FF),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                   ),
-                  child: const Icon(Icons.add, size: 18, color: Colors.white),
+                  child: Icon(Icons.add, size: ResponsiveUtils.iconSize(context) * (18 / 24), color: Colors.white),
                 ),
               ),
             ],

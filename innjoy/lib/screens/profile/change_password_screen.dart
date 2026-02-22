@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth.dart';
 import '../../utils/dialogs/custom_snackbar.dart';
+import '../../utils/responsive_utils.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -105,7 +106,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF007AFF);
+
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
@@ -114,22 +115,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: primaryColor),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF137fec)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Change Password',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 20)),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 24)),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveUtils.spacing(context, 24)),
               // Current Password
               _buildPasswordField(
                 controller: _currentPasswordController,
@@ -144,7 +145,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: ResponsiveUtils.spacing(context, 20)),
               
               // New Password
               _buildPasswordField(
@@ -158,15 +159,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
               // Password strength indicators
               if (_newPasswordController.text.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                     border: Border.all(
                       color: Colors.grey[300]!,
-                      width: 1,
+                      width: ResponsiveUtils.wp(context, 1 / 375),
                     ),
                   ),
                   child: Column(
@@ -176,11 +177,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         "Password Requirements:",
                         style: TextStyle(
                           color: Colors.grey[700],
-                          fontSize: 13,
+                          fontSize: ResponsiveUtils.sp(context, 13),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                       _buildPasswordCriterion(
                         "At least 8 characters",
                         _hasMinLength,
@@ -206,7 +207,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
               ],
 
-              const SizedBox(height: 20),
+              SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
               // Confirm Password
               _buildPasswordField(
@@ -223,26 +224,26 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 },
               ),
 
-              const SizedBox(height: 48),
+              SizedBox(height: ResponsiveUtils.spacing(context, 48)),
 
               // Save Button
               SizedBox(
-                height: 56,
+                height: ResponsiveUtils.hp(context, 56 / 844),
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _changePassword,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
+                    backgroundColor: const Color(0xFF137fec),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
                     ),
                     elevation: 0,
                   ),
                   child: _isLoading 
-                    ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text(
+                    ? SizedBox(height: ResponsiveUtils.hp(context, 24 / 844), width: ResponsiveUtils.wp(context, 24 / 375), child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text(
                         'Save Changes',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: ResponsiveUtils.sp(context, 18), fontWeight: FontWeight.bold),
                       ),
                 ),
               ),
@@ -266,11 +267,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          padding: EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: ResponsiveUtils.sp(context, 14),
               fontWeight: FontWeight.w500,
               color: Colors.grey[600],
             ),
@@ -294,17 +295,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
               onPressed: onToggleVisibility,
             ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: ResponsiveUtils.spacing(context, 16),
+              horizontal: ResponsiveUtils.spacing(context, 16),
+            ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               borderSide: BorderSide(color: Colors.grey[300]!),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               borderSide: BorderSide(color: Colors.grey[300]!),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)),
               borderSide: const BorderSide(color: Color(0xFF007AFF), width: 2),
             ),
           ),
@@ -316,20 +320,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   // Helper widget to show password criterion with check/x mark
   Widget _buildPasswordCriterion(String text, bool isMet) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(
             isMet ? Icons.check_circle : Icons.cancel,
             color: isMet ? Colors.green : Colors.red,
-            size: 16,
+            size: ResponsiveUtils.iconSize(context) * (16 / 24),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: ResponsiveUtils.spacing(context, 8)),
           Text(
             text,
             style: TextStyle(
               color: isMet ? Colors.grey[800] : Colors.grey[600],
-              fontSize: 12,
+              fontSize: ResponsiveUtils.sp(context, 12),
             ),
           ),
         ],
@@ -337,6 +341,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 }
+
 
 
 

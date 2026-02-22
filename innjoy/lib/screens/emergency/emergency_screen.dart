@@ -1,16 +1,17 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:login_page/services/logger_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart'; // Harita paketi
 import 'package:latlong2/latlong.dart'; // Koordinat paketi
 import 'package:geolocator/geolocator.dart'; // Konum paketi
 
-// Kendi proje yollarını kontrol et:
+// Kendi proje yollar�n� kontrol et:
 import 'package:login_page/services/database_service.dart';
 import 'package:login_page/location/location_model.dart';
 import 'package:login_page/screens/emergency/full_map_screen.dart';
+import '../../utils/responsive_utils.dart';
 
-// Acil Çıkış Kapısı Modeli
+// Acil ��k�� Kap�s� Modeli
 class EmergencyExit {
   final String id;
   final String name;
@@ -38,13 +39,13 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
   final MapController _mapController = MapController();
   final Distance _distanceCalculator = const Distance();
 
-  // --- MUĞLA SITKI KOÇMAN ÜNİVERSİTESİ MÜHENDİSLİK FAKÜLTESİ ---
+  // --- MU�LA SITKI KO�MAN �N�VERS�TES� M�HEND�SL�K FAK�LTES� ---
   // Ana Koordinatlar: 37.1614, 28.3758 (Haritadaki bina merkezi)
 
-  // GPS çekmezse kullanılacak YEDEK KONUM (Mühendislik Fakültesi Merkezi)
+  // GPS �ekmezse kullan�lacak YEDEK KONUM (M�hendislik Fak�ltesi Merkezi)
   final LatLng _backupLocation = const LatLng(37.1614, 28.3758);
 
-  // MÜHENDİSLİK FAKÜLTESİ ACİL ÇIKIŞ KAPILARI
+  // M�HEND�SL�K FAK�LTES� AC�L �IKI� KAPILARI
   final List<EmergencyExit> _emergencyExits = const [
     // Main Entrance (North - Moonlight Square direction)
     EmergencyExit(
@@ -83,17 +84,17 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     ),
   ];
 
-  // En yakın çıkış bilgisi
+  // En yak�n ��k�� bilgisi
   EmergencyExit? _nearestExit;
   double? _nearestExitDistance;
 
-  // Kullanıcı Konumu ve Oda Bilgileri
+  // Kullan�c� Konumu ve Oda Bilgileri
   LatLng? _userLocation;
   String? userActualRoomNumber;
   String selectedLocationKey = 'my_room';
   bool isLoadingUser = true;
 
-  // Dropdown Seçenekleri
+  // Dropdown Se�enekleri
   final Map<String, String> locationOptions = {
     'my_room': 'My Room',
     'restaurant': 'Restaurant',
@@ -110,7 +111,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     _updateStream();
   }
 
-  // En yakın çıkışı hesapla
+  // En yak�n ��k��� hesapla
   void _calculateNearestExit(LatLng userPos) {
     EmergencyExit? nearest;
     double minDistance = double.infinity;
@@ -139,39 +140,39 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     _roomStream = _dbService.getRoomStream(documentIdToQuery);
   }
 
-  // --- 1. KONUM TAKİBİ VE YEDEK KONUM MANTIĞI ---
+  // --- 1. KONUM TAK�B� VE YEDEK KONUM MANTI�I ---
   Future<void> _startLocationTracking() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Servis açık mı?
+    // Servis a��k m�?
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      Logger.debug('Konum servisleri kapalı. Yedek konum kullanılıyor.');
-      _useBackupLocation(); // Servis kapalï¿½ysa yedeï¿½e geï¿½
+      Logger.debug('Konum servisleri kapal�. Yedek konum kullan�l�yor.');
+      _useBackupLocation(); // Servis kapal�ysa yede�e ge�
       return;
     }
 
-    // İzin kontrolü
+    // �zin kontrol�
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        Logger.debug('Konum izni reddedildi. Yedek konum kullanılıyor.');
-        _useBackupLocation(); // İzin yoksa yedeğe geç
+        Logger.debug('Konum izni reddedildi. Yedek konum kullan�l�yor.');
+        _useBackupLocation(); // �zin yoksa yede�e ge�
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      Logger.debug('Konum izni kalıcı reddedildi. Yedek konum kullanılıyor.');
+      Logger.debug('Konum izni kal�c� reddedildi. Yedek konum kullan�l�yor.');
       _useBackupLocation();
       return;
     }
 
-    // İzin alındıysa önce mevcut konumu al, sonra takibi başlat
+    // �zin al�nd�ysa �nce mevcut konumu al, sonra takibi ba�lat
     try {
-      // İlk konum alımı - daha hızlı sonuç için
+      // �lk konum al�m� - daha h�zl� sonu� i�in
       final Position initialPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -186,15 +187,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         });
         _calculateNearestExit(initialLocation);
         debugPrint(
-          'Anlık konum alındı: $initialPosition.latitude}, $initialPosition.longitude}',
+          'Anl�k konum al�nd�: $initialPosition.latitude}, $initialPosition.longitude}',
         );
       }
     } catch (e) {
-      Logger.debug('İlk konum alınamadı: $e - Yedek konum kullanılıyor');
+      Logger.debug('�lk konum al�namad�: $e - Yedek konum kullan�l�yor');
       _useBackupLocation();
     }
 
-    // Sürekli konum takibi
+    // S�rekli konum takibi
     Geolocator.getPositionStream(
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     ).listen(
@@ -204,30 +205,30 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           setState(() {
             _userLocation = newLocation;
           });
-          // Her konum güncellemesinde en yakın çıkışı yeniden hesapla
+          // Her konum g�ncellemesinde en yak�n ��k��� yeniden hesapla
           _calculateNearestExit(newLocation);
         }
       },
       onError: (e) {
-        // Stream hatası durumunda da yedeğe dön
-        Logger.debug('Konum stream hatası: $e');
+        // Stream hatas� durumunda da yede�e d�n
+        Logger.debug('Konum stream hatas�: $e');
         _useBackupLocation();
       },
     );
   }
 
-  // GPS çalışmazsa devreye girecek fonksiyon
+  // GPS �al��mazsa devreye girecek fonksiyon
   void _useBackupLocation() {
     if (mounted) {
       setState(() {
         _userLocation = _backupLocation;
       });
-      // Yedek konum için de en yakın çıkışı hesapla
+      // Yedek konum i�in de en yak�n ��k��� hesapla
       _calculateNearestExit(_backupLocation);
     }
   }
 
-  // --- 2. KULLANICI ODA BİLGİSİ ---
+  // --- 2. KULLANICI ODA B�LG�S� ---
   Future<void> _loadUserData() async {
     try {
       String room = await _dbService.getUserRoomNumber();
@@ -243,7 +244,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     }
   }
 
-  // --- 3. ACİL DURUM BİLDİRİMİ ---
+  // --- 3. AC�L DURUM B�LD�R�M� ---
   Future<void> _handleSendAlert(String emergencyType) async {
     String roomToSend = userActualRoomNumber ?? "Unknown";
 
@@ -251,7 +252,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       SnackBar(
         content: Text(
           "Sending $emergencyType alert...",
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
         duration: const Duration(seconds: 1),
@@ -289,7 +290,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     }
   }
 
-  // --- YARDIMCI FONKSİYONLAR ---
+  // --- YARDIMCI FONKS�YONLAR ---
   String get documentIdToQuery {
     if (selectedLocationKey == 'my_room') {
       return userActualRoomNumber ?? "1";
@@ -307,7 +308,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Tasarım Renkleri
+    // Tasar�m Renkleri
     const Color backgroundColor = Color(0xFF000000);
     const Color containerColor = Color(0xFF1E1E1E);
     const Color textColor = Colors.white;
@@ -333,7 +334,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: EdgeInsets.only(
+              right: ResponsiveUtils.spacing(context, 16.0),
+            ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 dropdownColor: containerColor,
@@ -366,10 +369,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16.0)),
           child: Column(
             children: [
-              // ÜST BUTONLAR
+              // �ST BUTONLAR
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -396,7 +399,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
               // STREAM BUILDER
               Expanded(
@@ -421,18 +424,18 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                     var data = snapshot.data!.data() as Map<String, dynamic>;
 
-                    // Not: Firebase verileri gelecekte kullanılabilir
+                    // Not: Firebase verileri gelecekte kullan�labilir
                     // ignore: unused_local_variable
                     final _ = LocationModel.fromFirestore(
                       data,
                       documentIdToQuery,
                     );
 
-                    // Kullanıcı Noktası (GPS veya Yedek)
+                    // Kullan�c� Noktas� (GPS veya Yedek)
                     final LatLng currentUserPoint =
                         _userLocation ?? _backupLocation;
 
-                    // En yakın çıkış noktası
+                    // En yak�n ��k�� noktas�
                     final LatLng targetExitPoint =
                         _nearestExit?.location ??
                         _emergencyExits.first.location;
@@ -444,25 +447,25 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                     return Column(
                       children: [
-                        // --- CANLI MİNİ HARİTA ---
+                        // --- CANLI M�N� HAR�TA ---
                         Expanded(
                           flex: 5,
                           child: Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: const Color(0xFF1A1F26),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                               border: Border.all(color: Colors.white10),
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                               child: Stack(
                                 children: [
                                   // 1. Katman: Harita
                                   FlutterMap(
                                     mapController: _mapController,
                                     options: MapOptions(
-                                      // Harita açıldığında kullanıcıyı merkez al
+                                      // Harita a��ld���nda kullan�c�y� merkez al
                                       initialCenter: currentUserPoint,
                                       initialZoom: 18.0,
                                       interactionOptions:
@@ -473,9 +476,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                     children: [
                                       TileLayer(
                                         urlTemplate:
-                                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                            'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                                        subdomains: const ['a', 'b', 'c', 'd'],
                                       ),
-                                      // ROTA ÇİZGİSİ - En yakın çıkışa
+                                      // ROTA ��ZG�S� - En yak�n ��k��a
                                       PolylineLayer(
                                         polylines: [
                                           Polyline(
@@ -488,21 +492,21 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                           ),
                                         ],
                                       ),
-                                      // TÜM ÇIKIŞ KAPILARI İŞARETLEYİCİLERİ
+                                      // T�M �IKI� KAPILARI ��ARETLEY�C�LER�
                                       MarkerLayer(
                                         markers: [
-                                      // Kullanıcı (Mavi İnsan)
+                                      // Kullan�c� (Mavi �nsan)
                                           Marker(
                                             point: currentUserPoint,
-                                            width: 50,
-                                            height: 50,
-                                            child: const Icon(
+                                            width: ResponsiveUtils.wp(context, 50 / 375),
+                                            height: ResponsiveUtils.hp(context, 50 / 844),
+                                            child: Icon(
                                               Icons.person_pin_circle,
                                               color: Colors.blue,
-                                              size: 50,
+                                              size: ResponsiveUtils.iconSize(context) * (50 / 24),
                                             ),
                                           ),
-                                          // Tüm acil çıkış kapıları
+                                          // T�m acil ��k�� kap�lar�
                                           ..._emergencyExits.map((exit) {
                                             final bool isNearest =
                                                 _nearestExit?.id == exit.id;
@@ -510,41 +514,44 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                               point: exit.location,
                                               width: isNearest ? 55 : 40,
                                               height: isNearest ? 55 : 40,
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.exit_to_app,
-                                                    color: isNearest
-                                                        ? Colors.green
-                                                        : Colors.orange,
-                                                    size: isNearest ? 40 : 30,
-                                                  ),
-                                                  if (isNearest)
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 4,
-                                                            vertical: 1,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.green,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              4,
+                                              child: FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.exit_to_app,
+                                                      color: isNearest
+                                                          ? Colors.green
+                                                          : Colors.orange,
+                                                      size: isNearest ? 40 : 30,
+                                                    ),
+                                                    if (isNearest)
+                                                      Container(
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              horizontal: 4,
+                                                              vertical: 1,
                                                             ),
-                                                      ),
-                                                      child: const Text(
-                                                        'NEAREST',
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 8,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.green,
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                        child: Text(
+                                                          'NEAREST',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 8,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             );
                                           }),
@@ -553,7 +560,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                     ],
                                   ),
 
-                                  // 2. Katman: Büyüt Butonu
+                                  // 2. Katman: B�y�t Butonu
                                   Align(
                                     alignment: Alignment.topCenter,
                                     child: GestureDetector(
@@ -576,10 +583,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                         );
                                       },
                                       child: Container(
-                                        margin: const EdgeInsets.only(top: 10),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
+                                        margin: EdgeInsets.only(top: 10),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: ResponsiveUtils.spacing(context, 12),
+                                          vertical: ResponsiveUtils.spacing(context, 6),
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.black.withValues(
@@ -589,20 +596,20 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                             20,
                                           ),
                                         ),
-                                        child: const Row(
+                                        child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Icon(
                                               Icons.open_in_full,
                                               color: Colors.white,
-                                              size: 16,
+                                              size: ResponsiveUtils.iconSize(context) * (16 / 24),
                                             ),
-                                            SizedBox(width: 4),
+                                            SizedBox(width: ResponsiveUtils.spacing(context, 4)),
                                             Text(
                                               "Expand",
                                               style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 12,
+                                                fontSize: ResponsiveUtils.sp(context, 12),
                                               ),
                                             ),
                                           ],
@@ -616,58 +623,58 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 20)),
 
-                        // --- TALİMATLAR KARTI ---
+                        // --- TAL�MATLAR KARTI ---
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(20),
+                          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
                           decoration: BoxDecoration(
                             color: containerColor,
-                            borderRadius: BorderRadius.circular(26),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 26)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.directions_run,
                                     color: Colors.redAccent,
-                                    size: 28,
+                                    size: ResponsiveUtils.iconSize(context) * (28 / 24),
                                   ),
-                                  const SizedBox(width: 10),
+                                  SizedBox(width: ResponsiveUtils.spacing(context, 10)),
                                   Expanded(
                                     child: Text(
                                       _nearestExit?.name ?? "Nearest Exit",
-                                      style: const TextStyle(
-                                        fontSize: 20,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveUtils.sp(context, 20),
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
                                       ),
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: ResponsiveUtils.spacing(context, 12),
+                                      vertical: ResponsiveUtils.spacing(context, 6),
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.redAccent,
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 20)),
                                     ),
                                     child: Text(
                                       distanceText,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                        fontSize: ResponsiveUtils.sp(context, 14),
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: ResponsiveUtils.spacing(context, 16)),
 
                               _buildInstructionItem(
                                 Icons.info_outline,
@@ -676,7 +683,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                                 secondaryTextColor,
                                 iconBgColor,
                               ),
-                              const SizedBox(height: 12),
+                              SizedBox(height: ResponsiveUtils.spacing(context, 12)),
                               _buildInstructionItem(
                                 Icons.warning_amber_rounded,
                                 "Follow the red route to reach the nearest exit!",
@@ -686,7 +693,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: ResponsiveUtils.spacing(context, 10)),
                       ],
                     );
                   },
@@ -705,8 +712,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 40),
-          const SizedBox(height: 10),
+          Icon(Icons.error_outline, color: Colors.red, size: ResponsiveUtils.iconSize(context) * (40 / 24)),
+          SizedBox(height: ResponsiveUtils.spacing(context, 10)),
           Text(
             message,
             textAlign: TextAlign.center,
@@ -726,25 +733,25 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
       child: Container(
-        width: 100,
-        height: 100,
+        width: ResponsiveUtils.wp(context, 100 / 375),
+        height: ResponsiveUtils.hp(context, 100 / 844),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: iconColor, size: 32),
-            const SizedBox(height: 8),
+            Icon(icon, color: iconColor, size: ResponsiveUtils.iconSize(context) * (32 / 24)),
+            SizedBox(height: ResponsiveUtils.spacing(context, 8)),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w500,
-                fontSize: 13,
+                fontSize: ResponsiveUtils.sp(context, 13),
                 color: Colors.white,
               ),
             ),
@@ -763,18 +770,20 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 6)),
           decoration: BoxDecoration(
             color: iconBgColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
           ),
-          child: Icon(icon, size: 20, color: textColor),
+          child: Icon(icon, size: ResponsiveUtils.iconSize(context) * (20 / 24), color: textColor),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: ResponsiveUtils.spacing(context, 16)),
         Expanded(
-          child: Text(text, style: TextStyle(color: textColor, fontSize: 16)),
+          child: Text(text, style: TextStyle(color: textColor, fontSize: ResponsiveUtils.sp(context, 14))),
         ),
       ],
     );
   }
 }
+
+

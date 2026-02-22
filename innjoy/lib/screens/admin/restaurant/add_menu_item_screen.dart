@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../models/menu_item_model.dart';
 import '../../../services/database_service.dart';
+import '../../../utils/responsive_utils.dart';
 
 class AddMenuItemScreen extends StatefulWidget {
   final String hotelName;
@@ -173,7 +174,7 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
       appBar: AppBar(
         title: Text(
           widget.item == null ? 'Add New Item' : 'Edit Item',
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: ResponsiveUtils.sp(context, 18)),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -193,33 +194,33 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 20)),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // --- Photo Section ---
-                    const Text('Product Photo', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                    const SizedBox(height: 8),
+                    Text('Product Photo', style: TextStyle(fontWeight: FontWeight.w500, fontSize: ResponsiveUtils.sp(context, 14))),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 8)),
                     GestureDetector(
                       onTap: _pickImage,
                       child: Container(
-                        height: 180,
+                        height: ResponsiveUtils.hp(context, 180 / 844),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                           border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid), // Should be dashed ideally
                         ),
                         child: _imageFile != null 
                             ? ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                                 child: Image.file(_imageFile!, fit: BoxFit.cover),
                               )
                             : (_imageController.text.isNotEmpty 
                                 ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 16)),
                                     child: Image.network(
                                       _imageController.text,
                                       fit: BoxFit.cover,
@@ -236,23 +237,23 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                         controller: _imageController,
                          decoration: InputDecoration(
                           hintText: 'Photo URL',
-                          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: ResponsiveUtils.sp(context, 13)),
+                          contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
-                        style: const TextStyle(fontSize: 13),
+                        style: TextStyle(fontSize: ResponsiveUtils.sp(context, 13)),
                         onChanged: (val) => setState((){}),
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 24)),
 
                     // --- Name ---
                     _buildSectionTitle('Item Name'),
@@ -263,7 +264,7 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                     ),
 
                     // --- Description ---
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     _buildSectionTitle('Description'),
                     _buildTextField(
                       controller: _descController,
@@ -272,12 +273,12 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                     ),
 
                     // --- Category ---
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     _buildSectionTitle('Category'),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedCategory,
                       isExpanded: true,
-                      borderRadius: BorderRadius.circular(12), // Rounded popup
+                      borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12)), // Rounded popup
                       dropdownColor: Colors.white,
                       elevation: 4,
                       hint: const Text('Select Category'),
@@ -291,17 +292,17 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
                           borderSide: const BorderSide(color: Color(0xFF3B82F6)),
                         ),
                       ),
@@ -309,7 +310,7 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                     ),
 
                     // --- Price ---
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveUtils.spacing(context, 16)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -323,7 +324,7 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
                       ],
                     ),
                     
-                    const SizedBox(height: 40), // Spacer
+                    SizedBox(height: ResponsiveUtils.spacing(context, 40)), // Spacer
                   ],
                 ),
               ),
@@ -332,27 +333,27 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
           
           // --- Bottom Button ---
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 16)),
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
             ),
             child: SizedBox(
               width: double.infinity,
-              height: 50,
+              height: ResponsiveUtils.hp(context, 50 / 844),
               child: ElevatedButton.icon(
                 onPressed: _isLoading ? null : _saveItem,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3B82F6), // Blue like screenshot
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 12))),
                 ),
                 icon: _isLoading 
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
+                    ? SizedBox(width: ResponsiveUtils.wp(context, 20 / 375), height: ResponsiveUtils.hp(context, 20 / 844), child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
                     : const Icon(Icons.check, color: Colors.white),
                 label: Text(
                   _isLoading ? 'Saving...' : 'Add Item', 
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
+                  style: TextStyle(color: Colors.white, fontSize: ResponsiveUtils.sp(context, 16), fontWeight: FontWeight.bold)
                 ),
               ),
             ),
@@ -367,25 +368,25 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(ResponsiveUtils.spacing(context, 12)),
           decoration: BoxDecoration(
             color: const Color(0xFFEFF6FF), // Light blue
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.camera_alt, color: Color(0xFF3B82F6), size: 30),
+          child: Icon(Icons.camera_alt, color: Color(0xFF3B82F6), size: ResponsiveUtils.iconSize(context) * (30 / 24)),
         ),
-        const SizedBox(height: 12),
-        const Text('Upload Photo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-        const SizedBox(height: 4),
-        Text('PNG, JPG (Max 5MB)', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+        SizedBox(height: ResponsiveUtils.spacing(context, 12)),
+        Text('Upload Photo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: ResponsiveUtils.sp(context, 15))),
+        SizedBox(height: ResponsiveUtils.spacing(context, 4)),
+        Text('PNG, JPG (Max 5MB)', style: TextStyle(color: Colors.grey.shade500, fontSize: ResponsiveUtils.sp(context, 12))),
       ],
     );
   }
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 14)), // Slate-500 equivalent
+      padding: EdgeInsets.only(bottom: 6),
+      child: Text(title, style: TextStyle(color: Color(0xFF64748B), fontSize: ResponsiveUtils.sp(context, 14))), // Slate-500 equivalent
     );
   }
 
@@ -410,18 +411,18 @@ class _AddMenuItemScreenState extends State<AddMenuItemScreen> {
         suffixText: suffixText,
         suffixStyle: const TextStyle(fontWeight: FontWeight.bold),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.spacing(context, 8)),
           borderSide: const BorderSide(color: Color(0xFF3B82F6)),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveUtils.spacing(context, 16), vertical: ResponsiveUtils.spacing(context, 12)),
       ),
     );
   }
