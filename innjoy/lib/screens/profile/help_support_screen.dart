@@ -558,6 +558,7 @@ class _ImportantLinkItem extends StatelessWidget {
                 ),
               ),
             ),
+            // ignore: use_null_aware_elements
             if (trailing != null) trailing!,
             SizedBox(width: ResponsiveUtils.spacing(context, 8)),
             const Icon(

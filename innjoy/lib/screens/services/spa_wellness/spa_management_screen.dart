@@ -68,7 +68,7 @@ class _SpaManagementScreenState extends State<SpaManagementScreen> {
                             crossAxisCount: 2,
                             crossAxisSpacing: ResponsiveUtils.spacing(context, 16),
                             mainAxisSpacing: ResponsiveUtils.spacing(context, 16),
-                            childAspectRatio: 0.68,
+                            childAspectRatio: 0.60,
                           ),
                           itemCount: services.length,
                           itemBuilder: (context, index) {

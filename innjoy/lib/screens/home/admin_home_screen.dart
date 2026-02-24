@@ -993,23 +993,26 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isActive ? const Color(0xFFF97316) : Colors.black87,
-            size: ResponsiveUtils.iconSize(context) * (24 / 24),
-          ),
-          SizedBox(height: ResponsiveUtils.spacing(context, 4)),
-          Text(
-            label,
-            style: TextStyle(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
               color: isActive ? const Color(0xFFF97316) : Colors.black87,
-              fontSize: ResponsiveUtils.sp(context, 14),
+              size: ResponsiveUtils.iconSize(context) * (24 / 24),
             ),
-          ),
-        ],
+            SizedBox(height: ResponsiveUtils.spacing(context, 4)),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? const Color(0xFFF97316) : Colors.black87,
+                fontSize: ResponsiveUtils.sp(context, 14),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
